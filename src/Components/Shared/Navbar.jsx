@@ -1,18 +1,9 @@
 import React from 'react';
 import { NavLink } from 'react-router';
-import { useEffect, useState } from 'react';
-
+import Theme from './Theme';
 
 const Navbar = () => {
-    const [theme, setTheme] = useState(localStorage.getItem('theme') || "light")
-    useEffect(() => {
-        const html = document.querySelector('html')
-        html.setAttribute("data-theme", theme)
-        localStorage.setItem("theme", theme)
-    }, [theme])
-    const handleTheme = (checked) => {
-        setTheme(checked ? "dark" : "light")
-    }
+
     const links = <>
         <li>
             <NavLink>
@@ -47,11 +38,7 @@ const Navbar = () => {
                     </ul>
                 </div>
                 <div className="navbar-end">
-                    <input
-                        onChange={(e) => handleTheme(e.target.checked)}
-                        type="checkbox"
-                        defaultChecked={localStorage.getItem('theme') === "dark"}
-                        className="toggle" />
+                    <Theme />
                     <a className="btn">Button</a>
                 </div>
             </div>

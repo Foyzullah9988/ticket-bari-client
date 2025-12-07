@@ -4,11 +4,13 @@ import Home from "../Pages/Home/Home";
 import AuthLayout from "../Layouts/AuthLayout";
 import Login from "../Pages/Auth/Login";
 import Register from "../Pages/Auth/Register";
+import Error from "../Components/Shared/Error";
 
 export const router = createBrowserRouter([
     {
         path: '/',
         element: <MainLayout />,
+        errorElement:<Error/>,
         children: [
             {
                 path: "",

@@ -5,7 +5,7 @@ import { AuthContext } from '../../Context/AuthContext';
 import useRole from '../../Hooks/useRole';
 import { IoLogOut } from 'react-icons/io5';
 
-const Navbar = () => {
+const Navbar = ({ fixed = true }) => {
     const { role } = useRole()
     console.log(role);
 
@@ -30,12 +30,12 @@ const Navbar = () => {
         </li>
     </>
     return (
-        <div className='shadow-sm bg-base-100'>
+        <div className={`${fixed ? 'fixed top-0 left-0 w-full shadow-sm z-50' : 'relative'} bg-[#003450]`}>
             <div className=' container mx-auto '>
-                <div className="navbar ">
+                <div className="navbar px-0">
                     <div className="navbar-start">
 
-                        <Link to={'/'} className="btn btn-ghost text-xl">Ticket Bari</Link>
+                        <Link to={'/'} className="btn btn-ghost text-xl px-1">Ticket Bari</Link>
                         <div>{role}</div>
                     </div>
 

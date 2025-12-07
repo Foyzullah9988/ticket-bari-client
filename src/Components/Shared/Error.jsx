@@ -5,7 +5,10 @@ import { Link } from "react-router";
 
 const Error = () => {
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-white">
+        <div className="flex flex-col items-center justify-center h-screen ">
+            <div>
+                
+            </div>
             <Lottie animationData={forbiddenAnimation} loop={true} />
             <h1 className="text-3xl font-bold text-red-500">
                 The page isn't found.

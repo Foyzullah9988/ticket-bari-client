@@ -6,8 +6,8 @@ import { Outlet } from 'react-router';
 const AuthLayout = () => {
     return (
         <div className='flex flex-col min-h-screen'>
-            <Navbar />
-            <div className='flex-1 container mx-auto'>
+            <Navbar fixed={false}/>
+            <div className='flex-1 container mx-auto mt-2'>
                 <Outlet />
             </div>
             <Footer />

@@ -1,14 +1,16 @@
-import React, { use } from 'react';
+import React, { use, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useLocation, useNavigate } from 'react-router';
 import Google from './Google';
 import axios from 'axios';
 import useAxiosSecure from '../../Hooks/useAxiosSecure';
 import { AuthContext } from '../../Context/AuthContext';
+import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa6';
 
 const Register = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const { registerUser, updateUserProfile } = use(AuthContext);
+    const [show, setShow] = useState(false)
     const location = useLocation();
     const navigate = useNavigate();
     const axiosSecure = useAxiosSecure()
@@ -17,6 +19,8 @@ const Register = () => {
 
     const handleRegister = (data) => {
         const userImg = data.photo[0];
+
+
         console.log(data);
 
         registerUser(data.email, data.password)
@@ -103,12 +107,21 @@ const Register = () => {
                     }
 
                     {/* password */}
-                    <label className="label">Password</label>
-                    <input type="password" defaultValue={'AZazaz1'} {...register('password', {
-                        required: true,
-                        minLength: 6,
-                        pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/
-                    })} className="input w-full" placeholder="Password" />
+                    <div className="relative">
+                        <label className="label">Password</label>
+                        <input name='password' type={show ? 'text' : "password"} defaultValue={'AZazaz1'} {...register('password', {
+                            required: true,
+                            minLength: 6,
+                            pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/
+                        })} className="input w-full" placeholder="Password" />
+                        <span onClick={() => setShow(!show)} className='absolute top-7 right-2 text-xl cursor-pointer'>
+                            {
+                                show ? <FaRegEye color='black' /> : <FaRegEyeSlash color='black' />
+                            }
+
+                            {/*  */}
+                        </span>
+                    </div>
                     {
                         errors.password?.type === 'required' && <p className="text-red-500">Password is required</p>
                     }

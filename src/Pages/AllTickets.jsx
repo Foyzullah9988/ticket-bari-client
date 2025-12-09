@@ -21,11 +21,11 @@ const AllTickets = () => {
     const lastedTickets = 
     tickets
     .sort((a,b) =>new Date(b.data)-new Date(a.data))
-    
+
     if(isLoading)return <Loading />
 
     return (
-        <div className="flex flex-col h-full border ">
+        <div className="flex flex-col h-full border mb-8">
             <h2>all tickets {lastedTickets.length}</h2>
             <div className="">
                 <TicketCard lastedTickets={lastedTickets}/>

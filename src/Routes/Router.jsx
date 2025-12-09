@@ -50,6 +50,8 @@ export const router = createBrowserRouter([
     },
     {
         path:'/ticket-details/:id',
-        element:<TicketDetails/>
+        element:<PrivateRoute>
+            <TicketDetails/>
+        </PrivateRoute>
     }
 ])

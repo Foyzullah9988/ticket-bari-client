@@ -114,13 +114,13 @@ export default function TicketDetails() {
                                     <div className="text-gray-400">No perks available</div>
                                 )}
                             </div>
-                            <p className="text-gray-400 text-xs">Economy 7 / 8C</p>
+                            <p className=" text-xl font-semibold">{ticket.price} tk</p>
                         </div>
                     </div>
 
                     {/* Button */}
                     <button className="w-full bg-white text-black py-3 rounded-xl font-semibold hover:bg-gray-200 transition">
-                        Buy Ticket
+                        Book Now
                     </button>
                 </div>
             </div>

@@ -8,9 +8,9 @@ export default function TicketCard({ lastedTickets }) {
     return (
         <div className="flex flex-col h-full">
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 w-full gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 w-full gap-8">
                 {
-                    lastedTickets.map((ticket, i) => <div key={i} className="w-full bg-black/80 text-white rounded-3xl p-6 shadow-2xl border border-gray-800 flex flex-col h-full">
+                    lastedTickets.map((ticket, i) => <div key={i} className="w-full bg-black/80 text-white rounded-3xl p-6 shadow-xl border border-gray-800 flex flex-col h-full">
                         {/* Header */}
                         <div>
                             <figure>
@@ -32,9 +32,9 @@ export default function TicketCard({ lastedTickets }) {
                                 <p className="text-gray-300">🚄</p>
                                 <p className="text-gray-500 text-sm">30 Minutes</p>
                             </div> */}
-                            <div>
-                                {ticket.price} tk
-                            </div>
+                            {/* <div>
+                                
+                            </div> */}
                         </div>
 
                         {/* Info Grid */}
@@ -45,27 +45,31 @@ export default function TicketCard({ lastedTickets }) {
                             </div> */}
                             <div>
                                 <p className="text-gray-400">{ticket.transportType}</p>
-                                
+                                <p className="font-semibold">{ticket.ticketQuantity}</p>
                             </div>
                             <div>
                                 <p className="text-gray-400">Seat</p>
                                 <p className="font-semibold">{ticket.ticketQuantity}</p>
                             </div>
+                            <div>
+                                <p className="text-gray-400">Price</p>
+                                <p className="font-semibold">{ticket.price} tk</p>
+                            </div>
                         </div>
 
                         {/* Tabs */}
-                        <div className=" rounded-2xl p-1 mb-4 text-sm bg-gray-900">
+                        <div className=" rounded-2xl p-1 mb-2 text-sm bg-gray-900">
                             <p className="text-center py-2 rounded-xl font-medium">Perks</p>
                         </div>
 
                         {/* Perks Section - This will take available space */}
-                        <div className="flex-1">
-                            <h2></h2>
-                            <ul>
+                        <div className="flex-1 mb-1">
+                           
+                            <div className="text-center">
                                 {ticket.perks.map((perk, index) => (
-                                    <li key={index}>{perk}</li>
+                                    <div key={index}>{perk}</div>
                                 ))}
-                            </ul>
+                            </div>
                         </div>
 
                         {/* Button - This will always stay at bottom */}

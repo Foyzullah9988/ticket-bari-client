@@ -159,32 +159,45 @@ const Navbar = ({ fixed = true }) => {
                         <div className='mr-2'>
                             <Theme />
                         </div>
+                        {
+                            user && <nav className='mr-2'>
+                                <ul>
+                                    <li>
+                                        <NavLink to={'/dashboard'} end
+                                            className='p-1 rounded-sm  hover:bg-linear-to-r '>
+                                            Dashboard
+                                        </NavLink>
+                                    </li>
+                                </ul>
+                            </nav>
+                        }
+
                         <div className='lg:hidden'>
                             {
-                            user ?
-                                <div className="dropdown dropdown-end ">
-                                    <div tabIndex={0} role="button" className="btn btn-ghost ">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
-                                        </svg>
+                                user ?
+                                    <div className="dropdown dropdown-end ">
+                                        <div tabIndex={0} role="button" className="btn btn-ghost ">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
+                                            </svg>
+                                        </div>
+                                        <ul
+                                            tabIndex="-1"
+                                            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                                            <figure className='flex justify-center items-center'>
+                                                <img src={user?.photoURL} alt="" className='h-18 w-18 object-cover rounded-full' />
+                                            </figure>
+                                            <h2 className='text-xl font-semibold text-center mt-1'>{user?.displayName}</h2>
+                                            {
+                                                links
+                                            }
+                                        </ul>
                                     </div>
-                                    <ul
-                                        tabIndex="-1"
-                                        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-                                        <figure className='flex justify-center items-center'>
-                                            <img src={user?.photoURL} alt="" className='h-18 w-18 object-cover rounded-full' />
-                                        </figure>
-                                        <h2 className='text-xl font-semibold text-center mt-1'>{user?.displayName}</h2>
-                                        {
-                                            links
-                                        }
-                                    </ul>
-                                </div>
-                                :
-                                <li><Link to={'/auth/login'} className="btn  "><IoLogIn />Login</Link></li>
-                        }
+                                    :
+                                    <li><Link to={'/auth/login'} className="btn  "><IoLogIn />Login</Link></li>
+                            }
                         </div>
-                        
+
 
                         <div className='hidden lg:flex'>
                             {user

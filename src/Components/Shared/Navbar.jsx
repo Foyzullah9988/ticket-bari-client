@@ -144,12 +144,12 @@ const Navbar = ({ fixed = true }) => {
         >
             <div className='container mx-auto'>
                 <div className="navbar px-0">
-                    <Link className="navbar-start">
+                    <Link to={'/'} className="navbar-start">
                         <figure>
                             <img src="/travel.png" alt="" referrerPolicy="no-referrer"
                                 className='w-12  rounded-full h-12 object-cover' />
                         </figure>
-                        <p to={'/'} className=" text-xl px-1">Ticket Bari</p>
+                        <p className=" text-xl px-1">Ticket Bari</p>
                         <div>{role}</div>
                     </Link>
 

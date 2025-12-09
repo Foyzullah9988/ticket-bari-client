@@ -11,24 +11,26 @@ import PrivateRoute from "./PrivateRoute";
 import Loading from "../Components/Shared/Loading";
 import TicketDetails from "../Pages/TicketDetails";
 import DashboardLayout from "../Layouts/DashboardLayout";
+import DashboardHome from "../Pages/Dashboard/DashboardHome/DashboardHome";
+import Profile from "../Pages/Dashboard/DashboardHome/Profile";
 
 export const router = createBrowserRouter([
     {
         path: '/',
         element: <MainLayout />,
         errorElement: <Error />,
-        hydrateFallbackElement:<Loading/>,
+        hydrateFallbackElement: <Loading />,
         children: [
             {
                 path: "",
-                hydrateFallbackElement:<Loading/>,
+                hydrateFallbackElement: <Loading />,
                 element: <Home />
-                
+
             },
             {
-                path:'all-tickets',
-                element:<PrivateRoute>
-                    <AllTickets/>
+                path: 'all-tickets',
+                element: <PrivateRoute>
+                    <AllTickets />
                 </PrivateRoute>
             }
         ]
@@ -50,15 +52,25 @@ export const router = createBrowserRouter([
         ]
     },
     {
-        path:'/ticket-details/:id',
-        element:<PrivateRoute>
-            <TicketDetails/>
+        path: '/ticket-details/:id',
+        element: <PrivateRoute>
+            <TicketDetails />
         </PrivateRoute>
     },
     {
-        path:'/dashboard',
-        element:<PrivateRoute>
-            <DashboardLayout/>
-        </PrivateRoute>
+        path: '/dashboard',
+        element: <PrivateRoute>
+            <DashboardLayout />
+        </PrivateRoute>,
+        children: [
+            {
+                path: "",
+                element: <DashboardHome />
+            },
+            {
+                path: '/dashboard/profile',
+                element: <Profile />
+            },
+        ]
     },
 ])

@@ -2,13 +2,14 @@ import React from 'react';
 import { Link, NavLink, Outlet } from 'react-router';
 import { FaAd, FaHistory, FaUsers } from 'react-icons/fa';
 import useRole from '../Hooks/useRole';
-import {  MdPendingActions } from 'react-icons/md';
+import { MdPendingActions } from 'react-icons/md';
 import { BiTask } from 'react-icons/bi';
 import { CgProfile } from "react-icons/cg";
 import { LuTicketCheck, LuTicketPlus } from "react-icons/lu";
 import Footer from '../Components/Shared/Footer';
 import { IoTicketOutline } from 'react-icons/io5';
 import { FaMoneyBillTrendUp } from 'react-icons/fa6';
+import Theme from '../Components/Shared/Theme';
 
 
 const DashboardLayout = () => {
@@ -24,7 +25,7 @@ const DashboardLayout = () => {
                             {/* Sidebar toggle icon */}
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4"><path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path><path d="M9 4v16"></path><path d="M14 10l2 2l-2 2"></path></svg>
                         </label>
-                        <div className="px-4">Ticket Bari dashboard</div>
+                        <div className="px-4">Ticket Bari dashboard <Theme /></div>
                     </nav>
                     {/* Page content here */}
                     <Outlet />
@@ -37,18 +38,32 @@ const DashboardLayout = () => {
                         <ul className="menu w-full grow ">
                             {/* List item */}
                             <li>
-                                <Link to={'/'}>
-                                    <img src="/Assets/logo.png" alt="" /></Link>
+                                <Link to={'/'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
+                                    <figure>
+                                        <img src="/travel.png" className='is-drawer-open:hidden  object-cover' alt="" />
+
+                                    </figure>
+
+                                    <figure>
+                                        <img src="/travel.png" className="is-drawer-close:hidden h-16 w-16" alt="" />
+
+                                    </figure>
+                                    <div className="flex flex-col is-drawer-close:hidden">
+                                        <span className="text-xl font-bold">Ticket Bari</span>
+                                        <span className="text-sm opacity-80">Online Ticket Booking</span>
+                                    </div>
+
+                                </Link>
                             </li>
-                            <li>
-                                <NavLink to={'/'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
-                                    {/* Home icon */}
+                            {/* <li>
+                                <NavLink to={'/dashboard'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Home">
+                                  
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                                     <span className="is-drawer-close:hidden">Home</span>
                                 </NavLink>
-                            </li>
+                            </li> */}
                             <li>
-                                <NavLink to={'/dashboard'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
+                                <NavLink to={'/dashboard/profile'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="My Profile">
                                     <CgProfile />
 
                                     <span className="is-drawer-close:hidden">My Profile</span>
@@ -59,7 +74,7 @@ const DashboardLayout = () => {
                                 role === 'user' &&
                                 <>
                                     <li>
-                                        <NavLink to={'/dashboard/add-tickets'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Assigned Deliveries">
+                                        <NavLink to={'/dashboard/add-tickets'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="My Booked Tickets">
                                             <div className="mt-1.5 inline-block size-4">
                                                 <BiTask />
                                             </div>
@@ -67,7 +82,7 @@ const DashboardLayout = () => {
                                         </NavLink>
                                     </li>
                                     <li>
-                                        <NavLink to={'/dashboard/completed-deliveries'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Completed Deliveries">
+                                        <NavLink to={'/dashboard/completed-deliveries'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Transaction History">
                                             <div className="mt-1.5 inline-block size-4">
                                                 <FaHistory />
 
@@ -86,7 +101,7 @@ const DashboardLayout = () => {
                                 role === 'vendor' &&
                                 <>
                                     <li>
-                                        <NavLink to={'/dashboard/add-tickets'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Assigned Deliveries">
+                                        <NavLink to={'/dashboard/add-tickets'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Add Ticket">
                                             <div className="mt-1.5 inline-block size-4">
                                                 <LuTicketPlus />
 
@@ -95,24 +110,24 @@ const DashboardLayout = () => {
                                         </NavLink>
                                     </li>
                                     <li>
-                                        <NavLink to={'/dashboard/completed-deliveries'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Completed Deliveries">
+                                        <NavLink to={'/dashboard/completed-deliveries'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="My Added Tickets">
                                             <div className="mt-1.5 inline-block size-4">
-                                                <LuTicketCheck className="rotate-45"/>
+                                                <LuTicketCheck className="rotate-45" />
                                             </div>
                                             <span className="is-drawer-close:hidden">My Added Tickets</span>
                                         </NavLink>
                                     </li>
                                     <li>
-                                        <NavLink to={'/dashboard/completed-deliveries'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Completed Deliveries">
+                                        <NavLink to={'/dashboard/completed-deliveries'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Requested Bookings">
                                             <div className="mt-1.5 inline-block size-4">
-                                                <MdPendingActions  />
+                                                <MdPendingActions />
 
                                             </div>
                                             <span className="is-drawer-close:hidden">Requested Bookings</span>
                                         </NavLink>
                                     </li>
                                     <li>
-                                        <NavLink to={'/dashboard/completed-deliveries'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Completed Deliveries">
+                                        <NavLink to={'/dashboard/completed-deliveries'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Revenue Overview ">
                                             <div className="mt-1.5 inline-block size-4">
                                                 <FaMoneyBillTrendUp />
 
@@ -129,7 +144,7 @@ const DashboardLayout = () => {
                                 &&
                                 <>
                                     <li>
-                                        <NavLink to={'/dashboard/make-vendor'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Approve Riders">
+                                        <NavLink to={'/dashboard/make-vendor'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Manage Tickets">
                                             <div className="mt-1.5 inline-block size-4">
                                                 <IoTicketOutline />
 
@@ -138,7 +153,7 @@ const DashboardLayout = () => {
                                         </NavLink>
                                     </li>
                                     <li>
-                                        <NavLink to={'/dashboard/assign-riders'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Assign Riders">
+                                        <NavLink to={'/dashboard/assign-riders'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Manage Users">
                                             <div className="mt-1.5 inline-block size-4">
                                                 <FaUsers />
                                             </div>
@@ -146,7 +161,7 @@ const DashboardLayout = () => {
                                         </NavLink>
                                     </li>
                                     <li>
-                                        <NavLink to={'/dashboard/users-management'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Users Management">
+                                        <NavLink to={'/dashboard/users-management'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Advertise Tickets">
                                             <div className="mt-1.5 inline-block size-4">
                                                 <FaAd />
 

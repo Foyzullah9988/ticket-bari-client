@@ -8,7 +8,7 @@ const LatestTickets = () => {
     const axiosSecure = useAxiosSecure();
     
     const { data: tickets = [], isLoading, error } = useQuery({
-        queryKey: ['latest-tickets'], // Changed to unique key
+        queryKey: ['latest-tickets'],
         queryFn: async () => {
             const res = await axiosSecure.get('/tickets');
             return res.data;

@@ -14,7 +14,7 @@ const Error = () => {
                 The page isn't found.
             </h1>
             <div className="my-3 space-x-3">
-                <Link to="/" className="btn btn-primary text-black">
+                <Link to="/" className="btn btn-primary ">
                     {" "}
                     Go to Home
                 </Link>

@@ -1,14 +1,15 @@
 import React from 'react';
 import Hero from './Hero';
-import LatestTickets from './LatestTickets';
 import TicketCard from './TicketCard';
+import LatestTickets from './LatestTickets';
 
 const Home = () => {
+    
     return (
         <div>
             home
             <Hero />
-            <TicketCard/>
+            <LatestTickets/>
 
 
 

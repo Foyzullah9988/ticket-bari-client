@@ -6,17 +6,29 @@ import Login from "../Pages/Auth/Login";
 import Register from "../Pages/Auth/Register";
 import Error from "../Components/Shared/Error";
 import PublicRoute from "./PublicRoute";
+import AllTickets from "../Pages/AllTickets";
+import PrivateRoute from "./PrivateRoute";
+import Loading from "../Components/Shared/Loading";
+import TicketDetails from "../Pages/TicketDetails";
 
 export const router = createBrowserRouter([
     {
         path: '/',
         element: <MainLayout />,
         errorElement: <Error />,
+        hydrateFallbackElement:<Loading/>,
         children: [
             {
                 path: "",
-                element: <Home />,
-                loader:()=>fetch('http://localhost:3000/tickets')
+                hydrateFallbackElement:<Loading/>,
+                element: <Home />
+                
+            },
+            {
+                path:'all-tickets',
+                element:<PrivateRoute>
+                    <AllTickets/>
+                </PrivateRoute>
             }
         ]
     },
@@ -35,5 +47,9 @@ export const router = createBrowserRouter([
                 element: <Register />
             },
         ]
+    },
+    {
+        path:'/ticket-details/:id',
+        element:<TicketDetails/>
     }
 ])

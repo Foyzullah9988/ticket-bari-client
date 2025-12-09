@@ -113,6 +113,13 @@ const Navbar = ({ fixed = true }) => {
                 Profile
             </NavLink>
         </li>
+        <li>
+            <NavLink to={'/all-tickets'} end
+                className='p-1 rounded-sm  hover:bg-linear-to-r '>
+                All Tickets
+            </NavLink>
+        </li>
+
         <li><Link to={'/'} onClick={handleLogout} className="btn  ">Logout<IoLogOut /></Link></li>
 
 

@@ -10,6 +10,7 @@ import AllTickets from "../Pages/AllTickets";
 import PrivateRoute from "./PrivateRoute";
 import Loading from "../Components/Shared/Loading";
 import TicketDetails from "../Pages/TicketDetails";
+import DashboardLayout from "../Layouts/DashboardLayout";
 
 export const router = createBrowserRouter([
     {
@@ -53,5 +54,11 @@ export const router = createBrowserRouter([
         element:<PrivateRoute>
             <TicketDetails/>
         </PrivateRoute>
-    }
+    },
+    {
+        path:'/dashboard',
+        element:<PrivateRoute>
+            <DashboardLayout/>
+        </PrivateRoute>
+    },
 ])

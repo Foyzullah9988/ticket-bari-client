@@ -29,9 +29,10 @@ const LatestTickets = () => {
 
     const lastedTickets = 
     tickets
-    .sort((a, b) => new Date(b.data) - new Date(a.data))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 8);
 
+    console.log(tickets);
     return (
         <div>
             <h2>tickets{lastedTickets.length}</h2>

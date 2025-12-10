@@ -13,6 +13,7 @@ import TicketDetails from "../Pages/TicketDetails";
 import DashboardLayout from "../Layouts/DashboardLayout";
 import DashboardHome from "../Pages/Dashboard/DashboardHome/DashboardHome";
 import Profile from "../Pages/Dashboard/DashboardHome/Profile";
+import AddTickets from "../Pages/Dashboard/DashboardHome/AddTickets";
 
 export const router = createBrowserRouter([
     {
@@ -70,6 +71,12 @@ export const router = createBrowserRouter([
             {
                 path: '/dashboard/profile',
                 element: <Profile />
+            },
+            {
+                path: '/dashboard/add-tickets',
+                hydrateFallbackElement:<Loading/>,
+                element: <AddTickets />,
+                loader: () => fetch('/warehouses.json')
             },
         ]
     },

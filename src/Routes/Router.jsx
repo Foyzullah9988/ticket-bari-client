@@ -12,8 +12,10 @@ import Loading from "../Components/Shared/Loading";
 import TicketDetails from "../Pages/TicketDetails";
 import DashboardLayout from "../Layouts/DashboardLayout";
 import DashboardHome from "../Pages/Dashboard/DashboardHome/DashboardHome";
-import Profile from "../Pages/Dashboard/DashboardHome/Profile";
-import AddTickets from "../Pages/Dashboard/DashboardHome/AddTickets";
+import AddTickets from "../Pages/Dashboard/AddTickets";
+import Profile from "../Pages/Dashboard/Profile";
+import MyTickets from "../Pages/Dashboard/MyTickets";
+
 
 export const router = createBrowserRouter([
     {
@@ -63,6 +65,7 @@ export const router = createBrowserRouter([
         element: <PrivateRoute>
             <DashboardLayout />
         </PrivateRoute>,
+        hydrateFallbackElement: <Loading />,
         children: [
             {
                 path: "",
@@ -74,9 +77,11 @@ export const router = createBrowserRouter([
             },
             {
                 path: '/dashboard/add-tickets',
-                hydrateFallbackElement:<Loading/>,
-                element: <AddTickets />,
-                loader: () => fetch('/warehouses.json')
+                element: <AddTickets />
+            },
+            {
+                path: '/dashboard/my-tickets',
+                element: <MyTickets />
             },
         ]
     },

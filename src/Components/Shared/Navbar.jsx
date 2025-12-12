@@ -118,6 +118,12 @@ const Navbar = ({ fixed = true }) => {
             </NavLink>
         </li>
         <li>
+            <NavLink to={'/dashboard'} end
+                className='p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors'>
+                Dashboard
+            </NavLink>
+        </li>
+        <li>
             <button onClick={handleLogout} className="w-full text-left p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400">
                 Logout <IoLogOut className="inline ml-1" />
             </button>

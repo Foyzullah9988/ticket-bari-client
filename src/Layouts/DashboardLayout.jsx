@@ -1,182 +1,417 @@
-import React from 'react';
+import React, { useState, useEffect, useRef, use } from 'react';
 import { Link, NavLink, Outlet } from 'react-router';
-import { FaAd, FaHistory, FaUsers } from 'react-icons/fa';
+import { FaHistory, FaUsers, FaHome, FaCog, FaBell, FaSignOutAlt, FaChartLine, FaTicketAlt, FaPlusCircle } from 'react-icons/fa';
 import useRole from '../Hooks/useRole';
-import { MdPendingActions } from 'react-icons/md';
-import { BiTask } from 'react-icons/bi';
+import { MdPendingActions, MdDashboard } from 'react-icons/md';
 import { CgProfile } from "react-icons/cg";
 import { LuTicketCheck, LuTicketPlus } from "react-icons/lu";
 import Footer from '../Components/Shared/Footer';
-import { IoTicketOutline } from 'react-icons/io5';
+import { IoTicketOutline, IoSettingsOutline } from 'react-icons/io5';
 import { FaMoneyBillTrendUp } from 'react-icons/fa6';
-import Theme from '../Components/Shared/Theme';
-
+import { HiOutlineUserGroup } from 'react-icons/hi';
+import { RiAdvertisementLine } from 'react-icons/ri';
+import { AuthContext } from '../Context/AuthContext';
 
 const DashboardLayout = () => {
-    const { role } = useRole();
-    return (
-        <div className='bg-white'>
-            <div className="drawer lg:drawer-open">
-                <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
-                <div className="drawer-content">
-                    {/* Navbar */}
-                    <nav className="navbar w-full bg-base-300">
-                        <label htmlFor="my-drawer-4" aria-label="open sidebar" className="btn btn-square btn-ghost">
-                            {/* Sidebar toggle icon */}
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4"><path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path><path d="M9 4v16"></path><path d="M14 10l2 2l-2 2"></path></svg>
-                        </label>
-                        <div className="px-4">Ticket Bari dashboard </div>
-                    </nav>
-                    {/* Page content here */}
-                    <Outlet />
+    const { user } = use(AuthContext);
+    const { role, roleLoading } = useRole();
+    const [sidebarExpanded, setSidebarExpanded] = useState(false);
+    const hoverTimerRef = useRef(null);
+
+    const getRoleDisplay = () => {
+        switch (role) {
+            case 'admin': return 'Administrator';
+            case 'vendor': return 'Vendor';
+            case 'user': return 'User';
+            default: return 'User';
+        }
+    };
+
+    const handleSidebarMouseEnter = () => {
+        if (window.innerWidth >= 1024) {
+            hoverTimerRef.current = setTimeout(() => {
+                setSidebarExpanded(true);
+            }, 2000);
+        }
+    };
+
+    const handleSidebarMouseLeave = () => {
+        if (hoverTimerRef.current) {
+            clearTimeout(hoverTimerRef.current);
+        }
+        if (window.innerWidth >= 1024) {
+            setSidebarExpanded(false);
+        }
+    };
+
+    const toggleSidebar = () => {
+        setSidebarExpanded(!sidebarExpanded);
+    };
+
+    const handleLinkClick = () => {
+        if (window.innerWidth < 1024) {
+            setSidebarExpanded(false);
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (hoverTimerRef.current) {
+                clearTimeout(hoverTimerRef.current);
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (window.innerWidth < 1024 && sidebarExpanded) {
+                const sidebar = document.querySelector('.mobile-sidebar');
+                if (sidebar && !sidebar.contains(event.target)) {
+                    setSidebarExpanded(false);
+                }
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [sidebarExpanded]);
+
+    // NavLink component for consistent styling
+    const DashboardNavLink = ({ to, icon, children, end = false, className = '' }) => (
+        <li>
+            <NavLink
+                to={to}
+                end={end}
+                onClick={handleLinkClick}
+                className={({ isActive }) =>
+                    `flex items-center px-3 py-3 rounded-lg transition-all duration-200 ${sidebarExpanded ? 'gap-3' : 'justify-center'
+                    } ${isActive ? 'bg-linear-to-r from-blue-500 to-blue-600 text-white shadow-md' :
+                        'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                    } ${className}`
+                }
+            >
+                {icon}
+                {sidebarExpanded && children}
+            </NavLink>
+        </li>
+    );
+
+    // User profile section component
+    const UserProfileSection = ({ expanded }) => (
+        <div className={`flex items-center gap-3 p-3 bg-linear-to-r from-blue-50 to-green-50 dark:from-gray-700 dark:to-gray-700 rounded-lg ${expanded ? 'opacity-100' : 'opacity-0 pointer-events-none h-0 overflow-hidden'}`}>
+            <div className="avatar">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    <img 
+                        src={user?.photoURL || user?.imageURL} 
+                        referrerPolicy='no-referrer' 
+                        alt={user?.displayName} 
+                        className='object-cover w-full h-full rounded-full'
+                    />
                 </div>
+            </div>
+            {expanded && (
+                <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-800 dark:text-white truncate">{user?.displayName}</h3>
+                    <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 text-xs rounded-full ${role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' :
+                            role === 'vendor' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                                'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                            }`}>
+                            {getRoleDisplay()}
+                        </span>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 
-                <div className="drawer-side is-drawer-close:overflow-visible">
-                    <label htmlFor="my-drawer-4" aria-label="close sidebar" className="drawer-overlay"></label>
-                    <div className="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
-                        {/* Sidebar content here */}
-                        <ul className="menu w-full grow ">
-                            {/* List item */}
-                            <li>
-                                <Link to={'/'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
-                                    <figure>
-                                        <img src="/travel.png" className='is-drawer-open:hidden  object-cover' alt="" />
+    // Navigation links based on user role
+    const renderRoleBasedLinks = () => {
+        switch (role) {
+            case 'user':
+                return (
+                    <>
+                        {sidebarExpanded && (
+                            <div className="px-3 pt-6 pb-2">
+                                <h4 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">Tickets</h4>
+                            </div>
+                        )}
+                        <DashboardNavLink
+                            to="/dashboard/my-tickets"
+                            icon={<FaTicketAlt className="text-lg min-w-5" />}
+                        >
+                            <span>My Tickets</span>
+                        </DashboardNavLink>
+                        <DashboardNavLink
+                            to="/dashboard/book-ticket"
+                            icon={<FaPlusCircle className="text-lg min-w-5" />}
+                        >
+                            <span>Book New Ticket</span>
+                        </DashboardNavLink>
+                        {sidebarExpanded && (
+                            <div className="px-3 pt-6 pb-2">
+                                <h4 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">History</h4>
+                            </div>
+                        )}
+                        <DashboardNavLink
+                            to="/dashboard/transactions"
+                            icon={<FaHistory className="text-lg min-w-5" />}
+                        >
+                            <span>Transaction History</span>
+                        </DashboardNavLink>
+                    </>
+                );
 
-                                    </figure>
+            case 'vendor':
+                return (
+                    <>
+                        {sidebarExpanded && (
+                            <div className="px-3 pt-6 pb-2">
+                                <h4 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">Ticket Management</h4>
+                            </div>
+                        )}
+                        <DashboardNavLink
+                            to="/dashboard/add-tickets"
+                            icon={<LuTicketPlus className="text-lg min-w-5" />}
+                        >
+                            <span>Add New Ticket</span>
+                        </DashboardNavLink>
+                        <DashboardNavLink
+                            to="/dashboard/my-tickets"
+                            icon={<LuTicketCheck className="text-lg min-w-5" />}
+                        >
+                            <div className="flex items-center justify-between w-full">
+                                <span>My Tickets</span>
+                                <span className="badge badge-primary"></span>
+                            </div>
+                        </DashboardNavLink>
+                        {sidebarExpanded && (
+                            <div className="px-3 pt-6 pb-2">
+                                <h4 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">Business</h4>
+                            </div>
+                        )}
+                        <DashboardNavLink
+                            to="/dashboard/bookings"
+                            icon={<MdPendingActions className="text-lg min-w-5" />}
+                        >
+                            <div className="flex items-center justify-between w-full">
+                                <span>Booking Requests</span>
+                                <span className="badge badge-warning">5</span>
+                            </div>
+                        </DashboardNavLink>
+                        <DashboardNavLink
+                            to="/dashboard/revenue"
+                            icon={<FaMoneyBillTrendUp className="text-lg min-w-5" />}
+                        >
+                            <span>Revenue</span>
+                        </DashboardNavLink>
+                        <DashboardNavLink
+                            to="/dashboard/analytics"
+                            icon={<FaChartLine className="text-lg min-w-5" />}
+                        >
+                            <span>Analytics</span>
+                        </DashboardNavLink>
+                    </>
+                );
 
-                                    <figure>
-                                        <img src="/travel.png" className="is-drawer-close:hidden h-16 w-16" alt="" />
+            case 'admin':
+                return (
+                    <>
+                        {sidebarExpanded && (
+                            <div className="px-3 pt-6 pb-2">
+                                <h4 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">Administration</h4>
+                            </div>
+                        )}
+                        <DashboardNavLink
+                            to="/dashboard/all-tickets"
+                            icon={<IoTicketOutline className="text-lg min-w-5" />}
+                        >
+                            <div className="flex items-center justify-between w-full">
+                                <span>Manage Tickets</span>
+                                <span className="badge badge-primary">45</span>
+                            </div>
+                        </DashboardNavLink>
+                        <DashboardNavLink
+                            to="/dashboard/users"
+                            icon={<HiOutlineUserGroup className="text-lg min-w-5" />}
+                        >
+                            <span>Manage Users</span>
+                        </DashboardNavLink>
+                        <DashboardNavLink
+                            to="/dashboard/advertise"
+                            icon={<RiAdvertisementLine className="text-lg min-w-5" />}
+                        >
+                            <span>Advertise Tickets</span>
+                        </DashboardNavLink>
+                        {sidebarExpanded && (
+                            <div className="px-3 pt-6 pb-2">
+                                <h4 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">Reports</h4>
+                            </div>
+                        )}
+                        <DashboardNavLink
+                            to="/dashboard/reports"
+                            icon={<FaChartLine className="text-lg min-w-5" />}
+                        >
+                            <span>System Reports</span>
+                        </DashboardNavLink>
+                    </>
+                );
 
-                                    </figure>
-                                    <div className="flex flex-col is-drawer-close:hidden">
-                                        <span className="text-xl font-bold">Ticket Bari</span>
-                                        <span className="text-sm opacity-80">Online Ticket Booking</span>
-                                    </div>
+            default:
+                return null;
+        }
+    };
 
-                                </Link>
-                            </li>
-                            {/* <li>
-                                <NavLink to={'/dashboard'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Home">
-                                  
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                                    <span className="is-drawer-close:hidden">Home</span>
-                                </NavLink>
-                            </li> */}
-                            <li>
-                                <NavLink to={'/dashboard/profile'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="My Profile">
-                                    <CgProfile />
+    return (
+        <div className='min-h-screen bg-linear-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800'>
+            {/* Top Navigation Bar */}
+            <div className="navbar bg-white dark:bg-gray-800 shadow-lg fixed top-0 left-0 right-0 z-50">
+                <div className="flex-1 px-4 flex items-center w-fit">
+                    <button
+                        onClick={toggleSidebar}
+                        className="btn btn-ghost btn-circle lg:hidden"
+                        aria-label="Toggle sidebar"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
 
-                                    <span className="is-drawer-close:hidden">My Profile</span>
-                                </NavLink>
-                            </li>
+                    <Link to={'/'} className="w-fit flex items-center gap-2 ml-2">
+                        <div className="h-10 w-10 bg-linear-to-r from-blue-600 to-green-500 rounded-lg flex items-center justify-center">
+                            <img src="/travel.png" alt="Ticket Bari Logo" />
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-bold text-gray-800 dark:text-white">Ticket Bari</h1>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Dashboard</p>
+                        </div>
+                    </Link>
+                </div>
+            </div>
 
-                            {
-                                role === 'user' &&
-                                <>
-                                    <li>
-                                        <NavLink to={'/dashboard/add-tickets'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="My Booked Tickets">
-                                            <div className="mt-1.5 inline-block size-4">
-                                                <BiTask />
-                                            </div>
-                                            <span className="is-drawer-close:hidden">My Booked Tickets</span>
-                                        </NavLink>
-                                    </li>
-                                    <li>
-                                        <NavLink to={'/dashboard/completed-deliveries'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Transaction History">
-                                            <div className="mt-1.5 inline-block size-4">
-                                                <FaHistory />
+            {/* Main Layout */}
+            <div className="flex pt-16">
+                {/* Desktop Sidebar */}
+                <div
+                    className={`desktop-sidebar min-h-screen bg-white dark:bg-gray-800 shadow-xl fixed left-0 top-0 pt-16 z-40 transition-all duration-300 ease-in-out ${sidebarExpanded ? 'w-64' : 'w-16'
+                        } hidden lg:block`}
+                    onMouseEnter={handleSidebarMouseEnter}
+                    onMouseLeave={handleSidebarMouseLeave}
+                >
+                    {/* Profile Section */}
+                    <div className={`p-4 border-b border-gray-200 dark:border-gray-700 transition-all duration-300 ${sidebarExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none h-0 overflow-hidden'}`}>
+                        <UserProfileSection expanded={sidebarExpanded} />
+                    </div>
 
+                    {/* Navigation Menu */}
+                    <div className="p-2">
+                        <ul className="menu space-y-1">
+                            {/* Common Links */}
+                            <DashboardNavLink
+                                to="/dashboard"
+                                end
+                                icon={<MdDashboard className="text-lg min-w-5" />}
+                            >
+                                <span>Dashboard</span>
+                            </DashboardNavLink>
 
-                                            </div>
-                                            <span className="is-drawer-close:hidden">Transaction History</span>
-                                        </NavLink>
-                                    </li>
+                            <DashboardNavLink
+                                to="/dashboard/profile"
+                                icon={<CgProfile className="text-lg min-w-5" />}
+                            >
+                                <span>My Profile</span>
+                            </DashboardNavLink>
 
-                                </>
-                            }
-
-
-
-                            {
-                                role === 'vendor' &&
-                                <>
-                                    <li>
-                                        <NavLink to={'/dashboard/add-tickets'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Add Ticket">
-                                            <div className="mt-1.5 inline-block size-4">
-                                                <LuTicketPlus />
-
-                                            </div>
-                                            <span className="is-drawer-close:hidden">Add Ticket</span>
-                                        </NavLink>
-                                    </li>
-                                    <li>
-                                        <NavLink to={'/dashboard/completed-deliveries'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="My Added Tickets">
-                                            <div className="mt-1.5 inline-block size-4">
-                                                <LuTicketCheck className="rotate-45" />
-                                            </div>
-                                            <span className="is-drawer-close:hidden">My Added Tickets</span>
-                                        </NavLink>
-                                    </li>
-                                    <li>
-                                        <NavLink to={'/dashboard/completed-deliveries'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Requested Bookings">
-                                            <div className="mt-1.5 inline-block size-4">
-                                                <MdPendingActions />
-
-                                            </div>
-                                            <span className="is-drawer-close:hidden">Requested Bookings</span>
-                                        </NavLink>
-                                    </li>
-                                    <li>
-                                        <NavLink to={'/dashboard/completed-deliveries'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Revenue Overview ">
-                                            <div className="mt-1.5 inline-block size-4">
-                                                <FaMoneyBillTrendUp />
-
-                                            </div>
-                                            <span className="is-drawer-close:hidden">Revenue Overview </span>
-                                        </NavLink>
-                                    </li>
-
-                                </>
-                            }
-
-                            {
-                                role === 'admin'
-                                &&
-                                <>
-                                    <li>
-                                        <NavLink to={'/dashboard/make-vendor'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Manage Tickets">
-                                            <div className="mt-1.5 inline-block size-4">
-                                                <IoTicketOutline />
-
-                                            </div>
-                                            <span className="is-drawer-close:hidden"> Manage Tickets </span>
-                                        </NavLink>
-                                    </li>
-                                    <li>
-                                        <NavLink to={'/dashboard/assign-riders'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Manage Users">
-                                            <div className="mt-1.5 inline-block size-4">
-                                                <FaUsers />
-                                            </div>
-                                            <span className="is-drawer-close:hidden">Manage Users</span>
-                                        </NavLink>
-                                    </li>
-                                    <li>
-                                        <NavLink to={'/dashboard/users-management'} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Advertise Tickets">
-                                            <div className="mt-1.5 inline-block size-4">
-                                                <FaAd />
-
-                                            </div>
-                                            <span className="is-drawer-close:hidden">Advertise Tickets</span>
-                                        </NavLink>
-                                    </li>
-                                </>
-                            }
-
-
+                            {/* Role Specific Links */}
+                            {renderRoleBasedLinks()}
                         </ul>
                     </div>
                 </div>
+
+                {/* Mobile Sidebar */}
+                {sidebarExpanded && (
+                    <div className="lg:hidden fixed inset-0 z-40">
+                        <div 
+                            className="absolute inset-0  bg-opacity-50"
+                            onClick={toggleSidebar}
+                        ></div>
+                        <div className="mobile-sidebar absolute left-0 top-0 h-full w-80 bg-white dark:bg-gray-800 shadow-xl">
+                            {/* Mobile Sidebar Header */}
+                            <div className="p-4 border-b border-gray-200 dark:border-gray-700 mt-12">
+                                <UserProfileSection expanded={true} />
+                            </div>
+
+                            {/* Mobile Navigation Menu */}
+                            <div className="p-2 overflow-y-auto h-[calc(100%-120px)]">
+                                <ul className="menu space-y-1">
+                                    {/* Common Links */}
+                                    <DashboardNavLink
+                                        to="/dashboard"
+                                        end
+                                        icon={<MdDashboard className="text-lg min-w-5" />}
+                                        className="gap-3"
+                                    >
+                                        <span>Dashboard</span>
+                                    </DashboardNavLink>
+
+                                    <DashboardNavLink
+                                        to="/dashboard/profile"
+                                        icon={<CgProfile className="text-lg min-w-5" />}
+                                        className="gap-3"
+                                    >
+                                        <span>My Profile</span>
+                                    </DashboardNavLink>
+
+                                    {/* Role Specific Links */}
+                                    {renderRoleBasedLinks()}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Main Content Area */}
+                <div className={`flex-1 w-full transition-all duration-300 ${sidebarExpanded ? 'lg:ml-64' : 'lg:ml-16'}`}>
+                    <div className="p-4 md:p-6 lg:p-8 min-h-[calc(100vh-4rem)]">
+                        {/* Breadcrumb */}
+                        <div className="text-sm breadcrumbs mb-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                            <ul>
+                                <li><Link to="/">Home</Link></li>
+                                <li><Link to="/dashboard">Dashboard</Link></li>
+                                <li className="text-gray-600 dark:text-gray-400">Current Page</li>
+                            </ul>
+                        </div>
+
+                        {/* Welcome Banner */}
+                        <div className="mb-8 bg-linear-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+                            <h2 className="text-2xl md:text-3xl font-bold mb-2">Welcome back! 👋</h2>
+                            <p className="opacity-90">Here's what's happening with your tickets today.</p>
+                            <div className="mt-4 flex items-center gap-4">
+                                <span className="bg-white/20 px-3 py-1 rounded-full text-sm">Role: {getRoleDisplay()}</span>
+                                <span className="bg-white/20 px-3 py-1 rounded-full text-sm">Today: {new Date().toLocaleDateString()}</span>
+                            </div>
+                        </div>
+
+                        {/* Content Area */}
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 md:p-6 min-h-[calc(100vh-300px)]">
+                            {roleLoading ? (
+                                <div className="flex items-center justify-center h-64">
+                                    <div className="text-center">
+                                        <div className="loading loading-spinner loading-lg text-primary mb-4"></div>
+                                        <p className="text-gray-600 dark:text-gray-400">Loading dashboard...</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <Outlet />
+                            )}
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            {/* Footer */}
             <Footer />
         </div>
     );

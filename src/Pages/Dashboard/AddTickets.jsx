@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
-import { AuthContext } from '../../../Context/AuthContext';
+import { AuthContext } from '../../Context/AuthContext';
 import { useNavigate } from 'react-router';
-import useAxiosSecure from '../../../Hooks/useAxiosSecure';
-import { FaPlane, FaBus, FaTrain, FaCar, FaShip, FaCloudUploadAlt, FaCalendarAlt,  FaCheck } from 'react-icons/fa';
+import useAxiosSecure from '../../Hooks/useAxiosSecure';
+import { FaPlane, FaBus, FaTrain, FaCar, FaShip, FaCloudUploadAlt, FaCalendarAlt, FaCheck } from 'react-icons/fa';
 import axios from 'axios';
 
 const AddTickets = () => {
@@ -19,8 +19,8 @@ const AddTickets = () => {
             perks: []
         }
     });
-    
-    
+
+
     const { user } = React.useContext(AuthContext);
     const navigate = useNavigate();
     const axiosSecure = useAxiosSecure();
@@ -52,10 +52,24 @@ const AddTickets = () => {
 
     // Popular destinations
     const popularDestinations = [
-        'Dhaka', 'Chittagong', 'Sylhet', 'Rajshahi', 'Khulna',
-        'Barisal', 'Rangpur', 'Cox\'s Bazar', 'Saint Martin',
-        'Bandarban', 'Sundarbans', 'Kuakata'
+        "Bagerhat", "Bandarban", "Barguna", "Barisal", "Bhola",
+        "Bogura", "Brahmanbaria", "Chandpur", "Chapainawabganj",
+        "Chattogram", "Chuadanga", "Cox's Bazar", "Cumilla",
+        "Dhaka", "Dinajpur", "Faridpur", "Feni", "Gaibandha",
+        "Gazipur", "Gopalganj", "Habiganj", "Jamalpur",
+        "Jashore", "Jhalokathi", "Jhenaidah", "Joypurhat",
+        "Khagrachari", "Khulna", "Kishoreganj", "Kurigram",
+        "Kushtia", "Lakshmipur", "Lalmonirhat", "Madaripur",
+        "Magura", "Manikganj", "Meherpur", "Moulvibazar",
+        "Munshiganj", "Mymensingh", "Naogaon", "Narail",
+        "Narayanganj", "Narsingdi", "Natore", "Netrokona",
+        "Nilphamari", "Noakhali", "Pabna", "Panchagarh",
+        "Patuakhali", "Pirojpur", "Rajbari", "Rajshahi",
+        "Rangamati", "Rangpur", "Satkhira", "Shariatpur",
+        "Sherpur", "Sirajganj", "Sunamganj", "Sylhet", "Tangail",
+        "Thakurgaon"
     ];
+
 
     // Handle image preview
     const handleImageChange = (e) => {
@@ -70,10 +84,10 @@ const AddTickets = () => {
     };
 
     // Handle image upload to imgbb
-     const uploadImageToImgbb = async (imageFile) => {
+    const uploadImageToImgbb = async (imageFile) => {
         const formData = new FormData();
         formData.append('image', imageFile);
-        
+
         try {
             setUploadingImage(true);
             // Use regular axios instead of axiosSecure
@@ -118,13 +132,14 @@ const AddTickets = () => {
                 vendorName: user?.displayName || 'Unknown Vendor',
                 vendorEmail: user?.email,
                 verificationStatus: 'pending',
+                paidStatus: 'pending',
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
 
-            // Save to database using axiosSecure (this is for your own API)
+            // Save to database using axiosSecure 
             const response = await axiosSecure.post('/tickets', ticketData);
-            
+
             if (response.data.insertedId) {
                 Swal.fire({
                     title: 'Success!',
@@ -514,7 +529,7 @@ const AddTickets = () => {
                                 <FaCheck className="mr-2 text-green-500" />
                                 Ticket Preview
                             </h3>
-                            
+
                             <div className="space-y-6">
                                 {/* Preview Card */}
                                 <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
@@ -533,18 +548,18 @@ const AddTickets = () => {
                                             </span>
                                         )}
                                     </div>
-                                    
+
                                     <div className="space-y-3">
                                         <div className="flex items-center text-gray-600">
                                             <FaCalendarAlt className="mr-2" />
                                             <span className="text-sm">
-                                                {watch('departureDateTime') ? 
-                                                    new Date(watch('departureDateTime')).toLocaleString() : 
+                                                {watch('departureDateTime') ?
+                                                    new Date(watch('departureDateTime')).toLocaleString() :
                                                     'Not set'
                                                 }
                                             </span>
                                         </div>
-                                        
+
                                         <div className="flex justify-between items-center pt-3 border-t border-gray-200">
                                             <div>
                                                 <p className="text-2xl font-bold text-blue-600">

@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
-import useAxiosSecure from '../../../Hooks/useAxiosSecure';
+import useAxiosSecure from '../../Hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
-import { AuthContext } from '../../../Context/AuthContext';
-import Loading from '../../../Components/Shared/Loading';
+import { AuthContext } from '../../Context/AuthContext';
+import Loading from '../../Components/Shared/Loading';
 import {
     UserIcon,
     EnvelopeIcon,

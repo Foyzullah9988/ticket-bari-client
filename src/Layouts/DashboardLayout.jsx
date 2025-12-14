@@ -103,10 +103,10 @@ const DashboardLayout = () => {
         <div className={`flex items-center gap-3 p-3 bg-linear-to-r from-blue-50 to-green-50 dark:from-gray-700 dark:to-gray-700 rounded-lg ${expanded ? 'opacity-100' : 'opacity-0 pointer-events-none h-0 overflow-hidden'}`}>
             <div className="avatar">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                    <img 
-                        src={user?.photoURL || user?.imageURL} 
-                        referrerPolicy='no-referrer' 
-                        alt={user?.displayName} 
+                    <img
+                        src={user?.photoURL || user?.imageURL}
+                        referrerPolicy='no-referrer'
+                        alt={user?.displayName}
                         className='object-cover w-full h-full rounded-full'
                     />
                 </div>
@@ -225,7 +225,7 @@ const DashboardLayout = () => {
                             </div>
                         )}
                         <DashboardNavLink
-                            to="/dashboard/all-tickets"
+                            to="/dashboard/manage-tickets"
                             icon={<IoTicketOutline className="text-lg min-w-5" />}
                         >
                             <div className="flex items-center justify-between w-full">
@@ -333,7 +333,7 @@ const DashboardLayout = () => {
                 {/* Mobile Sidebar */}
                 {sidebarExpanded && (
                     <div className="lg:hidden fixed inset-0 z-40">
-                        <div 
+                        <div
                             className="absolute inset-0  bg-opacity-50"
                             onClick={toggleSidebar}
                         ></div>

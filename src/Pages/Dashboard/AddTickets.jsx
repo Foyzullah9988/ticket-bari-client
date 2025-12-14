@@ -132,7 +132,7 @@ const AddTickets = () => {
                 vendorName: user?.displayName || 'Unknown Vendor',
                 vendorEmail: user?.email,
                 verificationStatus: 'pending',
-                paidStatus: 'pending',
+                
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };

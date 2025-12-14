@@ -15,6 +15,7 @@ import DashboardHome from "../Pages/Dashboard/DashboardHome/DashboardHome";
 import AddTickets from "../Pages/Dashboard/AddTickets";
 import Profile from "../Pages/Dashboard/Profile";
 import MyTickets from "../Pages/Dashboard/MyTickets";
+import ManageTickets from "../Pages/Dashboard/AdminDashboard/ManageTickets";
 
 
 export const router = createBrowserRouter([
@@ -82,6 +83,10 @@ export const router = createBrowserRouter([
             {
                 path: '/dashboard/my-tickets',
                 element: <MyTickets />
+            },
+            {
+                path: '/dashboard/manage-tickets',
+                element: <ManageTickets />
             },
         ]
     },

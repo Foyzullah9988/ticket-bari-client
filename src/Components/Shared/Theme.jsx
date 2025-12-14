@@ -17,19 +17,17 @@ const Theme = () => {
     useEffect(() => {
         const html = document.documentElement;
         
-        // Remove both classes first
+
         html.classList.remove('light', 'dark');
         
-        // Add current theme class
+
         html.classList.add(theme);
         
-        // Also set data-theme attribute for DaisyUI
+
         html.setAttribute("data-theme", theme);
         
-        // Save to localStorage
         localStorage.setItem("theme", theme);
         
-        // Dispatch custom event for other components
         window.dispatchEvent(new CustomEvent('themechange', { detail: theme }));
     }, [theme]);
 

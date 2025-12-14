@@ -32,6 +32,7 @@ import {
     FaExclamationTriangle
 } from "react-icons/fa";
 import { MdAirlineSeatReclineNormal, MdEventSeat } from "react-icons/md";
+import Skeleton2 from "../Components/Shared/Skeleton2";
 
 export default function TicketDetails() {
     const axiosSecure = useAxiosSecure();
@@ -87,7 +88,18 @@ export default function TicketDetails() {
         }
     };
 
-    if (isLoading) return <Loading />;
+    if (isLoading)
+        return (
+
+            <div className='flex flex-col min-h-screen'>
+                <Navbar fixed={false} />
+                <div className='flex-1 container mx-auto mt-2 h-full w-full max-w-4xl p-6 flex items-center justify-center'>
+                    <Skeleton2 />
+                </div>
+                <Footer />
+            </div>
+        )
+            ;
 
     if (error) {
         console.error('Error fetching ticket:', error);

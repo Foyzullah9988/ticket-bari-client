@@ -8,6 +8,25 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+    // Prevent flash of wrong theme
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            let theme = 'light';
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                theme = 'dark';
+            }
+            
+            document.documentElement.classList.add(theme);
+            document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {
+            console.log('Theme initialization error:', e);
+        }
+    })();
+</script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

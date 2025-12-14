@@ -3,6 +3,7 @@ import useAxiosSecure from '../../Hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
 import TicketCard from './TicketCard';
 import Loading from '../../Components/Shared/Loading';
+import Skeleton1 from '../../Components/Shared/Skeleton1';
 
 const LatestTickets = () => {
     const axiosSecure = useAxiosSecure();
@@ -16,7 +17,7 @@ const LatestTickets = () => {
         retry: 2,
     });
 
-    if (isLoading) return <Loading />;
+   
     
     
     if (error) {
@@ -36,7 +37,7 @@ const LatestTickets = () => {
     return (
         <div>
             <h2>tickets{lastedTickets.length}</h2>
-            <TicketCard lastedTickets={lastedTickets} />
+            <TicketCard lastedTickets={lastedTickets} isLoading={isLoading}/>
         </div>
     );
 };

@@ -6,20 +6,19 @@ import { FaTicketAlt, FaCalendar, FaMapMarkerAlt, FaMoneyBill, FaClock, FaCheckC
 import { MdPendingActions } from 'react-icons/md';
 import { Link } from 'react-router';
 import Swal from 'sweetalert2';
-import Loading from '../../../Components/Shared/Loading';
 
 const MyTickets = () => {
     const { user } = useContext(AuthContext);
     const axiosSecure = useAxiosSecure();
 
-    const { data: tickets = [], refetch, isLoading} = useQuery({
+    const { data: tickets = [], refetch } = useQuery({
         queryKey: ['my-tickets', user?.email],
         queryFn: async () => {
-            
-            
-            const res = await axiosSecure.get('/tickets',{
-                params:{
-                    vendorEmail:user?.email
+
+
+            const res = await axiosSecure.get('/tickets', {
+                params: {
+                    vendorEmail: user?.email
                 }
             });
             return res.data;
@@ -86,7 +85,7 @@ const MyTickets = () => {
     const handleCancelTicket = async (ticket) => {
         Swal.fire({
             title: 'Are you sure?',
-            text: `Do you want to cancel ticket #${ticket._id?.slice(-6)}?`,
+            text: `Do you want to cancel ticket #${ticket?.title}?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -135,10 +134,10 @@ const MyTickets = () => {
         console.log('Downloading ticket:', ticket._id);
     };
 
-    if (isLoading)  return <Loading/>
-    
 
-    
+
+
+
 
     return (
         <div className="space-y-6">
@@ -187,7 +186,7 @@ const MyTickets = () => {
                         <div>
                             <p className="text-sm opacity-90">Total Cost</p>
                             <h3 className="text-3xl font-bold mt-2">
-                                {tickets.reduce((sum, ticket) => sum + (ticket.price ), 0)} tk
+                                {tickets.reduce((sum, ticket) => sum + (ticket.price), 0)} tk
                             </h3>
                         </div>
                         <FaMoneyBill className="text-4xl opacity-80" />
@@ -197,149 +196,169 @@ const MyTickets = () => {
 
             {/* Tickets List */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
-                {tickets.length === 0 ? (
-                    <div className="text-center py-16">
-                        <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                            <FaTicketAlt className="text-4xl text-gray-400" />
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No Tickets Found</h3>
-                        <p className="text-gray-500 dark:text-gray-400 mb-6">You haven't booked any tickets yet.</p>
-                        <Link
-                            to="/all-tickets"
-                            className="btn btn-primary gap-2"
-                        >
-                            <FaTicketAlt /> Browse Available Tickets
-                        </Link>
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="table w-full">
-                            <thead>
-                                <tr className="bg-gray-50 dark:bg-gray-700">
-                                    <th className="font-semibold text-gray-700 dark:text-gray-300">Ticket Details</th>
-                                    <th className="font-semibold text-gray-700 dark:text-gray-300">Date & Time</th>
-                                    <th className="font-semibold text-gray-700 dark:text-gray-300">Price</th>
-                                    <th className="font-semibold text-gray-700 dark:text-gray-300">Status</th>
-                                    <th className="font-semibold text-gray-700 dark:text-gray-300">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {sortedTickets.map((ticket) => (
-                                    <tr
-                                        key={ticket._id}
-                                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                                    >
-                                        <td>
-                                            <div className="flex items-center gap-3">
-                                                <div className="avatar">
-                                                    <div className="w-12 h-12 rounded-lg bg-linear-to-r from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center">
-                                                        <FaTicketAlt className="text-blue-600 dark:text-blue-300 text-xl" />
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <div className="font-bold text-gray-800 dark:text-white">
-                                                        {ticket.title}
-                                                    </div>
-                                                    <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                                                        <FaMapMarkerAlt className="text-xs" />
-                                                        {ticket.from} → {ticket.to}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                                                    <FaCalendar className="text-sm" />
-                                                    <span>{formatDate(ticket.createdAt)}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
-                                                    <FaClock className="text-xs" />
-                                                    <span>{formatTime(ticket.departureDateTime)}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className="text-lg font-bold text-gray-800 dark:text-white">
-                                                {ticket.price } tk
-                                            </div>
-                                            <div className="text-sm text-gray-500 dark:text-gray-400">
-                                                {ticket.seats} seat(s)
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className="flex items-center gap-2">
-                                                {getStatusIcon(ticket.verificationStatus)}
-                                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(ticket.verificationStatus)}`}>
-                                                    {ticket.verificationStatus }
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className="flex items-center gap-2">
-                                                <button
-                                                    onClick={() => handleDownloadTicket(ticket)}
-                                                    className="btn btn-sm btn-ghost text-blue-600 hover:text-blue-800 dark:text-blue-400"
-                                                    title="Download Ticket"
-                                                >
-                                                    <FaDownload />
-                                                </button>
 
-                                                <Link
-                                                    to={`/ticket/${ticket._id}`}
-                                                    className="btn btn-sm btn-ghost text-green-600 hover:text-green-800 dark:text-green-400"
-                                                    title="View Details"
-                                                >
-                                                    <FaEye />
-                                                </Link>
+                <div className="overflow-x-auto">
+                    <table className="table w-full">
+                        <thead>
+                            <tr className="bg-gray-50 dark:bg-gray-700">
+                                <th className="font-semibold text-gray-700 dark:text-gray-300">Ticket Details</th>
+                                <th className="font-semibold text-gray-700 dark:text-gray-300">Date & Time</th>
+                                <th className="font-semibold text-gray-700 dark:text-gray-300">Price</th>
+                                <th className="font-semibold text-gray-700 dark:text-gray-300">Status</th>
+                                <th className="font-semibold text-gray-700 dark:text-gray-300">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                tickets.length === 0 ? (
+                                    <div className='flex'>
+                                        <tr className="flex w-52 flex-col gap-4 p-4">
+                                            <div className="skeleton h-2 w-full"></div>
+                                            <div className="skeleton h-2 w-full"></div>
+                                        </tr>
+                                        <tr className="flex w-52 flex-col gap-4 p-4">
+                                            <div className="skeleton h-2 w-full"></div>
+                                            <div className="skeleton h-2 w-full"></div>
+                                        </tr>
+                                        <tr className="flex w-52 flex-col gap-4 p-4">
+                                            <div className="skeleton h-2 w-full"></div>
+                                            <div className="skeleton h-2 w-full"></div>
+                                        </tr>
+                                        <tr className="flex w-52 flex-col gap-4 p-4">
+                                            <div className="skeleton h-2 w-full"></div>
+                                            <div className="skeleton h-2 w-full"></div>
+                                        </tr>
 
-                                                {ticket.verificationStatus?.toLowerCase() === 'pending' && (
+
+
+
+                                    </div>
+                                ) : (
+                                    sortedTickets.map((ticket) => (
+                                        <tr
+                                            key={ticket._id}
+                                            className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                                        >
+                                            <td>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="avatar">
+                                                        <div className="w-12 h-12 rounded-lg bg-linear-to-r from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center">
+                                                            <FaTicketAlt className="text-blue-600 dark:text-blue-300 text-xl" />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-bold text-gray-800 dark:text-white">
+                                                            {ticket.title}
+                                                        </div>
+                                                        <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                                                            <FaMapMarkerAlt className="text-xs" />
+                                                            {ticket.from} → {ticket.to}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                                                        <FaCalendar className="text-sm" />
+                                                        <span>{formatDate(ticket.createdAt)}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
+                                                        <FaClock className="text-xs" />
+                                                        <span>{formatTime(ticket.departureDateTime)}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="text-lg font-bold text-gray-800 dark:text-white">
+                                                    {ticket.price} tk
+                                                </div>
+                                                <div className="text-sm text-gray-500 dark:text-gray-400">
+                                                    {ticket.seats} seat(s)
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="flex items-center gap-2">
+                                                    {getStatusIcon(ticket.verificationStatus)}
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(ticket.verificationStatus)}`}>
+                                                        {ticket.verificationStatus}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="flex items-center gap-2">
                                                     <button
-                                                        onClick={() => handleCancelTicket(ticket)}
-                                                        className="btn btn-sm btn-ghost text-red-600 hover:text-red-800 dark:text-red-400"
-                                                        title="Cancel Ticket"
+                                                        onClick={() => handleDownloadTicket(ticket)}
+                                                        className="btn btn-sm btn-ghost text-blue-600 hover:text-blue-800 dark:text-blue-400"
+                                                        title="Download Ticket"
                                                     >
-                                                        <FaTrash />
+                                                        <FaDownload />
                                                     </button>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+
+                                                    <Link
+                                                        to={`/ticket/${ticket._id}`}
+                                                        className="btn btn-sm btn-ghost text-green-600 hover:text-green-800 dark:text-green-400"
+                                                        title="View Details"
+                                                    >
+                                                        <FaEye />
+                                                    </Link>
+
+                                                    {ticket.verificationStatus?.toLowerCase() === 'pending' && (
+                                                        <button
+                                                            onClick={() => handleCancelTicket(ticket)}
+                                                            className="btn btn-sm btn-ghost text-red-600 hover:text-red-800 dark:text-red-400"
+                                                            title="Cancel Ticket"
+                                                        >
+                                                            <FaTrash />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
 
             {/* Recent Activity */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
                 <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Recent Activity</h3>
                 <div className="space-y-4">
-                    {tickets.slice(0, 3).map((ticket) => (
-                        <div
-                            key={`activity-${ticket._id}`}
-                            className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-full ${getStatusColor(ticket.verificationStatus)}`}>
-                                    {getStatusIcon(ticket.verificationStatus)}
+                    {tickets
+                        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                        .slice(0, 3)
+                        .map((ticket) => (
+                            <div
+                                key={`activity-${ticket._id}`}
+                                className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-full ${getStatusColor(ticket.verificationStatus)}`}>
+                                        {getStatusIcon(ticket.verificationStatus)}
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-gray-800 dark:text-white">
+                                            Ticket {ticket.title} {ticket.verificationStatus?.toLowerCase() === 'approved'
+                                                ? 'was approved'
+                                                : ticket.verificationStatus?.toLowerCase() === 'rejected'
+                                                    ? 'was rejected'
+                                                    : 'was pending'}
+                                        </p>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                                            {formatDate(ticket.createdAt)} at {formatTime(ticket.createdAt)}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="font-medium text-gray-800 dark:text-white">
-                                        Ticket {ticket.title} {ticket.verificationStatus?.toLowerCase() === 'cancelled' ? 'was cancelled' : 'was booked'}
-                                    </p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                                        {formatDate(ticket.createdAt)} at {formatTime(ticket.createdAt)}
-                                    </p>
+                                <div className="text-right">
+                                    <p className="font-bold text-gray-800 dark:text-white">{ticket.price} tk</p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">{ticket.verificationStatus}</p>
                                 </div>
                             </div>
-                            <div className="text-right">
-                                <p className="font-bold text-gray-800 dark:text-white">{ticket.price } tk</p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">{ticket.verificationStatus}</p>
-                            </div>
-                        </div>
-                    ))}
+                        ))}
                 </div>
             </div>
 

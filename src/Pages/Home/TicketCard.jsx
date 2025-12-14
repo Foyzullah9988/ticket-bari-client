@@ -14,6 +14,7 @@ import {
     FaTicketAlt,
 } from "react-icons/fa";
 import { MdAirlineSeatReclineNormal } from "react-icons/md";
+import Skeleton1 from "../../Components/Shared/Skeleton1";
 
 // Transport type icon mapping
 const transportIcons = {
@@ -25,7 +26,7 @@ const transportIcons = {
     default: FaBus
 };
 
-export default function TicketCard({ lastedTickets }) {
+export default function TicketCard({ lastedTickets, isLoading }) {
 
     // Format date
     const formatDate = (dateString) => {
@@ -57,9 +58,19 @@ export default function TicketCard({ lastedTickets }) {
     return (
         <div className="flex flex-col h-full">
             <div className="grid grid-cols-1 md:grid-cols-2  xl:grid-cols-4 w-full gap-6">
+                {
+                    isLoading  ? (
+
+                        Array.from({ length: 4 }).map((_, index) => (
+                            <Skeleton1 key={index} />
+                        ))
+
+                    ) : null
+                }
                 {lastedTickets.map((ticket) => {
                     const TransportIcon = transportIcons[ticket.transportType?.toLowerCase()] || transportIcons.default;
-                    
+
+
                     return (
                         <div
                             key={ticket._id}
@@ -69,7 +80,7 @@ export default function TicketCard({ lastedTickets }) {
                             <div className="relative overflow-hidden rounded-xl mb-4">
                                 <figure className="relative">
                                     <img
-                                        src={ticket.image }
+                                        src={ticket.image}
                                         className="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-500"
                                         alt={ticket.title}
                                         onError={(e) => {
@@ -84,7 +95,7 @@ export default function TicketCard({ lastedTickets }) {
                                     <div className="absolute top-3 left-3 flex items-center gap-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm">
                                         <TransportIcon className="text-gray-700 dark:text-gray-300 text-base" />
                                         <span className="text-sm font-medium capitalize text-gray-800 dark:text-gray-200">
-                                            {ticket.transportType }
+                                            {ticket.transportType}
                                         </span>
                                     </div>
 

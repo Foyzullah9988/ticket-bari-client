@@ -77,7 +77,7 @@ const DashboardLayout = () => {
         if (window.innerWidth >= 1024 && isHovering) {
             setSidebarExpanded(false);
         }
-    }, [location.pathname]);
+    }, [location]);
 
     useEffect(() => {
         return () => {
@@ -374,7 +374,7 @@ const DashboardLayout = () => {
                 {sidebarExpanded && (
                     <div className="lg:hidden fixed inset-0 z-40">
                         <div
-                            className="absolute inset-0 bg-black bg-opacity-50"
+                            className="absolute inset-0 bg-opacity-50"
                             onClick={toggleSidebar}
                         ></div>
                         <div className="mobile-sidebar absolute left-0 top-0 h-full w-80 bg-white dark:bg-gray-800 shadow-xl">
@@ -452,7 +452,9 @@ const DashboardLayout = () => {
             </div>
 
             {/* Footer */}
-            <Footer />
+            <div className="lg:ml-16 xl:ml-0 z-10 ">
+                <Footer />
+            </div>
         </div>
     );
 };

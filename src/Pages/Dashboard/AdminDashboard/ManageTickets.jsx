@@ -6,6 +6,7 @@ import useAxiosSecure from '../../../Hooks/useAxiosSecure';
 import { ArrowRightIcon } from '@heroicons/react/24/solid';
 import Swal from 'sweetalert2';
 import { AuthContext } from '../../../Context/AuthContext';
+import Loading from '../../../Components/Shared/Loading';
 
 const ManageTickets = () => {
     const { user } = use(AuthContext)
@@ -14,7 +15,6 @@ const ManageTickets = () => {
     const [statusFilter, setStatusFilter] = useState('all');
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [confirmAction, setConfirmAction] = useState({ isOpen: false, type: '', ticketId: '', ticketName: '' });
     const [actionLoading, setActionLoading] = useState(false);
 
     // Fetch all tickets
@@ -43,87 +43,87 @@ const ManageTickets = () => {
         return matchesSearch && matchesStatus;
     });
 
-   // Handle approve button click with confirmation
-const handleApprove = (ticket) => {
-    Swal.fire({
-        title: "Are you sure?",
-        text: `You want to approve the ticket "${ticket.title}"?`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, approve it!"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            updateStatus(ticket._id, 'approved');
-        }
-    });
-};
+    // Handle approve button click with confirmation
+    const handleApprove = (ticket) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: `You want to approve the ticket "${ticket.title}"?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, approve it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                updateStatus(ticket._id, 'approved');
+            }
+        });
+    };
 
-// Handle reject button click with confirmation
-const handleReject = (ticket) => {
-    if (ticket.verificationStatus === 'approved') return;
-    
-    Swal.fire({
-        title: "Are you sure?",
-        text: `You want to reject the ticket "${ticket.title}"?`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, reject it!"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            updateStatus(ticket._id, 'rejected');
-        }
-    });
-};
+    // Handle reject button click with confirmation
+    const handleReject = (ticket) => {
+        if (ticket.verificationStatus === 'approved') return;
 
-// Execute action after confirmation
-const updateStatus = (ticketId, verificationStatus) => {
-    setActionLoading(true);
-    const updateInfo = { verificationStatus: verificationStatus };
-    
-    axiosSecure.patch(`/tickets/${ticketId}`, updateInfo)
-        .then(res => {
-            if (res.data.modifiedCount > 0) {
-                refetch();
-                setActionLoading(false);
-                
-                // Update selectedTicket if modal is open
-                if (isModalOpen && selectedTicket && selectedTicket._id === ticketId) {
-                    setSelectedTicket(prev => ({
-                        ...prev,
-                        verificationStatus: verificationStatus
-                    }));
+        Swal.fire({
+            title: "Are you sure?",
+            text: `You want to reject the ticket "${ticket.title}"?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, reject it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                updateStatus(ticket._id, 'rejected');
+            }
+        });
+    };
+
+    // Execute action after confirmation
+    const updateStatus = (ticketId, verificationStatus) => {
+        setActionLoading(true);
+        const updateInfo = { verificationStatus: verificationStatus };
+
+        axiosSecure.patch(`/tickets/${ticketId}`, updateInfo)
+            .then(res => {
+                if (res.data.modifiedCount > 0) {
+                    refetch();
+                    setActionLoading(false);
+
+                    // Update selectedTicket if modal is open
+                    if (isModalOpen && selectedTicket && selectedTicket._id === ticketId) {
+                        setSelectedTicket(prev => ({
+                            ...prev,
+                            verificationStatus: verificationStatus
+                        }));
+                    }
+
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "success",
+                        title: `Ticket ${verificationStatus} successfully!`,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    setActionLoading(false);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Update failed",
+                        text: "No changes were made to the ticket."
+                    });
                 }
-                
-                Swal.fire({
-                    position: "top-end",
-                    icon: "success",
-                    title: `Ticket ${verificationStatus} successfully!`,
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            } else {
+            })
+            .catch(error => {
+                console.error(error);
                 setActionLoading(false);
                 Swal.fire({
                     icon: "error",
                     title: "Update failed",
-                    text: "No changes were made to the ticket."
+                    text: error.response?.data?.message || "Something went wrong!"
                 });
-            }
-        })
-        .catch(error => {
-            console.error(error);
-            setActionLoading(false);
-            Swal.fire({
-                icon: "error",
-                title: "Update failed",
-                text: error.response?.data?.message || "Something went wrong!"
             });
-        });
-};
+    };
 
 
     const viewTicketDetails = (ticket) => {
@@ -135,28 +135,28 @@ const updateStatus = (ticketId, verificationStatus) => {
         switch (verificationStatus) {
             case 'approved':
                 return (
-                    <div className="badge badge-success gap-2 px-4 py-3 shadow-sm">
-                        <FaCheck className="w-4 h-4" />
+                    <div className="badge badge-success gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm shadow-sm whitespace-nowrap">
+                        <FaCheck className="w-3 h-3 sm:w-4 sm:h-4" />
                         <span className="font-semibold">Approved</span>
                     </div>
                 );
             case 'rejected':
                 return (
-                    <div className="badge badge-error gap-2 px-4 py-3 shadow-sm">
-                        <FaTimes className="w-4 h-4" />
+                    <div className="badge badge-error gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm shadow-sm whitespace-nowrap">
+                        <FaTimes className="w-3 h-3 sm:w-4 sm:h-4" />
                         <span className="font-semibold">Rejected</span>
                     </div>
                 );
             case 'pending':
                 return (
-                    <div className="badge badge-warning gap-2 px-4 py-3 shadow-sm animate-pulse">
-                        <FaClock className="w-4 h-4" />
+                    <div className="badge badge-warning gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm animate-pulse whitespace-nowrap">
+                        <FaClock className="w-3 h-3 sm:w-4 sm:h-4" />
                         <span className="font-semibold">Pending</span>
                     </div>
                 );
             default:
                 return (
-                    <div className="badge badge-neutral gap-2 px-4 py-3">
+                    <div className="badge badge-neutral gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm whitespace-nowrap">
                         <span className="font-semibold">Unknown</span>
                     </div>
                 );
@@ -166,19 +166,17 @@ const updateStatus = (ticketId, verificationStatus) => {
     const getCategoryColor = (category) => {
         switch (category) {
             case 'Bus':
-                return 'badge badge-primary gap-2';
+                return 'badge badge-primary gap-1 text-xs px-2 py-1';
             case 'Train':
-                return 'badge badge-secondary gap-2';
+                return 'badge badge-secondary gap-1 text-xs px-2 py-1';
             case 'Flight':
-                return 'badge badge-accent gap-2';
+                return 'badge badge-accent gap-1 text-xs px-2 py-1';
             case 'Ferry':
-                return 'badge badge-info gap-2';
+                return 'badge badge-info gap-1 text-xs px-2 py-1';
             default:
-                return 'badge badge-ghost gap-2';
+                return 'badge badge-ghost gap-1 text-xs px-2 py-1';
         }
     };
-
-
 
     // Get vendor name from ticket object
     const getVendorName = (ticket) => {
@@ -228,122 +226,107 @@ const updateStatus = (ticketId, verificationStatus) => {
         });
     };
 
-    if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[500px] p-8">
-                <div className="relative">
-                    <div className="loading loading-spinner loading-lg text-primary mb-6"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <FaTicketAlt className="text-primary text-xl opacity-50" />
-                    </div>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2 mt-4">Loading Tickets</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-center max-w-md">
-                    Fetching all vendor tickets from the database...
-                </p>
-            </div>
-        );
-    }
+
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-4 sm:space-y-6 w-full overflow-x-hidden">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 bg-linear-to-r from-primary/10 to-secondary/10 rounded-2xl">
-                <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-3 bg-primary text-primary-content rounded-xl">
-                            <FaTicketAlt className="text-2xl" />
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-linear-to-r from-primary/10 to-secondary/10 rounded-lg sm:rounded-xl">
+                <div className="w-full">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                        <div className="p-1.5 sm:p-2.5 bg-primary text-primary-content rounded-lg">
+                            <FaTicketAlt className="text-lg sm:text-xl" />
                         </div>
-                        <div>
-                            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Manage Tickets</h2>
-                            <p className="text-gray-600 dark:text-gray-300 mt-1">
+                        <div className="min-w-0">
+                            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white truncate">Manage Tickets</h2>
+                            <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
                                 Review and manage tickets submitted by vendors
                             </p>
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-1.5 sm:mt-0">
                     <button
                         onClick={() => refetch()}
-                        className="btn btn-primary btn-outline gap-2 shadow-sm hover:shadow-md transition-all"
+                        className="btn btn-primary btn-outline gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-auto"
                     >
-                        <FaSync className={`${isLoading ? 'animate-spin' : ''}`} />
-                        Refresh
+                        <FaSync className={`${isLoading ? 'animate-spin' : ''} w-3 h-3`} />
+                        <span className="hidden sm:inline">Refresh</span>
                     </button>
                     <button
                         onClick={exportToCSV}
-                        className="btn btn-success gap-2 shadow-sm hover:shadow-md transition-all"
+                        className="btn btn-success gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-auto"
                         disabled={filteredTickets.length === 0}
                     >
-                        <FaDownload />
-                        Export CSV
+                        <FaDownload className="w-3 h-3" />
+                        <span className="hidden sm:inline">Export CSV</span>
                     </button>
                 </div>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 border border-base-300">
-                    <div className="card-body p-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+                <div className="card bg-base-100 shadow hover:shadow-lg transition-all duration-300 border border-base-300">
+                    <div className="card-body p-3 sm:p-4">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Tickets</p>
-                                <p className="text-3xl font-bold text-gray-900 dark:text-white">{tickets.length}</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">From all vendors</p>
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 truncate">Total Tickets</p>
+                                <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{tickets.length}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">From all vendors</p>
                             </div>
-                            <div className="p-3 bg-primary/20 rounded-xl">
-                                <FaTicketAlt className="text-primary text-2xl" />
+                            <div className="p-1.5 sm:p-2.5 bg-primary/20 rounded-lg">
+                                <FaTicketAlt className="text-primary text-base sm:text-lg" />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 border border-base-300">
-                    <div className="card-body p-6">
+                <div className="card bg-base-100 shadow hover:shadow-lg transition-all duration-300 border border-base-300">
+                    <div className="card-body p-3 sm:p-4">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Pending Review</p>
-                                <p className="text-3xl font-bold text-warning">
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 truncate">Pending Review</p>
+                                <p className="text-lg sm:text-xl md:text-2xl font-bold text-warning">
                                     {tickets.filter(t => t.verificationStatus === 'pending').length}
                                 </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Awaiting approval</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">Awaiting approval</p>
                             </div>
-                            <div className="p-3 bg-warning/20 rounded-xl">
-                                <FaClock className="text-warning text-2xl" />
+                            <div className="p-1.5 sm:p-2.5 bg-warning/20 rounded-lg">
+                                <FaClock className="text-warning text-base sm:text-lg" />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 border border-base-300">
-                    <div className="card-body p-6">
+                <div className="card bg-base-100 shadow hover:shadow-lg transition-all duration-300 border border-base-300">
+                    <div className="card-body p-3 sm:p-4">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Approved</p>
-                                <p className="text-3xl font-bold text-success">
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 truncate">Approved</p>
+                                <p className="text-lg sm:text-xl md:text-2xl font-bold text-success">
                                     {tickets.filter(t => t.verificationStatus === 'approved').length}
                                 </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Visible to users</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">Visible to users</p>
                             </div>
-                            <div className="p-3 bg-success/20 rounded-xl">
-                                <FaCheck className="text-success text-2xl" />
+                            <div className="p-1.5 sm:p-2.5 bg-success/20 rounded-lg">
+                                <FaCheck className="text-success text-base sm:text-lg" />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 border border-base-300">
-                    <div className="card-body p-6">
+                <div className="card bg-base-100 shadow hover:shadow-lg transition-all duration-300 border border-base-300">
+                    <div className="card-body p-3 sm:p-4">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Rejected</p>
-                                <p className="text-3xl font-bold text-error">
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 truncate">Rejected</p>
+                                <p className="text-lg sm:text-xl md:text-2xl font-bold text-error">
                                     {tickets.filter(t => t.verificationStatus === 'rejected').length}
                                 </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Not visible</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">Not visible</p>
                             </div>
-                            <div className="p-3 bg-error/20 rounded-xl">
-                                <FaTimes className="text-error text-2xl" />
+                            <div className="p-1.5 sm:p-2.5 bg-error/20 rounded-lg">
+                                <FaTimes className="text-error text-base sm:text-lg" />
                             </div>
                         </div>
                     </div>
@@ -351,65 +334,65 @@ const updateStatus = (ticketId, verificationStatus) => {
             </div>
 
             {/* Filters and Search */}
-            <div className="card bg-base-100 shadow-lg border border-base-300">
-                <div className="card-body p-6">
-                    <div className="flex flex-col lg:flex-row gap-6 items-center">
+            <div className="card bg-base-100 shadow border border-base-300">
+                <div className="card-body p-3 sm:p-4">
+                    <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 items-start lg:items-center">
                         <div className="flex-1 w-full">
                             <div className="relative">
-                                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg" />
+                                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
                                 <input
                                     type="text"
-                                    placeholder="🔍 Search tickets by name, route, vendor, or ID..."
-                                    className="input input-bordered w-full pl-12 pr-4 py-3 focus:ring-2 focus:ring-primary/30"
+                                    placeholder="Search tickets..."
+                                    className="input input-bordered w-full pl-9 pr-8 py-2 text-sm focus:ring-2 focus:ring-primary/30 border"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                                 {searchTerm && (
                                     <button
                                         onClick={() => setSearchTerm('')}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 btn btn-xs btn-circle btn-ghost"
+                                        className="absolute right-2 top-1/2 transform -translate-y-1/2 btn btn-xs btn-circle btn-ghost"
                                     >
                                         ✕
                                     </button>
                                 )}
                             </div>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                            <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text font-semibold">Filter by Status</span>
+                        <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+                            <div className="form-control w-full sm:w-auto">
+                                <label className="label py-1">
+                                    <span className="label-text font-semibold text-xs">Filter by Status</span>
                                 </label>
                                 <select
-                                    className="select select-bordered w-full"
+                                    className="select select-bordered w-full text-sm"
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
                                 >
-                                    <option value="all">📋 All Status</option>
-                                    <option value="pending">⏳ Pending</option>
-                                    <option value="approved">✅ Approved</option>
-                                    <option value="rejected">❌ Rejected</option>
+                                    <option value="all">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
                                 </select>
                             </div>
                             <div className="form-control self-end">
                                 <button
-                                    className="btn btn-outline btn-error gap-2"
+                                    className="btn btn-outline btn-error gap-1.5 text-xs px-2 sm:px-3 py-2 h-auto"
                                     onClick={() => {
                                         setSearchTerm('');
                                         setStatusFilter('all');
                                     }}
                                 >
-                                    <FaTimes />
-                                    Clear Filters
+                                    <FaTimes className="w-3 h-3" />
+                                    Clear
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                        <div className="badge badge-primary gap-1">
-                            <FaTicketAlt className="w-3 h-3" />
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                        <div className="badge badge-primary gap-1 text-xs px-1">
+                            <FaTicketAlt className="w-3 h-3 " />
                             Total: {tickets.length}
                         </div>
-                        <div className="badge badge-warning gap-1">
+                        <div className="badge badge-warning gap-1 text-xs px-1">
                             <FaFilter className="w-3 h-3" />
                             Filtered: {filteredTickets.length}
                         </div>
@@ -418,125 +401,130 @@ const updateStatus = (ticketId, verificationStatus) => {
             </div>
 
             {/* Tickets Table */}
-            <div className="card bg-base-100 shadow-lg border border-base-300 overflow-hidden">
-                <div className="card-body p-0">
-                    <div className="overflow-x-auto">
-                        <table className="table table-zebra">
+            <div className="card bg-base-100 shadow border border-base-300 overflow-hidden w-full">
+                <div className="card-body p-0 w-full">
+                    <div className="overflow-x-auto w-full">
+                        <table className="table table-zebra text-sm w-full min-w-[800px]">
                             <thead>
                                 <tr className="bg-base-300">
-                                    <th className="font-semibold text-base">Ticket ID</th>
-                                    <th className="font-semibold text-base">Ticket Details</th>
-                                    <th className="font-semibold text-base">Vendor</th>
-                                    <th className="font-semibold text-base">Price & Quantity</th>
-                                    <th className="font-semibold text-base">Date & Time</th>
-                                    <th className="font-semibold text-base">Status</th>
-                                    <th className="font-semibold text-base text-center">Actions</th>
+                                    <th className="font-semibold px-2 sm:px-3 py-2 whitespace-nowrap">Ticket ID</th>
+                                    <th className="font-semibold px-2 sm:px-3 py-2 whitespace-nowrap">Ticket Details</th>
+                                    <th className="font-semibold px-2 sm:px-3 py-2 whitespace-nowrap">Vendor</th>
+                                    <th className="font-semibold px-2 sm:px-3 py-2 whitespace-nowrap">Price & Quantity</th>
+                                    <th className="font-semibold px-2 sm:px-3 py-2 whitespace-nowrap">Date & Time</th>
+                                    <th className="font-semibold px-2 sm:px-3 py-2 whitespace-nowrap">Status</th>
+                                    <th className="font-semibold px-2 sm:px-3 py-2 whitespace-nowrap text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredTickets.length === 0 ? (
-                                    <tr>
-                                        <td colSpan="7" className="text-center py-12">
-                                            <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 p-8">
-                                                <div className="p-4 bg-base-200 rounded-full mb-4">
-                                                    <FaFilter className="text-4xl opacity-50" />
-                                                </div>
-                                                <h3 className="text-xl font-semibold mb-2">No Tickets Found</h3>
-                                                <p className="max-w-md text-center mb-4">
-                                                    No vendor tickets match your search criteria. Try adjusting your filters or search term.
-                                                </p>
-                                                <button
-                                                    className="btn btn-primary btn-sm"
-                                                    onClick={() => {
-                                                        setSearchTerm('');
-                                                        setStatusFilter('all');
-                                                    }}
-                                                >
-                                                    Reset Filters
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    <div className='flex'>
+                                        <tr className="flex w-52 flex-col gap-4 p-4">
+                                            <div className="skeleton h-2 w-full"></div>
+                                            <div className="skeleton h-2 w-full"></div>
+                                        </tr>
+                                        <tr className="flex w-52 flex-col gap-4 p-4">
+                                            <div className="skeleton h-2 w-full"></div>
+                                            <div className="skeleton h-2 w-full"></div>
+                                        </tr>
+                                        <tr className="flex w-52 flex-col gap-4 p-4">
+                                            <div className="skeleton h-2 w-full"></div>
+                                            <div className="skeleton h-2 w-full"></div>
+                                        </tr>
+                                        <tr className="flex w-52 flex-col gap-4 p-4">
+                                            <div className="skeleton h-2 w-full"></div>
+                                            <div className="skeleton h-2 w-full"></div>
+                                        </tr>
+                                        <tr className="flex w-52 flex-col gap-4 p-4">
+                                            <div className="skeleton h-2 w-full"></div>
+                                            <div className="skeleton h-2 w-full"></div>
+                                        </tr>
+                                        <tr className="flex w-52 flex-col gap-4 p-4">
+                                            <div className="skeleton h-2 w-full"></div>
+                                            <div className="skeleton h-2 w-full"></div>
+                                        </tr>
+                                        
+
+                                       
+
+                                    </div>
                                 ) : (
                                     filteredTickets.map((ticket) => (
                                         <tr key={ticket._id} className="hover:bg-base-200/50 transition-colors duration-200 group">
-                                            <td>
-                                                <div className="font-mono font-bold text-primary bg-primary/10 px-3 py-1 rounded-lg inline-block">
+                                            <td className="px-2 sm:px-3 py-2">
+                                                <div className="font-mono font-bold text-primary bg-primary/10 px-1.5 sm:px-2 py-1 rounded text-xs sm:text-sm">
                                                     #{ticket._id?.slice(-6)}
                                                 </div>
-                                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
-                                                    <FaCalendarAlt className="w-3 h-3" />
+                                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+                                                    <FaCalendarAlt className="w-2.5 h-2.5" />
                                                     {ticket.createdAt ?
                                                         new Date(ticket.createdAt).toLocaleDateString() :
                                                         'N/A'
                                                     }
                                                 </div>
                                             </td>
-                                            <td>
-                                                <div className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                                                    <FaTag className="text-primary" />
-                                                    {ticket.title}
+                                            <td className="px-2 sm:px-3 py-2">
+                                                <div className="font-semibold text-gray-900 dark:text-white flex items-center gap-1 text-xs sm:text-sm">
+                                                    <FaTag className="text-primary w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                                                    <span className="truncate max-w-20 sm:max-w-[120px] md:max-w-[180px]">{ticket.title}</span>
                                                 </div>
-                                                {/* <div className="text-sm text-gray-600 dark:text-gray-300 mt-1 truncate max-w-xs">
-                                                    {ticket.description || 'No description available'}
-                                                </div> */}
-                                                <div className="flex items-center gap-2 mt-2">
+                                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 mt-1">
                                                     <span className={getCategoryColor(ticket.category)}>
-                                                        <FaRoute className="w-3 h-3" />
+                                                        <FaRoute className="w-2 h-2 sm:w-2.5 sm:h-2.5" />
                                                         {ticket.category || 'Transport'}
                                                     </span>
-                                                    <div className="flex items-center gap-1 px-2 py-1 bg-base-200 rounded-lg">
-                                                        <FaMapMarkerAlt className="text-success w-3 h-3" />
-                                                        <span className="font-medium">{ticket.from}</span>
-                                                        <ArrowRightIcon className="w-4 h-4 text-gray-400 mx-1" />
-                                                        <FaMapMarkerAlt className="text-error w-3 h-3" />
-                                                        <span className="font-medium">{ticket.to}</span>
+                                                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-base-200 rounded text-xs">
+                                                        <FaMapMarkerAlt className="text-success w-2 h-2" />
+                                                        <span className="font-medium truncate max-w-10 sm:max-w-[60px]">{ticket.from}</span>
+                                                        <ArrowRightIcon className="w-2.5 h-2.5 text-gray-400 mx-0.5" />
+                                                        <FaMapMarkerAlt className="text-error w-2 h-2" />
+                                                        <span className="font-medium truncate max-w-10 sm:max-w-[60px]">{ticket.to}</span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
-                                                <div className="flex items-center gap-3">
+                                            <td className="px-2 sm:px-3 py-2">
+                                                <div className="flex items-center gap-1.5 sm:gap-2">
                                                     <div className="avatar placeholder">
-                                                        <div className=" rounded-full w-10">
-                                                            <img src={user?.photoURL} alt="" className='object-cover' />
+                                                        <div className="rounded-full w-6 sm:w-8">
+                                                            <img src={user?.photoURL} alt="" className='object-cover w-full h-full' />
                                                         </div>
                                                     </div>
-                                                    <div>
-                                                        <div className="font-semibold flex items-center gap-1">
-                                                            <FaStore className="w-3 h-3 text-secondary" />
-                                                            {getVendorName(ticket)}
+                                                    <div className="min-w-0">
+                                                        <div className="font-semibold flex items-center gap-0.5 text-xs sm:text-sm">
+                                                            <FaStore className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-secondary" />
+                                                            <span className="truncate max-w-[60px] sm:max-w-20">{getVendorName(ticket)}</span>
                                                         </div>
-                                                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                                                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[60px] sm:max-w-20">
                                                             {getVendorEmail(ticket)}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <FaMoneyBill className="text-success text-xl" />
-                                                    <span className="font-bold text-xl text-success">${ticket.price}</span>
+                                            <td className="px-2 sm:px-3 py-2">
+                                                <div className="flex items-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
+                                                    <FaMoneyBill className="text-success text-base sm:text-lg" />
+                                                    <span className="font-bold text-base sm:text-lg text-success">${ticket.price}</span>
                                                 </div>
-                                                <div className="text-sm">
+                                                <div className="text-xs sm:text-sm">
                                                     <span className="text-gray-600 dark:text-gray-400">Total: </span>
                                                     <span className="font-semibold">{ticket.quantity}</span>
-                                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                                         📦 {ticket.availableQuantity} available
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
-                                                <div className="flex items-center gap-2">
-                                                    <FaCalendar className="text-primary text-lg" />
+                                            <td className="px-2 sm:px-3 py-2">
+                                                <div className="flex items-center gap-1 sm:gap-1.5">
+                                                    <FaCalendar className="text-primary text-sm sm:text-base" />
                                                     <div>
-                                                        <div className="font-semibold">
+                                                        <div className="font-semibold text-xs sm:text-sm">
                                                             {ticket.departureDateTime ?
                                                                 new Date(ticket.departureDateTime).toLocaleDateString() :
                                                                 'Not specified'
                                                             }
                                                         </div>
-                                                        <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                                                            <FaClock className="w-3 h-3" />
+                                                        <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-0.5">
+                                                            <FaClock className="w-2 h-2" />
                                                             {ticket.departureDateTime ?
                                                                 new Date(ticket.departureDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) :
                                                                 ''
@@ -545,34 +533,34 @@ const updateStatus = (ticketId, verificationStatus) => {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td className="px-2 sm:px-3 py-2">
                                                 {getStatusBadge(ticket.verificationStatus)}
                                             </td>
-                                            <td>
-                                                <div className="flex flex-col gap-2">
+                                            <td className="px-2 sm:px-3 py-2">
+                                                <div className="flex flex-col gap-1">
                                                     <button
                                                         onClick={() => viewTicketDetails(ticket)}
-                                                        className="btn btn-sm btn-info btn-outline gap-2 hover:gap-3 transition-all"
+                                                        className="btn btn-xs btn-info btn-outline gap-1 text-xs px-1.5 sm:px-2 py-1 h-auto"
                                                     >
-                                                        <FaEye />
-                                                        View Details
+                                                        <FaEye className="w-2.5 h-2.5" />
+                                                        <span className="hidden xs:inline">View</span>
                                                     </button>
-                                                    <div className="flex gap-2">
+                                                    <div className="flex gap-0.5 sm:gap-1">
                                                         <button
                                                             onClick={() => handleApprove(ticket)}
                                                             disabled={ticket.verificationStatus === 'approved'}
-                                                            className={`btn btn-sm flex-1 gap-2 ${ticket.verificationStatus === 'approved' ? 'btn-success' : 'btn-outline btn-success hover:btn-success'}`}
+                                                            className={`btn btn-xs flex-1 gap-0.5 text-xs px-1 sm:px-1.5 py-1 h-auto ${ticket.verificationStatus === 'approved' ? 'btn-success' : 'btn-outline btn-success hover:btn-success'}`}
                                                         >
-                                                            <FaCheck />
-                                                            {ticket.verificationStatus === 'approved' ? '✅ Approved' : 'Approve'}
+                                                            <FaCheck className="w-2.5 h-2.5" />
+                                                            <span className="hidden sm:inline">{ticket.verificationStatus === 'approved' ? 'Approved' : 'Approve'}</span>
                                                         </button>
                                                         <button
                                                             onClick={() => handleReject(ticket)}
-                                                            disabled={ticket.verificationStatus === 'rejected'}
-                                                            className={`btn btn-sm flex-1 gap-2 ${ticket.verificationStatus === 'rejected' ? 'btn-error' : 'btn-outline btn-error hover:btn-error'}`}
+                                                            disabled={ticket.verificationStatus === 'rejected' || ticket.verificationStatus === 'approved'}
+                                                            className={`btn btn-xs flex-1 gap-0.5 text-xs px-1 sm:px-1.5 py-1 h-auto ${ticket.verificationStatus === 'rejected' ? 'btn-error' : 'btn-outline btn-error hover:btn-error'}`}
                                                         >
-                                                            <FaTimes />
-                                                            {ticket.verificationStatus === 'rejected' ? '❌ Rejected' : 'Reject'}
+                                                            <FaTimes className="w-2.5 h-2.5" />
+                                                            <span className="hidden sm:inline">{ticket.verificationStatus === 'rejected' ? 'Rejected' : 'Reject'}</span>
                                                         </button>
                                                     </div>
                                                 </div>
@@ -589,19 +577,19 @@ const updateStatus = (ticketId, verificationStatus) => {
             {/* Ticket Details Modal */}
             {isModalOpen && selectedTicket && (
                 <div className="modal modal-open">
-                    <div className="modal-box max-w-5xl bg-base-100 shadow-2xl">
-                        <div className="flex items-center justify-between mb-6 pb-4 border-b border-base-300">
-                            <div className="flex items-center gap-3">
-                                <div className="p-3 bg-primary text-primary-content rounded-xl">
-                                    <FaTicketAlt className="text-2xl" />
+                    <div className="modal-box max-w-full w-full h-full max-h-screen rounded-none lg:rounded-xl lg:max-w-4xl lg:h-auto lg:max-h-[90vh] overflow-y-auto p-3 sm:p-4">
+                        <div className="flex items-center justify-between mb-3 sm:mb-4 pb-2 sm:pb-3 border-b border-base-300">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                                <div className="p-1.5 sm:p-2 bg-primary text-primary-content rounded-lg">
+                                    <FaTicketAlt className="text-lg sm:text-xl" />
                                 </div>
-                                <div>
-                                    <h3 className="font-bold text-2xl text-gray-900 dark:text-white">Ticket Details</h3>
-                                    <p className="text-gray-600 dark:text-gray-300 text-sm">Complete information about this ticket</p>
+                                <div className="min-w-0">
+                                    <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white truncate">Ticket Details</h3>
+                                    <p className="text-gray-600 dark:text-gray-300 text-xs">Complete information about this ticket</p>
                                 </div>
                             </div>
                             <button
-                                className="btn btn-sm btn-circle btn-ghost"
+                                className="btn btn-xs btn-circle btn-ghost"
                                 onClick={() => {
                                     setIsModalOpen(false);
                                     setSelectedTicket(null);
@@ -611,32 +599,32 @@ const updateStatus = (ticketId, verificationStatus) => {
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
                             {/* Left Column */}
-                            <div className="space-y-4">
+                            <div className="space-y-2 sm:space-y-3">
                                 {/* Route Information */}
                                 <div className="card bg-linear-to-r from-primary/10 to-secondary/10 border border-primary/20">
-                                    <div className="card-body p-5">
-                                        <h4 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                                    <div className="card-body p-2.5 sm:p-3">
+                                        <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3 flex items-center gap-1">
                                             <FaRoute className="text-primary" />
                                             Route Information
                                         </h4>
-                                        <div className="space-y-3">
+                                        <div className="space-y-1.5 sm:space-y-2">
                                             <div className="flex justify-between items-center">
-                                                <span className="text-gray-600 dark:text-gray-400">From:</span>
-                                                <span className="font-semibold text-lg flex items-center gap-2">
-                                                    <FaMapMarkerAlt className="text-success" />
-                                                    {selectedTicket.from}
+                                                <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">From:</span>
+                                                <span className="font-semibold text-sm sm:text-base flex items-center gap-1">
+                                                    <FaMapMarkerAlt className="text-success w-3 h-3" />
+                                                    <span className="truncate max-w-[100px] sm:max-w-full">{selectedTicket.from}</span>
                                                 </span>
                                             </div>
-                                            <div className="flex justify-center my-2">
-                                                <ArrowRightIcon className="w-6 h-6 text-primary" />
+                                            <div className="flex justify-center my-0.5 sm:my-1">
+                                                <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                                             </div>
                                             <div className="flex justify-between items-center">
-                                                <span className="text-gray-600 dark:text-gray-400">To:</span>
-                                                <span className="font-semibold text-lg flex items-center gap-2">
-                                                    <FaMapMarkerAlt className="text-error" />
-                                                    {selectedTicket.to}
+                                                <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">To:</span>
+                                                <span className="font-semibold text-sm sm:text-base flex items-center gap-1">
+                                                    <FaMapMarkerAlt className="text-error w-3 h-3" />
+                                                    <span className="truncate max-w-[100px] sm:max-w-full">{selectedTicket.to}</span>
                                                 </span>
                                             </div>
                                         </div>
@@ -645,28 +633,28 @@ const updateStatus = (ticketId, verificationStatus) => {
 
                                 {/* Ticket Information */}
                                 <div className="card bg-base-200 border border-base-300">
-                                    <div className="card-body p-5">
-                                        <h4 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                                    <div className="card-body p-2.5 sm:p-3">
+                                        <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3 flex items-center gap-1">
                                             <FaTicketAlt className="text-secondary" />
                                             Ticket Information
                                         </h4>
-                                        <div className="space-y-3">
+                                        <div className="space-y-1.5 sm:space-y-2">
                                             <div className="flex justify-between items-center">
-                                                <span className="text-gray-600 dark:text-gray-400">Ticket ID:</span>
-                                                <span className="font-mono font-bold text-primary">#{selectedTicket._id?.slice(-8)}</span>
+                                                <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Ticket ID:</span>
+                                                <span className="font-mono font-bold text-primary text-xs">#{selectedTicket._id}</span>
                                             </div>
                                             <div className="flex justify-between items-center">
-                                                <span className="text-gray-600 dark:text-gray-400">Name:</span>
-                                                <span className="font-semibold">{selectedTicket.title}</span>
+                                                <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Name:</span>
+                                                <span className="font-semibold text-xs sm:text-sm truncate max-w-[100px] sm:max-w-full">{selectedTicket.title}</span>
                                             </div>
                                             <div className="flex justify-between items-center">
-                                                <span className="text-gray-600 dark:text-gray-400">Category:</span>
+                                                <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Category:</span>
                                                 <span className={getCategoryColor(selectedTicket.category)}>
                                                     {selectedTicket.category || 'Transport'}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between items-center">
-                                                <span className="text-gray-600 dark:text-gray-400">Status:</span>
+                                                <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Status:</span>
                                                 {getStatusBadge(selectedTicket.verificationStatus)}
                                             </div>
                                         </div>
@@ -675,27 +663,27 @@ const updateStatus = (ticketId, verificationStatus) => {
                             </div>
 
                             {/* Right Column */}
-                            <div className="space-y-4">
+                            <div className="space-y-2 sm:space-y-3">
                                 {/* Pricing Information */}
                                 <div className="card bg-linear-to-r from-success/10 to-emerald-100 dark:from-success/20 dark:to-success/5 border border-success/20">
-                                    <div className="card-body p-5">
-                                        <h4 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                                    <div className="card-body p-2.5 sm:p-3">
+                                        <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3 flex items-center gap-1">
                                             <FaMoneyBill className="text-success" />
                                             Pricing & Availability
                                         </h4>
-                                        <div className="space-y-3">
-                                            <div className="flex justify-between items-center bg-white dark:bg-base-300 p-3 rounded-lg">
-                                                <span className="text-gray-600 dark:text-gray-400">Price per ticket:</span>
-                                                <span className="font-bold text-2xl text-success">${selectedTicket.price}</span>
+                                        <div className="space-y-1.5 sm:space-y-2">
+                                            <div className="flex justify-between items-center bg-white dark:bg-base-300 p-1.5 sm:p-2 rounded">
+                                                <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Price per ticket:</span>
+                                                <span className="font-bold text-lg sm:text-xl text-success">${selectedTicket.price}</span>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <div className="bg-base-100 p-3 rounded-lg">
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Quantity</p>
-                                                    <p className="font-bold text-xl">{selectedTicket.quantity}</p>
+                                            <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+                                                <div className="bg-base-100 p-1.5 sm:p-2 rounded">
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Total Quantity</p>
+                                                    <p className="font-bold text-base sm:text-lg">{selectedTicket.quantity}</p>
                                                 </div>
-                                                <div className="bg-base-100 p-3 rounded-lg">
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400">Available</p>
-                                                    <p className="font-bold text-xl text-primary">{selectedTicket.availableQuantity}</p>
+                                                <div className="bg-base-100 p-1.5 sm:p-2 rounded">
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Available</p>
+                                                    <p className="font-bold text-base sm:text-lg text-primary">{selectedTicket.availableQuantity}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -704,27 +692,27 @@ const updateStatus = (ticketId, verificationStatus) => {
 
                                 {/* Vendor Information */}
                                 <div className="card bg-base-200 border border-base-300">
-                                    <div className="card-body p-5">
-                                        <h4 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                                    <div className="card-body p-2.5 sm:p-3">
+                                        <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3 flex items-center gap-1">
                                             <FaStore className="text-warning" />
                                             Vendor Information
                                         </h4>
-                                        <div className="space-y-3">
-                                            <div className="flex items-center gap-3">
+                                        <div className="space-y-1.5 sm:space-y-2">
+                                            <div className="flex items-center gap-1.5 sm:gap-2">
                                                 <div className="avatar placeholder">
-                                                    <div className="bg-primary text-primary-content rounded-full w-12">
-                                                         <img src={user.photoURL} alt="" />
+                                                    <div className="bg-primary text-primary-content rounded-full w-8 sm:w-10">
+                                                        <img src={user.photoURL} alt="" className="object-cover w-full h-full" />
                                                     </div>
                                                 </div>
-                                                <div>
-                                                    <div className="font-semibold text-lg">{getVendorName(selectedTicket)}</div>
-                                                    <div className="text-sm text-gray-500 dark:text-gray-400">{getVendorEmail(selectedTicket)}</div>
+                                                <div className="min-w-0">
+                                                    <div className="font-semibold text-xs sm:text-sm truncate">{getVendorName(selectedTicket)}</div>
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{getVendorEmail(selectedTicket)}</div>
                                                 </div>
                                             </div>
                                             <div className="flex justify-between items-center">
-                                                <span className="text-gray-600 dark:text-gray-400">Created:</span>
-                                                <span className="flex items-center gap-1">
-                                                    <FaCalendarAlt className="w-3 h-3" />
+                                                <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Created:</span>
+                                                <span className="flex items-center gap-0.5 text-xs">
+                                                    <FaCalendarAlt className="w-2.5 h-2.5" />
                                                     {selectedTicket.createdAt &&
                                                         new Date(selectedTicket.createdAt).toLocaleDateString()
                                                     }
@@ -736,19 +724,9 @@ const updateStatus = (ticketId, verificationStatus) => {
                             </div>
                         </div>
 
-                        {/* Description */}
-                        {/* <div className="card bg-base-200 border border-base-300 mb-8">
-                            <div className="card-body p-5">
-                                <h4 className="font-semibold text-lg mb-3">Description</h4>
-                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed p-3 bg-base-100 rounded-lg">
-                                    {selectedTicket.description || 'No description available for this ticket.'}
-                                </p>
-                            </div>
-                        </div> */}
-
-                        <div className="modal-action">
+                        <div className="modal-action flex-col sm:flex-row gap-1.5 sm:gap-2">
                             <button
-                                className="btn btn-outline hover:btn-error"
+                                className="btn btn-outline hover:btn-error w-full sm:w-auto order-2 sm:order-1 text-xs sm:text-sm px-2 sm:px-3 py-1.5 h-auto"
                                 onClick={() => {
                                     setIsModalOpen(false);
                                     setSelectedTicket(null);
@@ -757,32 +735,34 @@ const updateStatus = (ticketId, verificationStatus) => {
                                 Close
                             </button>
                             {selectedTicket.verificationStatus === 'pending' && (
-                                <>
+                                <div className="flex gap-1.5 sm:gap-2 w-full sm:w-auto order-1 sm:order-2">
                                     <button
                                         onClick={() => handleReject(selectedTicket)}
-                                        className="btn btn-error gap-2 hover:scale-105 transition-transform"
+                                        className="btn btn-error gap-1 hover:scale-105 transition-transform flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3 py-1.5 h-auto"
                                         disabled={actionLoading}
                                     >
                                         {actionLoading ? (
-                                            <span className="loading loading-spinner"></span>
+                                            <span className="loading loading-spinner loading-xs"></span>
                                         ) : (
-                                            <FaTimes />
+                                            <FaTimes className="w-3 h-3" />
                                         )}
-                                        Reject Ticket
+                                        <span className="hidden sm:inline">Reject Ticket</span>
+                                        <span className="sm:hidden">Reject</span>
                                     </button>
                                     <button
                                         onClick={() => handleApprove(selectedTicket)}
-                                        className="btn btn-success gap-2 hover:scale-105 transition-transform"
+                                        className="btn btn-success gap-1 hover:scale-105 transition-transform flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3 py-1.5 h-auto"
                                         disabled={actionLoading}
                                     >
                                         {actionLoading ? (
-                                            <span className="loading loading-spinner"></span>
+                                            <span className="loading loading-spinner loading-xs"></span>
                                         ) : (
-                                            <FaCheck />
+                                            <FaCheck className="w-3 h-3" />
                                         )}
-                                        Approve Ticket
+                                        <span className="hidden sm:inline">Approve Ticket</span>
+                                        <span className="sm:hidden">Approve</span>
                                     </button>
-                                </>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -790,63 +770,6 @@ const updateStatus = (ticketId, verificationStatus) => {
                         setIsModalOpen(false);
                         setSelectedTicket(null);
                     }}></div>
-                </div>
-            )}
-
-            {/* Confirmation Modal */}
-            {confirmAction.isOpen && (
-                <div className="modal modal-open">
-                    <div className="modal-box bg-base-100 shadow-xl">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className={`p-2 rounded-full ${confirmAction.type === 'approve' ? 'bg-success/20' : 'bg-error/20'}`}>
-                                {confirmAction.type === 'approve' ? (
-                                    <FaCheck className="text-success text-2xl" />
-                                ) : (
-                                    <FaTimes className="text-error text-2xl" />
-                                )}
-                            </div>
-                            <h3 className="font-bold text-xl">
-                                {confirmAction.type === 'approve' ? 'Approve Ticket' : 'Reject Ticket'}
-                            </h3>
-                        </div>
-
-                        <p className="py-4">
-                            Are you sure you want to <span className={`font-bold ${confirmAction.type === 'approve' ? 'text-success' : 'text-error'}`}>
-                                {confirmAction.type}
-                            </span> the ticket
-                            <span className="font-semibold text-primary ml-1">"{confirmAction.ticketName}"</span>?
-                        </p>
-
-                        <div className="modal-action">
-                            <button
-                                className="btn btn-outline"
-                                onClick={() => setConfirmAction({ isOpen: false, type: '', ticketId: '', ticketName: '' })}
-                                disabled={actionLoading}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={updateStatus}
-                                className={`btn gap-2 ${confirmAction.type === 'approve' ? 'btn-success' : 'btn-error'}`}
-                                disabled={actionLoading}
-                            >
-                                {actionLoading ? (
-                                    <span className="loading loading-spinner"></span>
-                                ) : confirmAction.type === 'approve' ? (
-                                    <>
-                                        <FaCheck />
-                                        Yes, Approve
-                                    </>
-                                ) : (
-                                    <>
-                                        <FaTimes />
-                                        Yes, Reject
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                    <div className="modal-backdrop" onClick={() => !actionLoading && setConfirmAction({ isOpen: false, type: '', ticketId: '', ticketName: '' })}></div>
                 </div>
             )}
         </div>

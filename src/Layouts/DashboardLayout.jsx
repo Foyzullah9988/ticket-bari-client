@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, use } from 'react';
-import { Link, NavLink, Outlet } from 'react-router';
+import { Link, NavLink, Outlet, useLocation } from 'react-router';
 import { FaHistory, FaUsers, FaHome, FaCog, FaBell, FaSignOutAlt, FaChartLine, FaTicketAlt, FaPlusCircle } from 'react-icons/fa';
 import useRole from '../Hooks/useRole';
 import { MdPendingActions, MdDashboard } from 'react-icons/md';
@@ -16,7 +16,9 @@ const DashboardLayout = () => {
     const { user } = use(AuthContext);
     const { role, roleLoading } = useRole();
     const [sidebarExpanded, setSidebarExpanded] = useState(false);
+    const [isHovering, setIsHovering] = useState(false);
     const hoverTimerRef = useRef(null);
+    const location = useLocation();
 
     const getRoleDisplay = () => {
         switch (role) {
@@ -29,6 +31,7 @@ const DashboardLayout = () => {
 
     const handleSidebarMouseEnter = () => {
         if (window.innerWidth >= 1024) {
+            setIsHovering(true);
             hoverTimerRef.current = setTimeout(() => {
                 setSidebarExpanded(true);
             }, 2000);
@@ -36,23 +39,45 @@ const DashboardLayout = () => {
     };
 
     const handleSidebarMouseLeave = () => {
-        if (hoverTimerRef.current) {
-            clearTimeout(hoverTimerRef.current);
-        }
         if (window.innerWidth >= 1024) {
-            setSidebarExpanded(false);
+            setIsHovering(false);
+            if (hoverTimerRef.current) {
+                clearTimeout(hoverTimerRef.current);
+            }
+            // Only collapse if not manually toggled to stay expanded
+            if (!sidebarExpanded || isHovering) {
+                setSidebarExpanded(false);
+            }
         }
     };
 
     const toggleSidebar = () => {
-        setSidebarExpanded(!sidebarExpanded);
+        setSidebarExpanded(prev => !prev);
     };
 
     const handleLinkClick = () => {
         if (window.innerWidth < 1024) {
             setSidebarExpanded(false);
         }
+        // On desktop, keep sidebar expanded if user clicked to expand it
+        // Otherwise, if it was expanded by hover, collapse it
+        else if (window.innerWidth >= 1024 && !sidebarExpanded) {
+            // If sidebar was expanded by hover, don't do anything
+            // Let the mouse leave handler handle it
+        }
     };
+
+    // Clear all timers and reset state on route change
+    useEffect(() => {
+        if (hoverTimerRef.current) {
+            clearTimeout(hoverTimerRef.current);
+        }
+        setIsHovering(false);
+        // On desktop, collapse sidebar on route change if it was expanded by hover
+        if (window.innerWidth >= 1024 && isHovering) {
+            setSidebarExpanded(false);
+        }
+    }, [location.pathname]);
 
     useEffect(() => {
         return () => {
@@ -77,6 +102,21 @@ const DashboardLayout = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [sidebarExpanded]);
+
+    // Reset sidebar state on window resize
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 1024) {
+                setSidebarExpanded(false);
+                if (hoverTimerRef.current) {
+                    clearTimeout(hoverTimerRef.current);
+                }
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // NavLink component for consistent styling
     const DashboardNavLink = ({ to, icon, children, end = false, className = '' }) => (
@@ -334,7 +374,7 @@ const DashboardLayout = () => {
                 {sidebarExpanded && (
                     <div className="lg:hidden fixed inset-0 z-40">
                         <div
-                            className="absolute inset-0  bg-opacity-50"
+                            className="absolute inset-0 bg-black bg-opacity-50"
                             onClick={toggleSidebar}
                         ></div>
                         <div className="mobile-sidebar absolute left-0 top-0 h-full w-80 bg-white dark:bg-gray-800 shadow-xl">

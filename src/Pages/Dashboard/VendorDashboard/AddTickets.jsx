@@ -151,7 +151,7 @@ const AddTickets = () => {
                     didClose: () => {
                         reset();
                         setPreviewImage(null);
-                        navigate('/vendor/my-tickets');
+                        navigate('/dashboard/my-tickets');
                     }
                 });
             }
@@ -192,7 +192,7 @@ const AddTickets = () => {
                         <div className="bg-blue-50 p-4 rounded-xl">
                             <p className="text-sm text-gray-600">Ticket Price</p>
                             <p className="text-2xl font-bold text-blue-600">
-                                ৳{price || '0'}
+                                {price || '0'} tk
                             </p>
                         </div>
                         <div className="bg-green-50 p-4 rounded-xl">

@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { FaCheck, FaTimes, FaEye, FaFilter, FaSearch, FaDownload, FaSync, FaUser, FaCalendar, FaTicketAlt, FaMoneyBill, FaMapMarkerAlt, FaRoute, FaClock, FaCalendarAlt, FaTag, FaStore } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { useQuery } from '@tanstack/react-query';
 import useAxiosSecure from '../../../Hooks/useAxiosSecure';
 import { ArrowRightIcon } from '@heroicons/react/24/solid';
 import Swal from 'sweetalert2';
+import { AuthContext } from '../../../Context/AuthContext';
 
 const ManageTickets = () => {
+    const { user } = use(AuthContext)
     const axiosSecure = useAxiosSecure();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -26,53 +28,102 @@ const ManageTickets = () => {
 
     // Filter tickets based on search and status
     const filteredTickets = tickets.filter(ticket => {
-        const matchesSearch = 
+        const matchesSearch =
             searchTerm === '' ||
-            ticket.ticketName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            ticket.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            ticket.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             ticket._id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             ticket.from?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             ticket.to?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (ticket.vendor?.name || ticket.vendorName)?.toLowerCase().includes(searchTerm.toLowerCase());
+            (ticket.vendorName)?.toLowerCase().includes(searchTerm.toLowerCase());
 
-        const matchesStatus = 
-            statusFilter === 'all' || 
+        const matchesStatus =
+            statusFilter === 'all' ||
             ticket.verificationStatus === statusFilter;
 
         return matchesSearch && matchesStatus;
     });
 
-    // Handle approve button click with confirmation
-    const handleApprove = (ticket) => {
-        updateStatus(ticket,'approved')
-    };
+   // Handle approve button click with confirmation
+const handleApprove = (ticket) => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: `You want to approve the ticket "${ticket.title}"?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, approve it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            updateStatus(ticket._id, 'approved');
+        }
+    });
+};
 
-    // Handle reject button click with confirmation
-    const handleReject = (ticket) => {
-        if(ticket.verificationStatus === 'approved') return;
-        updateStatus(ticket,'rejected')
-    };
+// Handle reject button click with confirmation
+const handleReject = (ticket) => {
+    if (ticket.verificationStatus === 'approved') return;
+    
+    Swal.fire({
+        title: "Are you sure?",
+        text: `You want to reject the ticket "${ticket.title}"?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, reject it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            updateStatus(ticket._id, 'rejected');
+        }
+    });
+};
 
-    // Execute action after confirmation
-      const updateStatus = (ticket, verificationStatus) => {
-        setActionLoading(true);
-        const updateInfo = { verificationStatus: verificationStatus };
-        axiosSecure.patch(`/tickets/${ticket._id}`, updateInfo)
-            .then(res => {
-                if (res.data.modifiedCount) {
-                    refetch()
-                    setActionLoading(false);
-                    Swal.fire({
-                        position: "top-end",
-                        icon: "success",
-                        title: `Ticket ${status} successful`,
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
+// Execute action after confirmation
+const updateStatus = (ticketId, verificationStatus) => {
+    setActionLoading(true);
+    const updateInfo = { verificationStatus: verificationStatus };
+    
+    axiosSecure.patch(`/tickets/${ticketId}`, updateInfo)
+        .then(res => {
+            if (res.data.modifiedCount > 0) {
+                refetch();
+                setActionLoading(false);
+                
+                // Update selectedTicket if modal is open
+                if (isModalOpen && selectedTicket && selectedTicket._id === ticketId) {
+                    setSelectedTicket(prev => ({
+                        ...prev,
+                        verificationStatus: verificationStatus
+                    }));
                 }
-            })
-        // console.log(id);
-    }
+                
+                Swal.fire({
+                    position: "top-end",
+                    icon: "success",
+                    title: `Ticket ${verificationStatus} successfully!`,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            } else {
+                setActionLoading(false);
+                Swal.fire({
+                    icon: "error",
+                    title: "Update failed",
+                    text: "No changes were made to the ticket."
+                });
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            setActionLoading(false);
+            Swal.fire({
+                icon: "error",
+                title: "Update failed",
+                text: error.response?.data?.message || "Something went wrong!"
+            });
+        });
+};
 
 
     const viewTicketDetails = (ticket) => {
@@ -127,17 +178,16 @@ const ManageTickets = () => {
         }
     };
 
+
+
     // Get vendor name from ticket object
     const getVendorName = (ticket) => {
-        if (ticket.vendor?.name) return ticket.vendor.name;
         if (ticket.vendorName) return ticket.vendorName;
-        if (ticket.vendor) return ticket.vendor;
         return 'Vendor';
     };
 
     // Get vendor email from ticket object
     const getVendorEmail = (ticket) => {
-        if (ticket.vendor?.email) return ticket.vendor.email;
         if (ticket.vendorEmail) return ticket.vendorEmail;
         return 'Email not available';
     };
@@ -145,8 +195,7 @@ const ManageTickets = () => {
     const exportToCSV = () => {
         const headers = ['Ticket ID', 'Name', 'Vendor', 'Category', 'From', 'To', 'Price', 'Quantity', 'Status', 'Date'];
         const csvData = filteredTickets.map(ticket => [
-            ticket._id || ticket.id,
-            ticket.ticketName || ticket.name,
+            ticket._id || ticket.title,
             getVendorName(ticket),
             ticket.category,
             ticket.from,
@@ -168,7 +217,7 @@ const ManageTickets = () => {
         a.href = url;
         a.download = `tickets_${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
-        
+
         toast.success('📥 Report downloaded successfully!', {
             duration: 3000,
             style: {
@@ -417,8 +466,8 @@ const ManageTickets = () => {
                                                 </div>
                                                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
                                                     <FaCalendarAlt className="w-3 h-3" />
-                                                    {ticket.createdAt ? 
-                                                        new Date(ticket.createdAt).toLocaleDateString() : 
+                                                    {ticket.createdAt ?
+                                                        new Date(ticket.createdAt).toLocaleDateString() :
                                                         'N/A'
                                                     }
                                                 </div>
@@ -426,11 +475,11 @@ const ManageTickets = () => {
                                             <td>
                                                 <div className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                                                     <FaTag className="text-primary" />
-                                                    {ticket.ticketName || ticket.name}
+                                                    {ticket.title}
                                                 </div>
-                                                <div className="text-sm text-gray-600 dark:text-gray-300 mt-1 truncate max-w-xs">
+                                                {/* <div className="text-sm text-gray-600 dark:text-gray-300 mt-1 truncate max-w-xs">
                                                     {ticket.description || 'No description available'}
-                                                </div>
+                                                </div> */}
                                                 <div className="flex items-center gap-2 mt-2">
                                                     <span className={getCategoryColor(ticket.category)}>
                                                         <FaRoute className="w-3 h-3" />
@@ -448,10 +497,8 @@ const ManageTickets = () => {
                                             <td>
                                                 <div className="flex items-center gap-3">
                                                     <div className="avatar placeholder">
-                                                        <div className="bg-primary text-primary-content rounded-full w-10">
-                                                            <span className="font-bold">
-                                                                {getVendorName(ticket).charAt(0).toUpperCase()}
-                                                            </span>
+                                                        <div className=" rounded-full w-10">
+                                                            <img src={user?.photoURL} alt="" className='object-cover' />
                                                         </div>
                                                     </div>
                                                     <div>
@@ -468,13 +515,13 @@ const ManageTickets = () => {
                                             <td>
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <FaMoneyBill className="text-success text-xl" />
-                                                    <span className="font-bold text-xl text-success">${ticket.price || 0}</span>
+                                                    <span className="font-bold text-xl text-success">${ticket.price}</span>
                                                 </div>
                                                 <div className="text-sm">
                                                     <span className="text-gray-600 dark:text-gray-400">Total: </span>
-                                                    <span className="font-semibold">{ticket.quantity || 0}</span>
+                                                    <span className="font-semibold">{ticket.quantity}</span>
                                                     <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                        📦 {ticket.available || ticket.quantity || 0} available
+                                                        📦 {ticket.availableQuantity} available
                                                     </div>
                                                 </div>
                                             </td>
@@ -483,15 +530,15 @@ const ManageTickets = () => {
                                                     <FaCalendar className="text-primary text-lg" />
                                                     <div>
                                                         <div className="font-semibold">
-                                                            {ticket.departureDateTime ? 
-                                                                new Date(ticket.departureDateTime).toLocaleDateString() : 
+                                                            {ticket.departureDateTime ?
+                                                                new Date(ticket.departureDateTime).toLocaleDateString() :
                                                                 'Not specified'
                                                             }
                                                         </div>
                                                         <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                                             <FaClock className="w-3 h-3" />
-                                                            {ticket.departureDateTime ? 
-                                                                new Date(ticket.departureDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 
+                                                            {ticket.departureDateTime ?
+                                                                new Date(ticket.departureDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) :
                                                                 ''
                                                             }
                                                         </div>
@@ -499,7 +546,7 @@ const ManageTickets = () => {
                                                 </div>
                                             </td>
                                             <td>
-                                                {getStatusBadge(ticket.verificationStatus || 'pending')}
+                                                {getStatusBadge(ticket.verificationStatus)}
                                             </td>
                                             <td>
                                                 <div className="flex flex-col gap-2">
@@ -563,7 +610,7 @@ const ManageTickets = () => {
                                 ✕
                             </button>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                             {/* Left Column */}
                             <div className="space-y-4">
@@ -610,7 +657,7 @@ const ManageTickets = () => {
                                             </div>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-gray-600 dark:text-gray-400">Name:</span>
-                                                <span className="font-semibold">{selectedTicket.ticketName || selectedTicket.name}</span>
+                                                <span className="font-semibold">{selectedTicket.title}</span>
                                             </div>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-gray-600 dark:text-gray-400">Category:</span>
@@ -620,7 +667,7 @@ const ManageTickets = () => {
                                             </div>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-gray-600 dark:text-gray-400">Status:</span>
-                                                {getStatusBadge(selectedTicket.verificationStatus || 'pending')}
+                                                {getStatusBadge(selectedTicket.verificationStatus)}
                                             </div>
                                         </div>
                                     </div>
@@ -639,16 +686,16 @@ const ManageTickets = () => {
                                         <div className="space-y-3">
                                             <div className="flex justify-between items-center bg-white dark:bg-base-300 p-3 rounded-lg">
                                                 <span className="text-gray-600 dark:text-gray-400">Price per ticket:</span>
-                                                <span className="font-bold text-2xl text-success">${selectedTicket.price || 0}</span>
+                                                <span className="font-bold text-2xl text-success">${selectedTicket.price}</span>
                                             </div>
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div className="bg-base-100 p-3 rounded-lg">
                                                     <p className="text-sm text-gray-500 dark:text-gray-400">Total Quantity</p>
-                                                    <p className="font-bold text-xl">{selectedTicket.quantity || 0}</p>
+                                                    <p className="font-bold text-xl">{selectedTicket.quantity}</p>
                                                 </div>
                                                 <div className="bg-base-100 p-3 rounded-lg">
                                                     <p className="text-sm text-gray-500 dark:text-gray-400">Available</p>
-                                                    <p className="font-bold text-xl text-primary">{selectedTicket.available || selectedTicket.quantity || 0}</p>
+                                                    <p className="font-bold text-xl text-primary">{selectedTicket.availableQuantity}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -666,9 +713,7 @@ const ManageTickets = () => {
                                             <div className="flex items-center gap-3">
                                                 <div className="avatar placeholder">
                                                     <div className="bg-primary text-primary-content rounded-full w-12">
-                                                        <span className="text-lg font-bold">
-                                                            {getVendorName(selectedTicket).charAt(0).toUpperCase()}
-                                                        </span>
+                                                         <img src={user.photoURL} alt="" />
                                                     </div>
                                                 </div>
                                                 <div>
@@ -680,9 +725,8 @@ const ManageTickets = () => {
                                                 <span className="text-gray-600 dark:text-gray-400">Created:</span>
                                                 <span className="flex items-center gap-1">
                                                     <FaCalendarAlt className="w-3 h-3" />
-                                                    {selectedTicket.createdAt ? 
-                                                        new Date(selectedTicket.createdAt).toLocaleDateString() : 
-                                                        'Date not available'
+                                                    {selectedTicket.createdAt &&
+                                                        new Date(selectedTicket.createdAt).toLocaleDateString()
                                                     }
                                                 </span>
                                             </div>
@@ -693,15 +737,15 @@ const ManageTickets = () => {
                         </div>
 
                         {/* Description */}
-                        <div className="card bg-base-200 border border-base-300 mb-8">
+                        {/* <div className="card bg-base-200 border border-base-300 mb-8">
                             <div className="card-body p-5">
                                 <h4 className="font-semibold text-lg mb-3">Description</h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed p-3 bg-base-100 rounded-lg">
                                     {selectedTicket.description || 'No description available for this ticket.'}
                                 </p>
                             </div>
-                        </div>
-                        
+                        </div> */}
+
                         <div className="modal-action">
                             <button
                                 className="btn btn-outline hover:btn-error"
@@ -765,14 +809,14 @@ const ManageTickets = () => {
                                 {confirmAction.type === 'approve' ? 'Approve Ticket' : 'Reject Ticket'}
                             </h3>
                         </div>
-                        
+
                         <p className="py-4">
                             Are you sure you want to <span className={`font-bold ${confirmAction.type === 'approve' ? 'text-success' : 'text-error'}`}>
                                 {confirmAction.type}
                             </span> the ticket
                             <span className="font-semibold text-primary ml-1">"{confirmAction.ticketName}"</span>?
                         </p>
-                        
+
                         <div className="modal-action">
                             <button
                                 className="btn btn-outline"

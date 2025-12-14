@@ -69,7 +69,7 @@ export default function TicketCard({ lastedTickets }) {
                             <div className="relative overflow-hidden rounded-xl mb-4">
                                 <figure className="relative">
                                     <img
-                                        src={ticket.image || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'}
+                                        src={ticket.image }
                                         className="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-500"
                                         alt={ticket.title}
                                         onError={(e) => {

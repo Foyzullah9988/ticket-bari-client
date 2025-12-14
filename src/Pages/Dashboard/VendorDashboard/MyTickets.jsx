@@ -1,17 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import React, { useContext } from 'react';
-import useAxiosSecure from '../../Hooks/useAxiosSecure';
-import { AuthContext } from '../../Context/AuthContext';
+import useAxiosSecure from '../../../Hooks/useAxiosSecure';
+import { AuthContext } from '../../../Context/AuthContext';
 import { FaTicketAlt, FaCalendar, FaMapMarkerAlt, FaMoneyBill, FaClock, FaCheckCircle, FaTimesCircle, FaExclamationTriangle, FaTrash, FaEye, FaDownload } from 'react-icons/fa';
 import { MdPendingActions } from 'react-icons/md';
 import { Link } from 'react-router';
 import Swal from 'sweetalert2';
+import Loading from '../../../Components/Shared/Loading';
 
 const MyTickets = () => {
     const { user } = useContext(AuthContext);
     const axiosSecure = useAxiosSecure();
 
-    const { data: tickets = [], refetch, isLoading, isError } = useQuery({
+    const { data: tickets = [], refetch, isLoading} = useQuery({
         queryKey: ['my-tickets', user?.email],
         queryFn: async () => {
             
@@ -26,11 +27,13 @@ const MyTickets = () => {
         enabled: !!user?.email
     });
 
+    const sortedTickets = tickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     // Get status badge color
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
             case 'confirmed':
-            case 'completed':
+            case 'approved':
                 return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
             case 'pending':
             case 'processing':
@@ -47,7 +50,7 @@ const MyTickets = () => {
     const getStatusIcon = (status) => {
         switch (status?.toLowerCase()) {
             case 'confirmed':
-            case 'completed':
+            case 'approved':
                 return <FaCheckCircle className="text-green-500" />;
             case 'pending':
             case 'processing':
@@ -132,27 +135,10 @@ const MyTickets = () => {
         console.log('Downloading ticket:', ticket._id);
     };
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <div className="text-center">
-                    <div className="loading loading-spinner loading-lg text-primary mb-4"></div>
-                    <p className="text-gray-600 dark:text-gray-400">Loading your tickets...</p>
-                </div>
-            </div>
-        );
-    }
+    if (isLoading)  return <Loading/>
+    
 
-    if (isError) {
-        return (
-            <div className="alert alert-error shadow-lg">
-                <div>
-                    <FaTimesCircle className="text-xl" />
-                    <span>Failed to load tickets. Please try again.</span>
-                </div>
-            </div>
-        );
-    }
+    
 
     return (
         <div className="space-y-6">
@@ -175,9 +161,9 @@ const MyTickets = () => {
                 <div className="bg-linear-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm opacity-90">Confirmed</p>
+                            <p className="text-sm opacity-90">Approved</p>
                             <h3 className="text-3xl font-bold mt-2">
-                                {tickets.filter(t => t.verificationStatus?.toLowerCase() === 'confirmed').length}
+                                {tickets.filter(t => t.verificationStatus?.toLowerCase() === 'approved').length}
                             </h3>
                         </div>
                         <FaCheckCircle className="text-4xl opacity-80" />
@@ -201,7 +187,7 @@ const MyTickets = () => {
                         <div>
                             <p className="text-sm opacity-90">Total Cost</p>
                             <h3 className="text-3xl font-bold mt-2">
-                                ৳{tickets.reduce((sum, ticket) => sum + (ticket.price ), 0)}
+                                {tickets.reduce((sum, ticket) => sum + (ticket.price ), 0)} tk
                             </h3>
                         </div>
                         <FaMoneyBill className="text-4xl opacity-80" />
@@ -238,7 +224,7 @@ const MyTickets = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {tickets.map((ticket) => (
+                                {sortedTickets.map((ticket) => (
                                     <tr
                                         key={ticket._id}
                                         className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -252,7 +238,7 @@ const MyTickets = () => {
                                                 </div>
                                                 <div>
                                                     <div className="font-bold text-gray-800 dark:text-white">
-                                                        {ticket.title || `Ticket #${ticket._id?.slice(-6)}`}
+                                                        {ticket.title}
                                                     </div>
                                                     <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
                                                         <FaMapMarkerAlt className="text-xs" />
@@ -275,10 +261,10 @@ const MyTickets = () => {
                                         </td>
                                         <td>
                                             <div className="text-lg font-bold text-gray-800 dark:text-white">
-                                                ৳{ticket.price || '0'}
+                                                {ticket.price } tk
                                             </div>
                                             <div className="text-sm text-gray-500 dark:text-gray-400">
-                                                {ticket.seats || 1} seat(s)
+                                                {ticket.seats} seat(s)
                                             </div>
                                         </td>
                                         <td>
@@ -349,8 +335,8 @@ const MyTickets = () => {
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="font-bold text-gray-800 dark:text-white">৳{ticket.price || '0'}</p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Paid</p>
+                                <p className="font-bold text-gray-800 dark:text-white">{ticket.price } tk</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{ticket.verificationStatus}</p>
                             </div>
                         </div>
                     ))}

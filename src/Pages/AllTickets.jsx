@@ -18,8 +18,10 @@ const AllTickets = () => {
         }
     })
 
+     const appTickets = tickets.filter(ticket => ticket.verificationStatus === 'approved');
+
     const lastedTickets = 
-    tickets
+    appTickets
     .sort((a,b) =>new Date(b.createdAt)-new Date(a.createdAt))
 
     if(isLoading)return <Loading />

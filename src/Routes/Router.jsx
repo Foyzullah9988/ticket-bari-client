@@ -12,9 +12,9 @@ import Loading from "../Components/Shared/Loading";
 import TicketDetails from "../Pages/TicketDetails";
 import DashboardLayout from "../Layouts/DashboardLayout";
 import DashboardHome from "../Pages/Dashboard/DashboardHome/DashboardHome";
-import AddTickets from "../Pages/Dashboard/AddTickets";
+import AddTickets from "../Pages/Dashboard/VendorDashboard/AddTickets";
 import Profile from "../Pages/Dashboard/Profile";
-import MyTickets from "../Pages/Dashboard/MyTickets";
+import MyTickets from "../Pages/Dashboard/VendorDashboard/MyTickets";
 import ManageTickets from "../Pages/Dashboard/AdminDashboard/ManageTickets";
 
 

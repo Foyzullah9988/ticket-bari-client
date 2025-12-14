@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
-import { AuthContext } from '../../Context/AuthContext';
+import { AuthContext } from '../../../Context/AuthContext';
 import { useNavigate } from 'react-router';
-import useAxiosSecure from '../../Hooks/useAxiosSecure';
+import useAxiosSecure from '../../../Hooks/useAxiosSecure';
 import { FaPlane, FaBus, FaTrain, FaCar, FaShip, FaCloudUploadAlt, FaCalendarAlt, FaCheck } from 'react-icons/fa';
 import axios from 'axios';
 

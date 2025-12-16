@@ -32,7 +32,16 @@ const Profile = () => {
     if (isLoading) {
         return (
             <div className="min-h-[400px] flex items-center justify-center">
-                <Loading />
+                <div className="flex w-52 flex-col gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="skeleton h-16 w-16 shrink-0 rounded-full"></div>
+                        <div className="flex flex-col gap-4">
+                            <div className="skeleton h-4 w-20"></div>
+                            <div className="skeleton h-4 w-28"></div>
+                        </div>
+                    </div>
+                    <div className="skeleton h-32 w-full"></div>
+                </div>
             </div>
         );
     }
@@ -58,16 +67,6 @@ const Profile = () => {
 
     console.log(userData);
 
-    // Handle no data state
-    if (!userData || Object.keys(userData).length === 0) {
-        return (
-            <div className="min-h-[400px] flex flex-col items-center justify-center">
-                <UserCircleIcon className="h-20 w-20 text-gray-400 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">Profile Not Found</h3>
-                <p className="text-gray-500">Your data hadn't found.</p>
-            </div>
-        );
-    }
 
     const { displayName, email, role, photoURL, createdAt, lastLogin } = userData;
 

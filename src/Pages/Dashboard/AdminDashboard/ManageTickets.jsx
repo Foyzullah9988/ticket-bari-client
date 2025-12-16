@@ -43,6 +43,8 @@ const ManageTickets = () => {
         return matchesSearch && matchesStatus;
     });
 
+   
+    
     // Handle approve button click with confirmation
     const handleApprove = (ticket) => {
         Swal.fire({
@@ -178,23 +180,13 @@ const ManageTickets = () => {
         }
     };
 
-    // Get vendor name from ticket object
-    const getVendorName = (ticket) => {
-        if (ticket.vendorName) return ticket.vendorName;
-        return 'Vendor';
-    };
-
-    // Get vendor email from ticket object
-    const getVendorEmail = (ticket) => {
-        if (ticket.vendorEmail) return ticket.vendorEmail;
-        return 'Email not available';
-    };
+ 
 
     const exportToCSV = () => {
         const headers = ['Ticket ID', 'Name', 'Vendor', 'Category', 'From', 'To', 'Price', 'Quantity', 'Status', 'Date'];
         const csvData = filteredTickets.map(ticket => [
             ticket._id || ticket.title,
-            getVendorName(ticket),
+            ticket.vendorName,
             ticket.category,
             ticket.from,
             ticket.to,
@@ -492,10 +484,10 @@ const ManageTickets = () => {
                                                     <div className="min-w-0">
                                                         <div className="font-semibold flex items-center gap-0.5 text-xs sm:text-sm">
                                                             <FaStore className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-secondary" />
-                                                            <span className="truncate max-w-[60px] sm:max-w-20">{getVendorName(ticket)}</span>
+                                                            <span className="truncate max-w-[60px] sm:max-w-20">{ticket.vendorName}</span>
                                                         </div>
                                                         <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[60px] sm:max-w-20">
-                                                            {getVendorEmail(ticket)}
+                                                            {ticket.vendorEmail}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -503,7 +495,7 @@ const ManageTickets = () => {
                                             <td className="px-2 sm:px-3 py-2">
                                                 <div className="flex items-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
                                                     <FaMoneyBill className="text-success text-base sm:text-lg" />
-                                                    <span className="font-bold text-base sm:text-lg text-success">${ticket.price}</span>
+                                                    <span className="font-bold text-base sm:text-lg text-success">{ticket.price} tk</span>
                                                 </div>
                                                 <div className="text-xs sm:text-sm">
                                                     <span className="text-gray-600 dark:text-gray-400">Total: </span>
@@ -701,12 +693,12 @@ const ManageTickets = () => {
                                             <div className="flex items-center gap-1.5 sm:gap-2">
                                                 <div className="avatar placeholder">
                                                     <div className="bg-primary text-primary-content rounded-full w-8 sm:w-10">
-                                                        <img src={user.photoURL} alt="" className="object-cover w-full h-full" />
+                                                        <img src={user?.photoURL} alt="" className="object-cover w-full h-full" />
                                                     </div>
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <div className="font-semibold text-xs sm:text-sm truncate">{getVendorName(selectedTicket)}</div>
-                                                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{getVendorEmail(selectedTicket)}</div>
+                                                    <div className="font-semibold text-xs sm:text-sm truncate">{selectedTicket.vendorName}</div>
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{selectedTicket.vendorEmail}</div>
                                                 </div>
                                             </div>
                                             <div className="flex justify-between items-center">

@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa";
 import { MdAirlineSeatReclineNormal } from "react-icons/md";
 import Skeleton1 from "../../Components/Shared/Skeleton1";
-
+import EmptyComponent from "../../Components/EmptyComponent";
 // Transport type icon mapping
 const transportIcons = {
     bus: FaBus,
@@ -26,8 +26,10 @@ const transportIcons = {
     default: FaBus
 };
 
-export default function TicketCard({ lastedTickets, isLoading }) {
+const TicketCard = ({ realTickets, isLoading }) => {
 
+  
+    
     // Format date
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -59,7 +61,7 @@ export default function TicketCard({ lastedTickets, isLoading }) {
         <div className="flex flex-col h-full">
             <div className="grid grid-cols-1 md:grid-cols-2  xl:grid-cols-4 w-full gap-6">
                 {
-                    isLoading  ? (
+                    isLoading ? (
 
                         Array.from({ length: 4 }).map((_, index) => (
                             <Skeleton1 key={index} />
@@ -67,7 +69,8 @@ export default function TicketCard({ lastedTickets, isLoading }) {
 
                     ) : null
                 }
-                {lastedTickets.map((ticket) => {
+                {realTickets.length === 0? <EmptyComponent/>:
+                 realTickets.map((ticket) => {
                     const TransportIcon = transportIcons[ticket.transportType?.toLowerCase()] || transportIcons.default;
 
 
@@ -237,3 +240,5 @@ export default function TicketCard({ lastedTickets, isLoading }) {
         </div>
     );
 }
+
+export default TicketCard;

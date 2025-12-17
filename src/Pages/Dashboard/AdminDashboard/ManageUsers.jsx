@@ -98,6 +98,11 @@ const ManageUsers = () => {
                 color: 'bg-green-100 text-green-800',
                 icon: <FaUser className="mr-1" />,
                 text: 'User'
+            },
+            fraud: {
+                color: 'bg-red-100 text-red-800',
+                icon: <FaUser className="mr-1" />,
+                text: 'fraud'
             }
         };
 
@@ -174,17 +179,7 @@ const ManageUsers = () => {
         // console.log(id);
     }
 
-    // const handleAdmin = user => {
-    //     updateRiderStatus(user, 'admin')
-    // }
 
-    //  const handleVendor = user => {
-    //     updateRiderStatus(user, 'vendor')
-    // }
-    // const handleUser = user => {
-    //     updateRiderStatus(user, 'user')
-    // }
-    
 
     return (
         <div className="p-4 md:p-6">
@@ -258,30 +253,32 @@ const ManageUsers = () => {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Role</label>
-                        <div className="relative">
-                            <FaFilter className="absolute left-3 top-3 text-gray-400" />
-                            <select
-                                value={filterRole}
-                                onChange={(e) => setFilterRole(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition appearance-none bg-white"
-                            >
-                                <option value="all">All Roles</option>
-                                <option value="user">Users</option>
-                                <option value="vendor">Vendors</option>
-                                <option value="admin">Admins</option>
-                            </select>
-                        </div>
-                        <div className="form-control  flex justify-end mt-2 self-end">
-                            <button
-                                className="btn btn-outline btn-error gap-1.5 text-xs px-2 sm:px-3 py-2 h-auto"
-                                onClick={() => {
-                                    setSearchTerm('');
-                                    setFilterRole('all');
-                                }}
-                            >
-                                <FaTimes className="w-3 h-3" />
-                                Clear
-                            </button>
+                        <div className="flex justify-center items-center gap-4">
+                            <div className="relative w-full ">
+                                <FaFilter className="absolute left-3 top-3 text-gray-400" />
+                                <select
+                                    value={filterRole}
+                                    onChange={(e) => setFilterRole(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition appearance-none bg-white"
+                                >
+                                    <option value="all">All Roles</option>
+                                    <option value="user">Users</option>
+                                    <option value="vendor">Vendors</option>
+                                    <option value="admin">Admins</option>
+                                </select>
+                            </div>
+                            <div className="form-control  flex justify-end  self-end mb-1">
+                                <button
+                                    className="btn btn-outline btn-error gap-1.5 text-xs px-2 sm:px-3 py-2 h-auto"
+                                    onClick={() => {
+                                        setSearchTerm('');
+                                        setFilterRole('all');
+                                    }}
+                                >
+                                    <FaTimes className="w-3 h-3" />
+                                    Clear
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -390,8 +387,8 @@ const ManageUsers = () => {
                                                 {user.role !== 'admin' && (
                                                     <button
                                                         onClick={() => {
-                                         openModal('role', user, 'admin');
-                                         
+                                                            openModal('role', user, 'admin');
+
                                                         }}
                                                         disabled={currentUser?._id === user._id}
                                                         title={currentUser?._id === user._id ? "Cannot change your own role" : "Make Admin"}
@@ -431,7 +428,7 @@ const ManageUsers = () => {
                                                 {/* Mark as Fraud */}
                                                 {user.role === 'vendor' && !user.isFraud && (
                                                     <button
-                                                        onClick={() => openModal('fraud', user)}
+                                                        onClick={() => openModal('role', user, 'fraud')}
                                                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
                                                     >
                                                         <FaExclamationTriangle className="mr-1" />
@@ -496,7 +493,7 @@ const ManageUsers = () => {
                                     Cancel
                                 </button>
                                 <button
-                                    onClick={()=>{updateRiderStatus(modalData.user, modalData.newRole); closeModal();}}
+                                    onClick={() => { updateRiderStatus(modalData.user, modalData.newRole); closeModal(); }}
                                     disabled={isLoading}
                                     className={`px-4 py-2 text-sm font-medium  dark:text-white bg-[#3085d6]  rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2  disabled:opacity-50 transition`}
                                 >

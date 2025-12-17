@@ -7,37 +7,60 @@ import Skeleton1 from '../../Components/Shared/Skeleton1';
 
 const LatestTickets = () => {
     const axiosSecure = useAxiosSecure();
-    
-    const { data: tickets = [], isLoading, error } = useQuery({
-        queryKey: ['latest-tickets'],
+
+
+    const { data: users = [], isLoading: usersLoading } = useQuery({
+        queryKey: ['users'],
         queryFn: async () => {
-            const res = await axiosSecure.get('/tickets');
+            const res = await axiosSecure.get('/users');
             return res.data;
         },
         retry: 2,
     });
 
-   
-    
-    
+    const { data: tickets = [], isLoading: ticketsLoading, error } = useQuery({
+        queryKey: ['latest-tickets', users.length],
+        queryFn: async () => {
+            const res = await axiosSecure.get('/tickets');
+            return res.data;
+        },
+        enabled: !usersLoading,
+        retry: 2,
+    });
+
     if (error) {
-        console.error('Error fetching tickets:', error);
+        console.error(error);
         return <div>Error loading tickets</div>;
     }
 
- 
-    const appTickets = tickets.filter(ticket => ticket.verificationStatus === 'approved');
+    if (usersLoading || ticketsLoading) {
+        return <div className='flex justify-evenly items-center'>
+            <Skeleton1 /> <Skeleton1 /> 
+        </div>;
+    }
 
-    const lastedTickets = 
-    appTickets
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 8);
 
-    console.log(tickets);
+    const fraudEmails = users
+        .filter(user => user.role === 'fraud')
+        .map(user => user.email);
+
+    console.log(fraudEmails);
+
+
+    const realTickets = tickets
+        .filter(ticket =>
+            ticket.verificationStatus === 'approved' &&
+            !fraudEmails.includes(ticket?.vendorEmail)
+        )
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 8);
+
+    console.log(realTickets);
+
     return (
         <div>
-            <h2>tickets{lastedTickets.length}</h2>
-            <TicketCard lastedTickets={lastedTickets} isLoading={isLoading}/>
+            <h2>Latest Tickets: {realTickets.length}</h2>
+            <TicketCard realTickets={realTickets} isLoading={ticketsLoading} />
         </div>
     );
 };

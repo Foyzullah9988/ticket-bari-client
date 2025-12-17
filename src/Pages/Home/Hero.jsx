@@ -9,7 +9,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/effect-fade';
 
-export default function Hero() {
+const Hero = () => {
     const slides = [
         {
             id: 1,
@@ -76,7 +76,7 @@ export default function Hero() {
                     disableOnInteraction: false,
                 }}
                 pagination={true}
-                
+
                 navigation={true}
                 loop={true}
                 speed={1000}
@@ -130,22 +130,22 @@ export default function Hero() {
                                             <div className="flex flex-col sm:flex-row gap-4">
                                                 <Link
                                                     to="/all-tickets"
-                                                    className="inline-flex items-center justify-center gap-3 bg-linear-to-r from-white to-gray-100 text-gray-900 md:px-8 md:py-4 rounded-2xl font-bold text-lg hover:from-gray-100 hover:to-white transform hover:-translate-y-1 transition-all duration-300 shadow-2xl shadow-white/20"
+                                                    className="inline-flex items-center justify-center gap-3 px-2 bg-linear-to-r from-white to-gray-100 text-gray-900 md:px-8 md:py-1 rounded-2xl font-bold text-lg hover:from-gray-100 hover:to-white transform hover:-translate-y-1 transition-all duration-300 shadow-2xl shadow-white/20"
                                                 >
                                                     {slide.buttonText}
                                                     <FaArrowRight className="group-hover:translate-x-2 transition-transform" />
                                                 </Link>
 
                                                 <Link
-                                                    to="/dashboard/add-ticket"
-                                                    className="inline-flex items-center justify-center gap-3 bg-transparent border-2 border-white/30 text-white md:px-8 md:py-4 rounded-2xl font-bold text-lg hover:bg-white/10 hover:border-white/50 transition-all duration-300 backdrop-blur-sm"
+                                                    to="/dashboard"
+                                                    className="inline-flex items-center justify-center gap-3 bg-transparent border-2 border-white/30 px-2 text-white md:px-8 md:py-4 rounded-2xl font-bold text-lg hover:bg-white/10 hover:border-white/50 transition-all duration-300 backdrop-blur-sm"
                                                 >
                                                     Become a Vendor
                                                 </Link>
                                             </div>
 
                                             {/* Stats */}
-                                            <div className="md:mt-12 mt-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            <div className="md:mt-12 mt-3 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                                                 <div className="bg-white/10 backdrop-blur-sm rounded-xl md:p-4 border border-white/20">
                                                     <div className="md:text-3xl md:font-bold text-white">5000+</div>
                                                     <div className="text-white/70 text-sm">Tickets Booked</div>
@@ -154,11 +154,11 @@ export default function Hero() {
                                                     <div className="md:text-3xl md:font-bold text-white">150+</div>
                                                     <div className="text-white/70 text-sm">Active Routes</div>
                                                 </div>
-                                                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                                                <div className="bg-white/10 backdrop-blur-sm rounded-xl md:p-4 border border-white/20">
                                                     <div className="md:text-3xl md:font-bold text-white">98%</div>
                                                     <div className="text-white/70 text-sm">Customer Satisfaction</div>
                                                 </div>
-                                                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                                                <div className="bg-white/10 backdrop-blur-sm rounded-xl md:p-4 border border-white/20">
                                                     <div className="md:text-3xl md:font-bold text-white">24/7</div>
                                                     <div className="text-white/70 text-sm">Support Available</div>
                                                 </div>
@@ -280,3 +280,5 @@ export default function Hero() {
         </div>
     );
 }
+
+export default Hero;

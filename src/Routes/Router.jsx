@@ -17,6 +17,7 @@ import Profile from "../Pages/Dashboard/Profile";
 import MyTickets from "../Pages/Dashboard/VendorDashboard/MyTickets";
 import ManageTickets from "../Pages/Dashboard/AdminDashboard/ManageTickets";
 import ManageUsers from "../Pages/Dashboard/AdminDashboard/ManageUsers";
+import Advertise from "../Pages/Dashboard/AdminDashboard/Advertise";
 
 
 export const router = createBrowserRouter([
@@ -92,6 +93,10 @@ export const router = createBrowserRouter([
             {
                 path: '/dashboard/manage-users',
                 element: <ManageUsers />
+            },
+            {
+                path: '/dashboard/advertise',
+                element: <Advertise />
             },
         ]
     },

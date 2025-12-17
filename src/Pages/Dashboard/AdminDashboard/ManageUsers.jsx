@@ -18,6 +18,7 @@ import { useQuery } from '@tanstack/react-query';
 import { AuthContext } from '../../../Context/AuthContext';
 import useAxiosSecure from '../../../Hooks/useAxiosSecure';
 import Loading from '../../../Components/Shared/Loading';
+import Swal from 'sweetalert2';
 
 const ManageUsers = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -28,11 +29,11 @@ const ManageUsers = () => {
     const axiosSecure = useAxiosSecure();
 
     // Fetch users with proper error handling
-    const { 
-        data: users = [], 
-        isLoading, 
-        error, 
-        refetch 
+    const {
+        data: users = [],
+        isLoading,
+        error,
+        refetch
     } = useQuery({
         queryKey: ['users'],
         queryFn: async () => {
@@ -48,7 +49,7 @@ const ManageUsers = () => {
 
 
 
-    
+
     // Open modal with different actions
     const openModal = (type, user, newRole = null) => {
         let modalData = {
@@ -57,7 +58,7 @@ const ManageUsers = () => {
             newRole
         };
 
-       
+
 
         setModalData(modalData);
         setShowModal(true);
@@ -72,12 +73,12 @@ const ManageUsers = () => {
 
     // Filter and search users
     const filteredUsers = users.filter(user => {
-        const matchesSearch = searchTerm === '' || 
+        const matchesSearch = searchTerm === '' ||
             user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             user.email?.toLowerCase().includes(searchTerm.toLowerCase());
-        
+
         const matchesRole = filterRole === 'all' || user.role === filterRole;
-        
+
         return matchesSearch && matchesRole;
     });
 
@@ -119,7 +120,7 @@ const ManageUsers = () => {
             );
         }
 
-      
+
     };
 
     // Loading state
@@ -155,59 +156,87 @@ const ManageUsers = () => {
         );
     }
 
+    const updateRiderStatus = (user, role) => {
+        const updateInfo = { role: role, email: user?.email };
+        axiosSecure.patch(`/users/${user._id}`, updateInfo)
+            .then(res => {
+                if (res.data.modifiedCount) {
+                    refetch()
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "success",
+                        title: `User role is set to ${role} successfully.`,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            })
+        // console.log(id);
+    }
+
+    // const handleAdmin = user => {
+    //     updateRiderStatus(user, 'admin')
+    // }
+
+    //  const handleVendor = user => {
+    //     updateRiderStatus(user, 'vendor')
+    // }
+    // const handleUser = user => {
+    //     updateRiderStatus(user, 'user')
+    // }
+    
+
     return (
         <div className="p-4 md:p-6">
-            
+
 
             <div className="mb-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-linear-to-r from-primary/10 to-secondary/10 rounded-lg sm:rounded-xl">
                     <div>
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Manage Users</h1>
                         <p className="text-gray-600">Manage user roles, mark vendors as fraud, and delete users</p>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2 mt-4 md:mt-0">
                         <button
-                            onClick={refetch}
-                            className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                            onClick={() => refetch()}
+                            className="btn btn-primary btn-outline gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-auto"
                         >
-                            <FaSync className="mr-2" />
-                            Refresh
+                            <FaSync className={`${isLoading ? 'animate-spin' : ''} w-3 h-3`} />
+                            <span className="hidden sm:inline">Refresh</span>
                         </button>
-                        <span className="text-sm text-gray-500">
-                            {filteredUsers.length} of {users.length} users
-                        </span>
+
                     </div>
-                    
+
                 </div>
                 {/* Statistics Cards */}
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                <div className="bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
-                    <div className="text-xl md:text-3xl font-bold mb-2">{users.length}</div>
-                    <div className="text-sm opacity-90">Total Users</div>
-                </div>
-
-                <div className="bg-linear-to-r from-green-500 to-green-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
-                    <div className="text-xl md:text-3xl font-bold mb-2">
-                        {users.filter(u => u.role === 'user').length}
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div className="bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
+                        <div className="text-xl md:text-3xl font-bold mb-2">{users.length}</div>
+                        <div className="text-sm opacity-90">Total Users</div>
                     </div>
-                    <div className="text-sm opacity-90">Regular Users</div>
-                </div>
 
-                <div className="bg-linear-to-r from-purple-500 to-purple-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
-                    <div className="text-xl md:text-3xl font-bold mb-2">
-                        {users.filter(u => u.role === 'vendor').length}
+                    <div className="bg-linear-to-r from-green-500 to-green-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
+                        <div className="text-xl md:text-3xl font-bold mb-2">
+                            {users.filter(u => u.role === 'user').length}
+                        </div>
+                        <div className="text-sm opacity-90">Regular Users</div>
                     </div>
-                    <div className="text-sm opacity-90">Vendors</div>
-                </div>
 
-                <div className="bg-linear-to-r from-red-500 to-red-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
-                    <div className="text-xl md:text-3xl font-bold mb-2">
-                        {users.filter(u => u.isFraud).length}
+                    <div className="bg-linear-to-r from-purple-500 to-purple-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
+                        <div className="text-xl md:text-3xl font-bold mb-2">
+                            {users.filter(u => u.role === 'vendor').length}
+                        </div>
+                        <div className="text-sm opacity-90">Vendors</div>
                     </div>
-                    <div className="text-sm opacity-90">Fraud Vendors</div>
+
+                    <div className="bg-linear-to-r from-red-500 to-red-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
+                        <div className="text-xl md:text-3xl font-bold mb-2">
+                            {users.filter(u => u.isFraud).length}
+                        </div>
+                        <div className="text-sm opacity-90">Fraud Vendors</div>
+                    </div>
                 </div>
-            </div>
             </div>
 
             {/* Filters and Search */}
@@ -242,14 +271,27 @@ const ManageUsers = () => {
                                 <option value="admin">Admins</option>
                             </select>
                         </div>
+                        <div className="form-control  flex justify-end mt-2 self-end">
+                            <button
+                                className="btn btn-outline btn-error gap-1.5 text-xs px-2 sm:px-3 py-2 h-auto"
+                                onClick={() => {
+                                    setSearchTerm('');
+                                    setFilterRole('all');
+                                }}
+                            >
+                                <FaTimes className="w-3 h-3" />
+                                Clear
+                            </button>
+                        </div>
                     </div>
                 </div>
-                
+
                 {/* Quick Stats */}
                 <div className="flex flex-wrap gap-2 mt-4">
                     <span className="text-sm text-gray-500">
                         Total: <span className="font-semibold">{users.length}</span>
                     </span>
+
                     <span className="text-sm text-gray-500">
                         Users: <span className="font-semibold">{users.filter(u => u.role === 'user').length}</span>
                     </span>
@@ -260,6 +302,9 @@ const ManageUsers = () => {
                         Admins: <span className="font-semibold">{users.filter(u => u.role === 'admin').length}</span>
                     </span>
                 </div>
+                <span className="text-sm text-gray-500">
+                    Filtered: <span className="font-semibold">{filteredUsers.length}</span>
+                </span>
             </div>
 
             {/* Users Table */}
@@ -269,8 +314,8 @@ const ManageUsers = () => {
                         <FaSearch className="text-4xl text-gray-300 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-gray-700 mb-2">No users found</h3>
                         <p className="text-gray-500">
-                            {searchTerm || filterRole !== 'all' 
-                                ? 'Try adjusting your search or filter' 
+                            {searchTerm || filterRole !== 'all'
+                                ? 'Try adjusting your search or filter'
                                 : 'No users in the system yet'}
                         </p>
                     </div>
@@ -344,7 +389,10 @@ const ManageUsers = () => {
                                                 {/* Make Admin */}
                                                 {user.role !== 'admin' && (
                                                     <button
-                                                        onClick={() => openModal('role', user, 'admin')}
+                                                        onClick={() => {
+                                         openModal('role', user, 'admin');
+                                         
+                                                        }}
                                                         disabled={currentUser?._id === user._id}
                                                         title={currentUser?._id === user._id ? "Cannot change your own role" : "Make Admin"}
                                                         className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition ${currentUser?._id === user._id ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -392,7 +440,7 @@ const ManageUsers = () => {
                                                 )}
 
                                                 {/* Delete User */}
-                                                <button
+                                                {/* <button
                                                     onClick={() => openModal('delete', user)}
                                                     disabled={currentUser?._id === user._id}
                                                     title={currentUser?._id === user._id ? "Cannot delete yourself" : "Delete User"}
@@ -400,7 +448,7 @@ const ManageUsers = () => {
                                                 >
                                                     <FaTrash className="mr-1" />
                                                     Delete
-                                                </button>
+                                                </button> */}
                                             </div>
                                         </td>
                                     </tr>
@@ -411,20 +459,20 @@ const ManageUsers = () => {
                 )}
             </div>
 
-            
+
             {/* Modal Component - Defined Inside ManageUsers */}
             {showModal && modalData && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-                    <div 
-                        className="fixed inset-0 bg-black/80 bg-opacity-50" 
+                    <div
+                        className="fixed inset-0 bg-black/80 bg-opacity-50"
                         onClick={!isLoading ? closeModal : undefined}
                     ></div>
-                    
+
                     <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md">
                         <div className="p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-semibold text-gray-900">
-                                    {modalData.title}
+                                    Update user !
                                 </h3>
                                 <button
                                     onClick={closeModal}
@@ -434,23 +482,23 @@ const ManageUsers = () => {
                                     <FaTimes className="w-5 h-5" />
                                 </button>
                             </div>
-                            
+
                             <p className="text-gray-600 mb-6">
-                                {modalData.message}
+                                Are you sure you want to change the role of <strong>{modalData.user.displayName}</strong> to <strong>{modalData.newRole}</strong>?
                             </p>
-                            
+
                             <div className="flex justify-end space-x-3">
                                 <button
                                     onClick={closeModal}
                                     disabled={isLoading}
-                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 transition"
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-[#d33] rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 transition"
                                 >
                                     Cancel
                                 </button>
                                 <button
-                                    onClick={modalData.onConfirm}
+                                    onClick={()=>{updateRiderStatus(modalData.user, modalData.newRole); closeModal();}}
                                     disabled={isLoading}
-                                    className={`px-4 py-2 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${modalData.confirmColor} disabled:opacity-50 transition`}
+                                    className={`px-4 py-2 text-sm font-medium  dark:text-white bg-[#3085d6]  rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2  disabled:opacity-50 transition`}
                                 >
                                     {isLoading ? (
                                         <span className="flex items-center">
@@ -461,7 +509,7 @@ const ManageUsers = () => {
                                             Processing...
                                         </span>
                                     ) : (
-                                        modalData.confirmText
+                                        'Confirm'
                                     )}
                                 </button>
                             </div>

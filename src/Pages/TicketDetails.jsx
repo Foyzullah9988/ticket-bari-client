@@ -154,10 +154,10 @@ export default function TicketDetails() {
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-linear-to-br from-gray-900 to-black">
+        <div className="flex flex-col min-h-screen bg-linear-to-br from-gray-900 dark:to-black">
             <Navbar fixed={false} />
             <div className="flex-1 flex items-center justify-center p-4 md:p-6">
-                <div className="w-full max-w-4xl bg-linear-to-br from-gray-900 via-gray-900 to-black text-white rounded-3xl p-6 md:p-8 shadow-2xl border border-gray-800">
+                <div className="w-full max-w-4xl dark:bg-linear-to-br from-gray-900 dark:via-gray-900 dark:to-black text-white rounded-3xl p-6 md:p-8 shadow-2xl border border-gray-800">
                     {/* Header with Ticket Icon */}
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
@@ -191,7 +191,7 @@ export default function TicketDetails() {
                         </div>
 
                         <div className="lg:w-3/5">
-                            <div className="bg-linear-to-r from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700">
+                            <div className="dark:bg-linear-to-r from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700">
                                 <h2 className="text-2xl font-bold mb-4 text-center">{ticket.title}</h2>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -319,7 +319,7 @@ export default function TicketDetails() {
                     </div>
 
                     {/* Quantity Selector */}
-                    <div className="bg-linear-to-r from-gray-800 to-gray-900 rounded-2xl p-6 mb-8 border border-gray-700">
+                    <div className="dark:bg-linear-to-r from-gray-800 to-gray-900 rounded-2xl p-6 mb-8 border border-gray-700">
                         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
                             <div className="mb-4 md:mb-0">
                                 <h3 className="text-xl font-bold flex items-center gap-2 mb-1">
@@ -387,7 +387,7 @@ export default function TicketDetails() {
                     </div>
 
                     {/* Perks Section */}
-                    <div className="bg-linear-to-r from-gray-800 to-gray-900 rounded-2xl p-6 mb-8 border border-gray-700">
+                    <div className="dark:bg-linear-to-r from-gray-800 to-gray-900 rounded-2xl p-6 mb-8 border border-gray-700">
                         <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                             <FaStar className="text-yellow-400" />
                             Ticket Perks & Features
@@ -412,7 +412,9 @@ export default function TicketDetails() {
                     </div>
 
                     {/* Book Now Button */}
-                    <button className="w-full bg-linear-to-r from-emerald-500 via-green-500 to-emerald-600 text-white py-5 rounded-2xl font-bold text-xl hover:from-emerald-600 hover:via-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-2xl shadow-emerald-500/20 flex items-center justify-center gap-3 group">
+                    <button className="group/btn w-full inline-flex items-center justify-center gap-2 bg-  bg-linear-to-l from-green-500 to-green-900 dark:to-black/90 dark:from-black/5
+                                    hover:from-10% hover:to-40%
+                                     text-white py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl">
                         <FaCheckCircle className="group-hover:rotate-12 transition-transform" />
                         Book {quantity} Ticket{quantity > 1 ? 's' : ''} for {formatPrice(totalPrice)} tk
                     </button>

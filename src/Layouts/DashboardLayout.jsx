@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, use } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router';
 import { FaHistory, FaUsers, FaHome, FaCog, FaBell, FaSignOutAlt, FaChartLine, FaTicketAlt, FaPlusCircle } from 'react-icons/fa';
 import useRole from '../Hooks/useRole';
@@ -11,9 +11,10 @@ import { FaMoneyBillTrendUp } from 'react-icons/fa6';
 import { HiOutlineUserGroup } from 'react-icons/hi';
 import { RiAdvertisementLine } from 'react-icons/ri';
 import { AuthContext } from '../Context/AuthContext';
+import Theme from '../Components/Shared/Theme';
 
 const DashboardLayout = () => {
-    const { user } = use(AuthContext);
+
     const { role, roleLoading } = useRole();
     const [sidebarExpanded, setSidebarExpanded] = useState(false);
     const [isHovering, setIsHovering] = useState(false);
@@ -119,10 +120,11 @@ const DashboardLayout = () => {
     }, []);
 
     // NavLink component for consistent styling
-    const DashboardNavLink = ({ to, icon, children, end = false, className = '' }) => (
+    const DashboardNavLink = ({ to, icon, children,label, end = false, className = '' }) => (
         <li>
             <NavLink
                 to={to}
+                title={!sidebarExpanded ?label:''}
                 end={end}
                 onClick={handleLinkClick}
                 className={({ isActive }) =>
@@ -138,34 +140,7 @@ const DashboardLayout = () => {
         </li>
     );
 
-    // User profile section component
-    const UserProfileSection = ({ expanded }) => (
-        <div className={`flex items-center gap-3 p-3 bg-linear-to-r from-blue-50 to-green-50 dark:from-gray-700 dark:to-gray-700 rounded-lg ${expanded ? 'opacity-100' : 'opacity-0 pointer-events-none h-0 overflow-hidden'}`}>
-            <div className="avatar">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                    <img
-                        src={user?.photoURL || user?.imageURL}
-                        referrerPolicy='no-referrer'
-                        alt={user?.displayName}
-                        className='object-cover w-full h-full rounded-full'
-                    />
-                </div>
-            </div>
-            {expanded && (
-                <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-800 dark:text-white truncate">{user?.displayName}</h3>
-                    <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 text-xs rounded-full ${role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' :
-                            role === 'vendor' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                                'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                            }`}>
-                            {getRoleDisplay()}
-                        </span>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
+ 
 
     // Navigation links based on user role
     const renderRoleBasedLinks = () => {
@@ -178,13 +153,13 @@ const DashboardLayout = () => {
                                 <h4 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">Tickets</h4>
                             </div>
                         )}
-                        <DashboardNavLink
+                        <DashboardNavLink label={'My Tickets'}
                             to="/dashboard/my-tickets"
                             icon={<FaTicketAlt className="text-lg min-w-5" />}
                         >
                             <span>My Tickets</span>
                         </DashboardNavLink>
-                        <DashboardNavLink
+                        <DashboardNavLink label={'Book New Ticket'}
                             to="/dashboard/book-ticket"
                             icon={<FaPlusCircle className="text-lg min-w-5" />}
                         >
@@ -195,7 +170,7 @@ const DashboardLayout = () => {
                                 <h4 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">History</h4>
                             </div>
                         )}
-                        <DashboardNavLink
+                        <DashboardNavLink label={'Transaction History'}
                             to="/dashboard/transactions"
                             icon={<FaHistory className="text-lg min-w-5" />}
                         >
@@ -212,13 +187,13 @@ const DashboardLayout = () => {
                                 <h4 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">Ticket Management</h4>
                             </div>
                         )}
-                        <DashboardNavLink
+                        <DashboardNavLink label={'Add New Ticket'}
                             to="/dashboard/add-tickets"
                             icon={<LuTicketPlus className="text-lg min-w-5" />}
                         >
                             <span>Add New Ticket</span>
                         </DashboardNavLink>
-                        <DashboardNavLink
+                        <DashboardNavLink label={'My Tickets'}
                             to="/dashboard/my-tickets"
                             icon={<LuTicketCheck className="text-lg min-w-5" />}
                         >
@@ -232,7 +207,7 @@ const DashboardLayout = () => {
                                 <h4 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">Business</h4>
                             </div>
                         )}
-                        <DashboardNavLink
+                        <DashboardNavLink label={'Booking Requests'}
                             to="/dashboard/bookings"
                             icon={<MdPendingActions className="text-lg min-w-5" />}
                         >
@@ -241,13 +216,13 @@ const DashboardLayout = () => {
                                 <span className="badge badge-warning">5</span>
                             </div>
                         </DashboardNavLink>
-                        <DashboardNavLink
+                        <DashboardNavLink label={'Revenue'}
                             to="/dashboard/revenue"
                             icon={<FaMoneyBillTrendUp className="text-lg min-w-5" />}
                         >
                             <span>Revenue</span>
                         </DashboardNavLink>
-                        <DashboardNavLink
+                        <DashboardNavLink label={'Analytics'}
                             to="/dashboard/analytics"
                             icon={<FaChartLine className="text-lg min-w-5" />}
                         >
@@ -264,7 +239,7 @@ const DashboardLayout = () => {
                                 <h4 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">Administration</h4>
                             </div>
                         )}
-                        <DashboardNavLink
+                        <DashboardNavLink label={'Manage Tickets'}
                             to="/dashboard/manage-tickets"
                             icon={<IoTicketOutline className="text-lg min-w-5" />}
                         >
@@ -273,13 +248,13 @@ const DashboardLayout = () => {
                                 <span className="badge badge-primary">45</span>
                             </div>
                         </DashboardNavLink>
-                        <DashboardNavLink
-                            to="/dashboard/users"
+                        <DashboardNavLink label={'Manage Users'}
+                            to="/dashboard/manage-users"
                             icon={<HiOutlineUserGroup className="text-lg min-w-5" />}
                         >
                             <span>Manage Users</span>
                         </DashboardNavLink>
-                        <DashboardNavLink
+                        <DashboardNavLink label={'Advertise Tickets'}
                             to="/dashboard/advertise"
                             icon={<RiAdvertisementLine className="text-lg min-w-5" />}
                         >
@@ -290,7 +265,7 @@ const DashboardLayout = () => {
                                 <h4 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">Reports</h4>
                             </div>
                         )}
-                        <DashboardNavLink
+                        <DashboardNavLink label={'System Reports'}
                             to="/dashboard/reports"
                             icon={<FaChartLine className="text-lg min-w-5" />}
                         >
@@ -329,7 +304,11 @@ const DashboardLayout = () => {
                         </div>
                     </Link>
                 </div>
+                <div className=''>
+                <Theme/>
             </div>
+            </div>
+            
 
             {/* Main Layout */}
             <div className="flex pt-16">
@@ -340,10 +319,7 @@ const DashboardLayout = () => {
                     onMouseEnter={handleSidebarMouseEnter}
                     onMouseLeave={handleSidebarMouseLeave}
                 >
-                    {/* Profile Section */}
-                    <div className={`p-4 border-b border-gray-200 dark:border-gray-700 transition-all duration-300 ${sidebarExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none h-0 overflow-hidden'}`}>
-                        <UserProfileSection expanded={sidebarExpanded} />
-                    </div>
+                    
 
                     {/* Navigation Menu */}
                     <div className="p-2">
@@ -377,11 +353,8 @@ const DashboardLayout = () => {
                             className="absolute inset-0 bg-opacity-50"
                             onClick={toggleSidebar}
                         ></div>
-                        <div className="mobile-sidebar absolute left-0 top-0 h-full w-80 bg-white dark:bg-gray-800 shadow-xl">
-                            {/* Mobile Sidebar Header */}
-                            <div className="p-4 border-b border-gray-200 dark:border-gray-700 mt-12">
-                                <UserProfileSection expanded={true} />
-                            </div>
+                        <div className="mobile-sidebar absolute left-0 top-0 h-full w-80 mt-3 bg-white dark:bg-gray-800 shadow-xl">
+                            
 
                             {/* Mobile Navigation Menu */}
                             <div className="p-2 overflow-y-auto h-[calc(100%-120px)]">

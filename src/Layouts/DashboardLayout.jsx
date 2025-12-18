@@ -398,7 +398,7 @@ const DashboardLayout = () => {
                         </div>
 
                         {/* Welcome Banner */}
-                        <div className="mb-8 bg-linear-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+                        <div className="mb-8 bg-linear-to-r dark:from-blue-900 dark:to-purple-900 from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
                             <h2 className="text-2xl md:text-3xl font-bold mb-2">Welcome back! 👋</h2>
                             <p className="opacity-90">Here's what's happening with your tickets today.</p>
                             <div className="mt-4 flex items-center gap-4">

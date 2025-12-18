@@ -101,7 +101,7 @@ const ManageUsers = () => {
             },
             fraud: {
                 color: 'bg-red-100 text-red-800',
-                icon: <FaUser className="mr-1" />,
+                icon: <FaExclamationTriangle className="mr-1" />,
                 text: 'fraud'
             }
         };
@@ -115,18 +115,7 @@ const ManageUsers = () => {
         );
     };
 
-    const getStatusBadge = (user) => {
-        if (user.isFraud) {
-            return (
-                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 flex items-center">
-                    <FaExclamationTriangle className="mr-1" />
-                    Fraud
-                </span>
-            );
-        }
-
-
-    };
+ 
 
     // Loading state
     if (isLoading) {
@@ -188,8 +177,8 @@ const ManageUsers = () => {
             <div className="mb-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-linear-to-r from-primary/10 to-secondary/10 rounded-lg sm:rounded-xl">
                     <div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Manage Users</h1>
-                        <p className="text-gray-600">Manage user roles, mark vendors as fraud, and delete users</p>
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2 dark:text-white">Manage Users</h1>
+                        <p className="text-gray-600 dark:text-gray-400">Manage user roles, mark vendors as fraud, and delete users</p>
                     </div>
 
                     <div className="flex items-center space-x-2 mt-4 md:mt-0">
@@ -206,26 +195,26 @@ const ManageUsers = () => {
                 </div>
                 {/* Statistics Cards */}
                 <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                    <div className="bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
+                    <div className="bg-linear-to-r dark:from-blue-900 dark:to-cyan-900 from-blue-500 to-cyan-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
                         <div className="text-xl md:text-3xl font-bold mb-2">{users.length}</div>
                         <div className="text-sm opacity-90">Total Users</div>
                     </div>
 
-                    <div className="bg-linear-to-r from-green-500 to-green-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
+                    <div className="bg-linear-to-r dark:from-green-900 dark:to-emerald-900 from-green-500 to-emerald-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
                         <div className="text-xl md:text-3xl font-bold mb-2">
                             {users.filter(u => u.role === 'user').length}
                         </div>
                         <div className="text-sm opacity-90">Regular Users</div>
                     </div>
 
-                    <div className="bg-linear-to-r from-purple-500 to-purple-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
+                    <div className="bg-linear-to-r dark:from-purple-900 dark:to-violet-900 from-purple-500 to-violet-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
                         <div className="text-xl md:text-3xl font-bold mb-2">
                             {users.filter(u => u.role === 'vendor').length}
                         </div>
                         <div className="text-sm opacity-90">Vendors</div>
                     </div>
 
-                    <div className="bg-linear-to-r from-red-500 to-red-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
+                    <div className="bg-linear-to-r dark:to-orange-900 dark:from-red-900 to-orange-500 from-red-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
                         <div className="text-xl md:text-3xl font-bold mb-2">
                             {users.filter(u => u.isFraud).length}
                         </div>
@@ -235,7 +224,7 @@ const ManageUsers = () => {
             </div>
 
             {/* Filters and Search */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
+            {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Search Users</label>
@@ -283,7 +272,7 @@ const ManageUsers = () => {
                     </div>
                 </div>
 
-                {/* Quick Stats */}
+                
                 <div className="flex flex-wrap gap-2 mt-4">
                     <span className="text-sm text-gray-500">
                         Total: <span className="font-semibold">{users.length}</span>
@@ -302,10 +291,55 @@ const ManageUsers = () => {
                 <span className="text-sm text-gray-500">
                     Filtered: <span className="font-semibold">{filteredUsers.length}</span>
                 </span>
-            </div>
+            </div> */}
+            <div className="card bg-base-100 shadow border border-base-300">
+                            <div className="card-body p-3 sm:p-4 ">
+                                <div className="flex flex-col  gap-4 items-center  ">
+                                    <div className="flex-1 w-full ">
+                                        <div className="relative">
+                                            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                            <input
+                                                type="text"
+                                                placeholder="Search tickets by title, origin, or destination"
+                                                className="input border input-bordered w-full pl-12"
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='flex justify-end items-center  w-full'>
+                                        <div className="flex gap-2">
+                                            <div className="dropdown dropdown-bottom">
+                                                <label tabIndex={0} className="btn btn-outline gap-2">
+                                                    <FaFilter />
+                                                    Filter: {filterRole === 'all' ? 'All' : filterRole}
+                                                </label>
+                                                <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                                                    <li><button onClick={() => setFilterRole('all')}>All </button></li>
+                                                    <li><button onClick={() => setFilterRole('user')}>User</button></li>
+                                                    <li><button onClick={() => setFilterRole('vendor')}>Vendor</button></li>
+                                                    <li><button onClick={() => setFilterRole('admin')}>Admin</button></li>
+                                                    <li><button onClick={() => setFilterRole('fraud')}>Fraud</button></li>
+                                                    
+                                                </ul>
+                                            </div>
+                                            <button
+                                                className="btn btn-outline btn-error gap-1.5 text-xs px-2 sm:px-3 py-2 h-auto"
+                                                onClick={() => {
+                                                    setSearchTerm('');
+                                                    setFilterRole('all');
+                                                }}
+                                            >
+                                                Clear
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
             {/* Users Table */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white dark:bg-base-200 rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 {filteredUsers.length === 0 ? (
                     <div className="text-center py-12">
                         <FaSearch className="text-4xl text-gray-300 mx-auto mb-4" />
@@ -319,7 +353,7 @@ const ManageUsers = () => {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                            <thead className="bg-gray-50 dark:bg-gray-700">
                                 <tr>
                                     <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         User
@@ -337,13 +371,13 @@ const ManageUsers = () => {
                             </thead>
                             <tbody className="divide-y divide-gray-200">
                                 {filteredUsers.map((user) => (
-                                    <tr key={user._id} className="hover:bg-gray-50 transition-colors">
+                                    <tr key={user._id} className="hover:bg-base-100 transition-colors">
                                         <td className="px-4 md:px-6 py-4">
                                             <div className="flex items-center">
                                                 <div className="shrink-0 h-10 w-10 md:h-12 md:w-12">
                                                     <img
                                                         className="h-10 w-10 md:h-12 md:w-12 rounded-full object-cover border-2 border-gray-200"
-                                                        src={user.photoURL || '/default-avatar.png'}
+                                                        src={user.photoURL }
                                                         alt={user.name}
                                                         onError={(e) => {
                                                             e.target.onerror = null;
@@ -352,11 +386,11 @@ const ManageUsers = () => {
                                                     />
                                                 </div>
                                                 <div className="ml-3">
-                                                    <div className="text-sm font-medium text-gray-900 truncate max-w-[150px] md:max-w-none">
-                                                        {user.name}
-                                                        {currentUser?._id === user._id && (
-                                                            <span className="ml-2 text-xs text-blue-600">(You)</span>
-                                                        )}
+                                                    <div className="text-sm font-medium text-gray-900 truncate max-w-[150px] md:max-w-none dark:text-white">
+                                                        {user.displayName}
+                                                        {currentUser?.email === user?.email && (
+    <span className="ml-2 text-xs text-blue-600">(You)</span>
+)}
                                                     </div>
                                                     <div className="text-sm text-gray-500 truncate max-w-[150px] md:max-w-none">
                                                         {user.email}
@@ -368,15 +402,15 @@ const ManageUsers = () => {
                                         <td className="px-4 md:px-6 py-4">
                                             <div className="space-y-2">
                                                 <div>{getRoleBadge(user.role)}</div>
-                                                <div>{getStatusBadge(user)}</div>
+                                               
                                             </div>
                                         </td>
 
                                         <td className="px-4 md:px-6 py-4">
-                                            <div className="text-sm text-gray-900">
+                                            <div className="text-sm text-gray-900 dark:text-white">
                                                 {new Date(user.createdAt).toLocaleDateString()}
                                             </div>
-                                            <div className="text-sm text-gray-500">
+                                            <div className="text-sm text-gray-500 dark:text-gray-400">
                                                 {new Date(user.createdAt).toLocaleTimeString()}
                                             </div>
                                         </td>
@@ -392,7 +426,7 @@ const ManageUsers = () => {
                                                         }}
                                                         disabled={currentUser?._id === user._id}
                                                         title={currentUser?._id === user._id ? "Cannot change your own role" : "Make Admin"}
-                                                        className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition ${currentUser?._id === user._id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                        className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 dark:bg-purple-900 hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition ${currentUser?._id === user._id ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                     >
                                                         <FaUserShield className="mr-1" />
                                                         Admin
@@ -405,7 +439,7 @@ const ManageUsers = () => {
                                                         onClick={() => openModal('role', user, 'vendor')}
                                                         disabled={currentUser?._id === user._id}
                                                         title={currentUser?._id === user._id ? "Cannot change your own role" : "Make Vendor"}
-                                                        className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ${currentUser?._id === user._id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                        className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 dark:bg-blue-900 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ${currentUser?._id === user._id ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                     >
                                                         <FaStore className="mr-1" />
                                                         Vendor
@@ -418,7 +452,7 @@ const ManageUsers = () => {
                                                         onClick={() => openModal('role', user, 'user')}
                                                         disabled={currentUser?._id === user._id}
                                                         title={currentUser?._id === user._id ? "Cannot change your own role" : "Make User"}
-                                                        className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition ${currentUser?._id === user._id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                        className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 dark:bg-green-900 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition ${currentUser?._id === user._id ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                     >
                                                         <FaUser className="mr-1" />
                                                         User
@@ -426,10 +460,10 @@ const ManageUsers = () => {
                                                 )}
 
                                                 {/* Mark as Fraud */}
-                                                {user.role === 'vendor' && !user.isFraud && (
+                                                {user.role === 'vendor' &&  (
                                                     <button
                                                         onClick={() => openModal('role', user, 'fraud')}
-                                                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
+                                                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 dark:bg-red-900 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
                                                     >
                                                         <FaExclamationTriangle className="mr-1" />
                                                         Fraud

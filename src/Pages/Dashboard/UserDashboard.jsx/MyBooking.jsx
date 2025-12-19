@@ -35,9 +35,9 @@ import toast from "react-hot-toast";
 import Navbar from "../../../Components/Shared/Navbar";
 import Footer from "../../../Components/Shared/Footer";
 import { AuthContext } from "../../../Context/AuthContext";
-import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import Loading from "../../../Components/Shared/Loading";
 import Skeleton2 from "../../../Components/Shared/Skeleton2";
+import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 
 const MyBookings=()=> {
     const { user } = useContext(AuthContext);
@@ -201,7 +201,7 @@ const MyBookings=()=> {
 
     const handlePayNow = (bookingId) => {
         // Navigate to payment page or open payment modal
-        navigate(`/payment/${bookingId}`);
+        navigate(`/dashboard/payment/${bookingId}`);
     };
 
     const handleShareBooking = (booking) => {

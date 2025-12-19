@@ -20,6 +20,9 @@ import ManageUsers from "../Pages/Dashboard/AdminDashboard/ManageUsers";
 import Advertise from "../Pages/Dashboard/AdminDashboard/Advertise";
 import MyBooking from "../Pages/Dashboard/UserDashboard.jsx/MyBooking";
 import BookingsRequest from "../Pages/Dashboard/VendorDashboard/BookingsRequest";
+import Payment from "../Pages/Dashboard/UserDashboard.jsx/Payment";
+import PaymentCancel from "../Pages/Dashboard/UserDashboard.jsx/PaymentCancel";
+import PaymentSuccess from "../Pages/Dashboard/UserDashboard.jsx/PaymentSuccess";
 
 
 export const router = createBrowserRouter([
@@ -107,6 +110,18 @@ export const router = createBrowserRouter([
             {
                 path: '/dashboard/bookings',
                 element: <BookingsRequest />
+            },
+            {
+                path: '/dashboard/payment/:ticketId',
+                element: <Payment />
+            },
+            {
+                path: '/dashboard/payment-success',
+                element: <PaymentSuccess />
+            },
+            {
+                path: '/dashboard/payment-cancelled',
+                element: <PaymentCancel />
             },
         ]
     },

@@ -154,13 +154,13 @@ const DashboardLayout = () => {
                             </div>
                         )}
                         <DashboardNavLink label={'My Tickets'}
-                            to="/dashboard/my-tickets"
+                            to="/dashboard/my-bookings"
                             icon={<FaTicketAlt className="text-lg min-w-5" />}
                         >
                             <span>My Tickets</span>
                         </DashboardNavLink>
                         <DashboardNavLink label={'Book New Ticket'}
-                            to="/dashboard/book-ticket"
+                            to="/all-tickets"
                             icon={<FaPlusCircle className="text-lg min-w-5" />}
                         >
                             <span>Book New Ticket</span>

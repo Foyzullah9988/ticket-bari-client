@@ -92,14 +92,17 @@ export default function TicketDetails() {
             from: ticket.from,
             to: ticket.to,
             departureDateTime: ticket.departureDateTime,
+            vendorEmail: ticket.vendorEmail,
             pricePerTicket: ticket.price,
             quantity: quantity,
             totalPrice: totalPrice,
             userEmail: user.email,
             userName: user.displayName,
+            userPhoto: user?.photoURL,
             userId: user._id,
             bookingDate: new Date().toISOString(),
             paymentStatus: 'pending',
+            status: 'pending',
             bookingReference: `BK${Date.now()}`,
         };
 

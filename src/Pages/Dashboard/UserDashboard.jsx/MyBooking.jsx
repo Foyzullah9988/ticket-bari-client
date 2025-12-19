@@ -37,6 +37,7 @@ import Footer from "../../../Components/Shared/Footer";
 import { AuthContext } from "../../../Context/AuthContext";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import Loading from "../../../Components/Shared/Loading";
+import Skeleton2 from "../../../Components/Shared/Skeleton2";
 
 const MyBookings=()=> {
     const { user } = useContext(AuthContext);
@@ -48,14 +49,18 @@ const MyBookings=()=> {
 
     // Fetch user bookings
     const { data: bookings = [], isLoading, error } = useQuery({
-        queryKey: ['userBookings', user?.email],
+        queryKey: ['bookings', user?.email],
         queryFn: async () => {
-            const res = await axiosSecure.get(`/bookings/user/${user.email}`);
+            const res = await axiosSecure.get('/bookings',{params:{userEmail:user?.email}}
+            );
             return res.data;
         },
         enabled: !!user?.email,
-        refetchInterval: 30000, // Refetch every 30 seconds for countdown updates
+        refetchInterval: 30000, 
     });
+
+
+    console.log(bookings);
 
     // Cancel booking mutation
     const cancelMutation = useMutation({
@@ -107,7 +112,7 @@ const MyBookings=()=> {
             accepted: { 
                 color: "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300",
                 icon: <FaCheckCircle className="text-blue-500" />,
-                text: "Accepted"
+                text: "accepted"
             },
             rejected: { 
                 color: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300",
@@ -214,12 +219,7 @@ const MyBookings=()=> {
         }
     };
 
-    // const handlePrintTicket = (booking) => {
-    //     // In a real app, this would generate a printable ticket PDF
-    //     toast.success("Ticket printing in progress...");
-    //     // window.print() or generate PDF
-    // };
-
+   
     // Stats calculation
     const totalSpent = bookings.reduce((sum, booking) => sum + (booking.totalPrice || 0), 0);
     const upcomingBookings = bookings.filter(b => 
@@ -233,7 +233,7 @@ const MyBookings=()=> {
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
                 <Navbar />
                 <div className="container mx-auto px-4 py-8">
-                    <Loading />
+                    <Skeleton2/>
                 </div>
                 <Footer />
             </div>

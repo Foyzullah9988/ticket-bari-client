@@ -19,6 +19,7 @@ import ManageTickets from "../Pages/Dashboard/AdminDashboard/ManageTickets";
 import ManageUsers from "../Pages/Dashboard/AdminDashboard/ManageUsers";
 import Advertise from "../Pages/Dashboard/AdminDashboard/Advertise";
 import MyBooking from "../Pages/Dashboard/UserDashboard.jsx/MyBooking";
+import BookingsRequest from "../Pages/Dashboard/VendorDashboard/BookingsRequest";
 
 
 export const router = createBrowserRouter([
@@ -102,6 +103,10 @@ export const router = createBrowserRouter([
             {
                 path: '/dashboard/my-bookings',
                 element: <MyBooking />
+            },
+            {
+                path: '/dashboard/bookings',
+                element: <BookingsRequest />
             },
         ]
     },

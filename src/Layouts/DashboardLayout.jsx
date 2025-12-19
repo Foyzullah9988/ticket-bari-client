@@ -357,7 +357,7 @@ const DashboardLayout = () => {
                             
 
                             {/* Mobile Navigation Menu */}
-                            <div className="p-2 overflow-y-auto h-[calc(100%-120px)]">
+                            <div className="p-2 overflow-y-auto h-[calc(100%-120px)] mt-12">
                                 <ul className="menu space-y-1">
                                     {/* Common Links */}
                                     <DashboardNavLink

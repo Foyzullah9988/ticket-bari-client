@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 import useAxiosSecure from '../../../Hooks/useAxiosSecure';
 import Loading from '../../../Components/Shared/Loading';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import Skeleton1 from '../../../Components/Shared/Skeleton1';
 
 const AdvertiseTickets = () => {
     const axiosSecure = useAxiosSecure();
@@ -40,7 +41,7 @@ const AdvertiseTickets = () => {
             return res.data;
         },
         // If you don't have separate endpoint, comment this and use filtered data
-        enabled: false, // Set to true if you have /tickets/advertised endpoint
+        enabled: false, 
     });
 
 
@@ -168,7 +169,12 @@ const AdvertiseTickets = () => {
 
 
     if (isLoading) {
-        return <Loading />;
+        return <div className='flex flex-col justify-center items-center gap-2'>
+            <div className="skeleton h-4 w-full"></div>
+            <div className="skeleton h-4 w-full"></div>
+            <div className="skeleton h-4 w-full"></div>
+            <div className="skeleton h-4 w-full"></div>
+        </div>;
     }
 
     if (isError) {
@@ -318,11 +324,11 @@ const AdvertiseTickets = () => {
                     <div className="flex flex-col  gap-4 items-center  ">
                         <div className="flex-1 w-full ">
                             <div className="relative">
-                                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                <FaSearch className="absolute z-10 left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="text"
                                     placeholder="Search tickets by title, origin, or destination"
-                                    className="input border input-bordered w-full pl-12"
+                                    className="input border input-bordered w-full md:pl-12 pl-10 "
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />

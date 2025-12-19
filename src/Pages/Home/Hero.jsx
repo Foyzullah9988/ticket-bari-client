@@ -108,7 +108,7 @@ const Hero = () => {
                                             </div>
 
                                             {/* Title */}
-                                            <h1 className="text-xl md:text-4xl lg:text-7xl font-semibold md:font-bold text-white md:mb-4 leading-tight">
+                                            <h1 className="text-xl md:text-2xl lg:text-4xl font-semibold md:font-bold text-white md:mb-4 leading-tight">
                                                 {slide.title.split(' ').map((word, i) => (
                                                     <span key={i} className="inline-block mr-2">
                                                         {word}
@@ -185,67 +185,6 @@ const Hero = () => {
                 })}
             </Swiper>
 
-            {/* Search Form Overlay */}
-            {/* <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 via-black/40 to-transparent ">
-                <div className="container mx-auto px-4 pb-8">
-                    <div className="max-w-6xl mx-auto">
-                        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-2xl">
-                            <h3 className="text-white text-xl font-bold mb-6">Find Your Perfect Journey</h3>
-                            <form className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div>
-                                    <label className="block text-white/70 text-sm mb-2">From</label>
-                                    <select className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500">
-                                        <option value="">Select Origin</option>
-                                        <option value="dhaka">Dhaka</option>
-                                        <option value="chittagong">Chittagong</option>
-                                        <option value="sylhet">Sylhet</option>
-                                        <option value="rajshahi">Rajshahi</option>
-                                        <option value="khulna">Khulna</option>
-                                        <option value="barisal">Barisal</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-white/70 text-sm mb-2">To</label>
-                                    <select className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500">
-                                        <option value="">Select Destination</option>
-                                        <option value="dhaka">Dhaka</option>
-                                        <option value="chittagong">Chittagong</option>
-                                        <option value="sylhet">Sylhet</option>
-                                        <option value="rajshahi">Rajshahi</option>
-                                        <option value="khulna">Khulna</option>
-                                        <option value="barisal">Barisal</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-white/70 text-sm mb-2">Date</label>
-                                    <input
-                                        type="date"
-                                        className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-white/70 text-sm mb-2">Transport Type</label>
-                                    <select className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500">
-                                        <option value="">All Types</option>
-                                        <option value="bus">Bus</option>
-                                        <option value="train">Train</option>
-                                        <option value="plane">Plane</option>
-                                        <option value="launch">Launch</option>
-                                    </select>
-                                </div>
-                                <div className="md:col-span-2 lg:col-span-4 flex justify-center mt-4">
-                                    <button
-                                        type="submit"
-                                        className="bg-linear-to-r from-emerald-500 to-green-500 text-white px-12 py-3 rounded-xl font-bold hover:from-emerald-600 hover:to-green-600 transition-all duration-300 transform hover:scale-105"
-                                    >
-                                        Search Tickets
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div> */}
 
             {/* Custom CSS for Swiper */}
             <style jsx>{`

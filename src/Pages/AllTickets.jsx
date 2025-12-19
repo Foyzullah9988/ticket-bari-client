@@ -8,10 +8,6 @@ import {
     FaFilter,
     FaSortAmountDown,
     FaSortAmountUp,
-    FaSun,
-    FaMoon,
-    FaChevronLeft,
-    FaChevronRight,
     FaTimes,
     FaBus,
     FaTrain,
@@ -19,20 +15,23 @@ import {
     FaShip,
     FaCar,
     FaMapMarkerAlt,
-    FaArrowRight,
-    FaCalendarAlt,
-    FaClock
+    FaChevronLeft,
+    FaChevronRight
 } from 'react-icons/fa';
 
 const AllTickets = () => {
     const axiosSecure = useAxiosSecure();
 
-    // State variables for filtering and sorting
+    // State variables for filtering, sorting, and pagination
     const [searchFrom, setSearchFrom] = useState('');
     const [searchTo, setSearchTo] = useState('');
     const [transportFilter, setTransportFilter] = useState('all');
     const [priceSort, setPriceSort] = useState(null);
     const [filteredTickets, setFilteredTickets] = useState([]);
+    
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [ticketsPerPage, setTicketsPerPage] = useState(6);
 
     // Fetch users
     const { data: users = [], isLoading: usersLoading } = useQuery({
@@ -101,12 +100,47 @@ const AllTickets = () => {
             }
 
             setFilteredTickets(result);
+            setCurrentPage(1); // Reset to first page when filters change
         }
     }, [tickets, users, searchFrom, searchTo, transportFilter, priceSort]);
 
+    // Pagination calculations
+    const indexOfLastTicket = currentPage * ticketsPerPage;
+    const indexOfFirstTicket = indexOfLastTicket - ticketsPerPage;
+    const currentTickets = filteredTickets.slice(indexOfFirstTicket, indexOfLastTicket);
+    const totalPages = Math.ceil(filteredTickets.length / ticketsPerPage);
 
+    // Page navigation functions
+    const nextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
 
+    const prevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
 
+    // Generate page numbers for pagination
+    const getPageNumbers = () => {
+        const pageNumbers = [];
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = startPage + maxVisiblePages - 1;
+        
+        if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+        
+        for (let i = startPage; i <= endPage; i++) {
+            pageNumbers.push(i);
+        }
+        
+        return pageNumbers;
+    };
 
     // Clear all filters
     const clearAllFilters = () => {
@@ -114,6 +148,7 @@ const AllTickets = () => {
         setSearchTo('');
         setTransportFilter('all');
         setPriceSort(null);
+        setCurrentPage(1);
     };
 
     // Check if any filters are active
@@ -125,20 +160,17 @@ const AllTickets = () => {
     return (
         <div className="flex flex-col h-full mb-8 px-4 md:px-6">
             {/* Header Section */}
-            <div className="mb-6">
+            <div className="my-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                     <div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
+                        <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white">
                             All Travel Tickets
                         </h1>
-                        <p className="text-gray-600 dark:text-gray-400 mt-1">
+                        <p className="text-gray-600 text-center dark:text-gray-400 mt-1">
                             Discover amazing travel deals across Bangladesh
                         </p>
                     </div>
-
                 </div>
-
-
             </div>
 
             {/* Search and Filter Section */}
@@ -151,10 +183,10 @@ const AllTickets = () => {
                                 <span className="label-text font-medium dark:text-gray-300">From Location</span>
                             </label>
                             <div className="relative">
-                                <FaMapMarkerAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                <FaMapMarkerAlt className="absolute left-3 top-1/2 z-1 transform -translate-y-1/2 text-green-400" />
                                 <input
                                     type="text"
-                                    placeholder="Enter departure city"
+                                    placeholder="Enter departure location"
                                     className="input input-bordered w-full pl-10 dark:bg-base-200"
                                     value={searchFrom}
                                     onChange={(e) => setSearchFrom(e.target.value)}
@@ -168,10 +200,10 @@ const AllTickets = () => {
                                 <span className="label-text font-medium dark:text-gray-300">To Location</span>
                             </label>
                             <div className="relative">
-                                <FaMapMarkerAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                <FaMapMarkerAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-red-400 z-1" />
                                 <input
                                     type="text"
-                                    placeholder="Enter destination city"
+                                    placeholder="Enter destination location"
                                     className="input input-bordered w-full pl-10 dark:bg-base-200"
                                     value={searchTo}
                                     onChange={(e) => setSearchTo(e.target.value)}
@@ -229,7 +261,6 @@ const AllTickets = () => {
                                     <li><button onClick={() => setPriceSort('High ➡️ Low')} className="flex items-center gap-2">
                                         <FaSortAmountUp className="text-red-500" /> High to Low
                                     </button></li>
-
                                 </ul>
                             </div>
                         </div>
@@ -239,7 +270,7 @@ const AllTickets = () => {
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-base-300">
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="text-sm font-medium dark:text-gray-300">
-                                Showing <span className="font-bold text-primary">{filteredTickets.length}</span> of{' '}
+                                Showing <span className="font-bold text-primary">{indexOfFirstTicket + 1}-{Math.min(indexOfLastTicket, filteredTickets.length)}</span> of{' '}
                                 <span className="font-bold text-secondary">{filteredTickets.length}</span> tickets
                             </span>
 
@@ -286,10 +317,32 @@ const AllTickets = () => {
                 </div>
             </div>
 
+            {/* Tickets Per Page Selector */}
+            <div className="flex justify-end mb-4">
+                <div className="flex items-center gap-2  w-full">
+                    <div className='flex items-center gap-2 justify-end w-full'>
+                        <span className="text-sm text-gray-600  dark:text-gray-400">Tickets per page:</span>
+                    </div>
+                    <select 
+                        className="select select-bordered border select-sm w-20"
+                        value={ticketsPerPage}
+                        onChange={(e) => {
+                            setTicketsPerPage(Number(e.target.value));
+                            setCurrentPage(1);
+                        }}
+                    >
+                        <option value={6}>6</option>
+                        <option value={7}>7</option>
+                        <option value={8}>8</option>
+                        <option value={9}>9</option>
+                    </select>
+                </div>
+            </div>
+
             {/* Tickets Display */}
             <div className="mb-8">
-                {filteredTickets.length > 0 ? (
-                    <TicketCard realTickets={filteredTickets} isLoading={isLoading} />
+                {currentTickets.length > 0 ? (
+                    <TicketCard realTickets={currentTickets} isLoading={isLoading} />
                 ) : (
                     <div className="text-center py-16 bg-base-100 dark:bg-base-300 rounded-2xl border border-base-300">
                         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 mb-4">
@@ -314,6 +367,55 @@ const AllTickets = () => {
                     </div>
                 )}
             </div>
+
+            {/* Pagination Controls - Only show if there are multiple pages */}
+            {filteredTickets.length > ticketsPerPage && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-base-300">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                        Page {currentPage} of {totalPages}
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                        {/* Previous Button */}
+                        <button
+                            onClick={prevPage}
+                            disabled={currentPage === 1}
+                            className="btn btn-sm btn-outline gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <FaChevronLeft />
+                            Previous
+                        </button>
+                        
+                        {/* Page Numbers */}
+                        <div className="flex space-x-1">
+                            {getPageNumbers().map(number => (
+                                <button
+                                    key={number}
+                                    onClick={() => setCurrentPage(number)}
+                                    className={`btn btn-sm w-10 ${currentPage === number ? 'btn-primary' : 'btn-outline'}`}
+                                >
+                                    {number}
+                                </button>
+                            ))}
+                        </div>
+                        
+                        {/* Next Button */}
+                        <button
+                            onClick={nextPage}
+                            disabled={currentPage === totalPages}
+                            className="btn btn-sm btn-outline gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Next
+                            <FaChevronRight />
+                        </button>
+                    </div>
+                    
+                    {/* Results Info */}
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                        
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

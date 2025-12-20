@@ -23,6 +23,7 @@ import BookingsRequest from "../Pages/Dashboard/VendorDashboard/BookingsRequest"
 import Payment from "../Pages/Dashboard/UserDashboard.jsx/Payment";
 import PaymentCancel from "../Pages/Dashboard/UserDashboard.jsx/PaymentCancel";
 import PaymentSuccess from "../Pages/Dashboard/UserDashboard.jsx/PaymentSuccess";
+import Revenue from "../Pages/Dashboard/VendorDashboard/Revenue";
 
 
 export const router = createBrowserRouter([
@@ -90,6 +91,10 @@ export const router = createBrowserRouter([
             {
                 path: '/dashboard/my-tickets',
                 element: <MyTickets />
+            },
+            {
+                path: '/dashboard/revenue',
+                element: <Revenue />
             },
             {
                 path: '/dashboard/manage-tickets',

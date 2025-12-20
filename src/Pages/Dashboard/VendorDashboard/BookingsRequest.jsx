@@ -55,8 +55,6 @@ const BookingsRequest = () => {
         }
     });
 
-   
-
     // Filter bookings based on search and status
     const filteredBookings = bookings.filter(booking => {
         const matchesSearch =
@@ -73,6 +71,15 @@ const BookingsRequest = () => {
             booking.status === statusFilter;
 
         return matchesSearch && matchesStatus;
+    });
+
+    // Sort bookings by bookingDate in DESCENDING order (newest first)
+    const sortedBookings = [...filteredBookings].sort((a, b) => {
+        const dateA = a.bookingDate ? new Date(a.bookingDate).getTime() : 0;
+        const dateB = b.bookingDate ? new Date(b.bookingDate).getTime() : 0;
+        
+        // Always newest first (descending)
+        return dateB - dateA;
     });
 
     // Handle status update with confirmation
@@ -201,7 +208,7 @@ const BookingsRequest = () => {
 
     const exportToCSV = () => {
         const headers = ['Booking Ref', 'User Name', 'User Email', 'Ticket Title', 'From', 'To', 'Quantity', 'Total Price', 'Status', 'Booking Date'];
-        const csvData = filteredBookings.map(booking => [
+        const csvData = sortedBookings.map(booking => [
             booking.bookingReference || 'N/A',
             booking.userName,
             booking.userEmail,
@@ -303,7 +310,7 @@ const BookingsRequest = () => {
                         <button
                             onClick={exportToCSV}
                             className="btn btn-success gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-auto"
-                            disabled={filteredBookings.length === 0}
+                            disabled={sortedBookings.length === 0}
                         >
                             <FaDownload className="w-3 h-3" />
                             <span className="hidden sm:inline">Export CSV</span>
@@ -401,7 +408,7 @@ const BookingsRequest = () => {
                             Cancelled: <span className="font-semibold">{bookings.filter(b => b.status === 'cancelled').length}</span>
                         </span>
                         <span className="text-sm text-gray-500">
-                            Filtered: <span className="font-semibold">{filteredBookings.length}</span>
+                            Showing: <span className="font-semibold">{sortedBookings.length} bookings</span>
                         </span>
                     </div>
                 </div>
@@ -409,7 +416,7 @@ const BookingsRequest = () => {
 
             {/* Bookings Table */}
             <div className="bg-white dark:bg-base-200 rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                {filteredBookings.length === 0 ? (
+                {sortedBookings.length === 0 ? (
                     <div className="text-center py-12">
                         <FaSearch className="text-4xl text-gray-300 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-gray-700 mb-2">No bookings found</h3>
@@ -445,7 +452,7 @@ const BookingsRequest = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                                {filteredBookings.map((booking) => (
+                                {sortedBookings.map((booking) => (
                                     <tr key={booking._id} className="hover:bg-base-100 transition-colors">
                                         <td className="px-4 md:px-6 py-4">
                                             <div className="flex items-center">
@@ -486,10 +493,10 @@ const BookingsRequest = () => {
                                             <div className="space-y-1">
                                                 <div className="flex items-center text-sm">
                                                     <FaMapMarkerAlt className="text-green-500 mr-1 w-3 h-3" />
-                                                    <span className="truncate max-w-[80px]">{booking.from}</span>
+                                                    <span className="truncate max-w-20">{booking.from}</span>
                                                     <ArrowRightIcon className="w-3 h-3 mx-1 text-gray-400" />
                                                     <FaMapMarkerAlt className="text-red-500 mr-1 w-3 h-3" />
-                                                    <span className="truncate max-w-[80px]">{booking.to}</span>
+                                                    <span className="truncate max-w-20">{booking.to}</span>
                                                 </div>
                                                 <div className="flex items-center text-xs text-gray-500">
                                                     <FaCalendarAlt className="mr-1 w-3 h-3" />

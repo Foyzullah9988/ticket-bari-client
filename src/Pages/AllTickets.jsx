@@ -28,7 +28,7 @@ const AllTickets = () => {
     const [transportFilter, setTransportFilter] = useState('all');
     const [priceSort, setPriceSort] = useState(null);
     const [filteredTickets, setFilteredTickets] = useState([]);
-    
+
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
     const [ticketsPerPage, setTicketsPerPage] = useState(6);
@@ -52,6 +52,10 @@ const AllTickets = () => {
         },
         retry: 2,
     });
+
+
+
+    
 
     // Apply all filters and sorting
     useEffect(() => {
@@ -129,16 +133,16 @@ const AllTickets = () => {
         const maxVisiblePages = 5;
         let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
         let endPage = startPage + maxVisiblePages - 1;
-        
+
         if (endPage > totalPages) {
             endPage = totalPages;
             startPage = Math.max(1, endPage - maxVisiblePages + 1);
         }
-        
+
         for (let i = startPage; i <= endPage; i++) {
             pageNumbers.push(i);
         }
-        
+
         return pageNumbers;
     };
 
@@ -187,7 +191,7 @@ const AllTickets = () => {
                                 <input
                                     type="text"
                                     placeholder="Enter departure location"
-                                    className="input input-bordered w-full pl-10 dark:bg-base-200"
+                                    className="input border input-bordered w-full pl-10 dark:bg-base-200"
                                     value={searchFrom}
                                     onChange={(e) => setSearchFrom(e.target.value)}
                                 />
@@ -204,7 +208,7 @@ const AllTickets = () => {
                                 <input
                                     type="text"
                                     placeholder="Enter destination location"
-                                    className="input input-bordered w-full pl-10 dark:bg-base-200"
+                                    className="input border input-bordered w-full pl-10 dark:bg-base-200"
                                     value={searchTo}
                                     onChange={(e) => setSearchTo(e.target.value)}
                                 />
@@ -323,7 +327,7 @@ const AllTickets = () => {
                     <div className='flex items-center gap-2 justify-end w-full'>
                         <span className="text-sm text-gray-600  dark:text-gray-400">Tickets per page:</span>
                     </div>
-                    <select 
+                    <select
                         className="select select-bordered border select-sm w-20"
                         value={ticketsPerPage}
                         onChange={(e) => {
@@ -374,7 +378,7 @@ const AllTickets = () => {
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                         Page {currentPage} of {totalPages}
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                         {/* Previous Button */}
                         <button
@@ -385,7 +389,7 @@ const AllTickets = () => {
                             <FaChevronLeft />
                             Previous
                         </button>
-                        
+
                         {/* Page Numbers */}
                         <div className="flex space-x-1">
                             {getPageNumbers().map(number => (
@@ -398,7 +402,7 @@ const AllTickets = () => {
                                 </button>
                             ))}
                         </div>
-                        
+
                         {/* Next Button */}
                         <button
                             onClick={nextPage}
@@ -409,10 +413,10 @@ const AllTickets = () => {
                             <FaChevronRight />
                         </button>
                     </div>
-                    
+
                     {/* Results Info */}
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                        
+
                     </div>
                 </div>
             )}

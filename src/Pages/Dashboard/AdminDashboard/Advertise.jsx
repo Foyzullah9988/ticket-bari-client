@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { FaBullhorn, FaFilter, FaSearch, FaSync, FaTimes, FaCheck, FaClock } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import useAxiosSecure from '../../../Hooks/useAxiosSecure';
@@ -67,6 +67,30 @@ const AdvertiseTickets = () => {
         return matchesSearch && matchesTransport;
     });
 
+    // Sort filtered tickets by createdAt (newest first)
+    const sortedTickets = useMemo(() => {
+        return [...filteredTickets].sort((a, b) => {
+            // Use createdAt if available, otherwise use departureDateTime
+            const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.departureDateTime);
+            const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.departureDateTime);
+            return dateB - dateA; // Newest first (descending)
+        });
+    }, [filteredTickets]);
+
+    // Sort advertised tickets by advertisedAt or createdAt (newest first)
+    const sortedAdvertisedTickets = useMemo(() => {
+        return [...advertisedTickets].sort((a, b) => {
+            // Use advertisedAt if available, otherwise use createdAt or departureDateTime
+            const dateA = a.advertisement?.advertisedAt 
+                ? new Date(a.advertisement.advertisedAt) 
+                : (a.createdAt ? new Date(a.createdAt) : new Date(a.departureDateTime));
+            const dateB = b.advertisement?.advertisedAt 
+                ? new Date(b.advertisement.advertisedAt) 
+                : (b.createdAt ? new Date(b.createdAt) : new Date(b.departureDateTime));
+            return dateB - dateA; // Newest first
+        });
+    }, [advertisedTickets]);
+
     // Mutation for advertising ticket
     const advertiseMutation = useMutation({
         mutationFn: async ({ ticketId, advertisementData }) => {
@@ -111,11 +135,10 @@ const AdvertiseTickets = () => {
     const advertiseTicket = (ticket) => {
         try {
             // Don't allow more than 6 tickets to be advertised
-            if (advertisedTickets.length >= 6) {
+            if (sortedAdvertisedTickets.length >= 6) {
                 toast.error('Maximum 6 tickets can be advertised at once');
                 return;
             }
-
 
             // Prepare advertisement data
             const advertisementData = {
@@ -209,9 +232,9 @@ const AdvertiseTickets = () => {
                 <div className="flex items-center gap-2">
                     <div className="stat">
                         <div className="stat-title text-sm">Advertised Tickets</div>
-                        <div className="stat-value text-primary">{advertisedTickets.length}/6</div>
+                        <div className="stat-value text-primary">{sortedAdvertisedTickets.length}/6</div>
                         <div className="stat-desc">
-                            {advertisedTickets.length >= 6 ? (
+                            {sortedAdvertisedTickets.length >= 6 ? (
                                 <span className="text-error">Maximum limit reached</span>
                             ) : (
                                 <span className="text-success">Slots available</span>
@@ -240,16 +263,16 @@ const AdvertiseTickets = () => {
                 </div>
 
                 <div className="bg-linear-to-r  dark:from-green-900 dark:to-emerald-900 from-green-500 to-emerald-600  text-white rounded-xl p-4 md:p-6 shadow-lg relative">
-                    <div className="text-xl md:text-3xl font-bold mb-2">{advertisedTickets.length}</div>
+                    <div className="text-xl md:text-3xl font-bold mb-2">{sortedAdvertisedTickets.length}</div>
                     <div className="text-sm opacity-90">Active Ads</div>
-                    <div className="text-xs opacity-75 mt-1">{6 - advertisedTickets.length} slots</div>
+                    <div className="text-xs opacity-75 mt-1">{6 - sortedAdvertisedTickets.length} slots</div>
                     <div className="absolute top-4 right-4 opacity-20">
                         <FaBullhorn className="text-3xl" />
                     </div>
                 </div>
 
                 <div className="bg-linear-to-r dark:from-purple-900 dark:to-violet-900 from-purple-500 to-violet-600 text-white rounded-xl p-4 md:p-6 shadow-lg relative">
-                    <div className="text-xl md:text-3xl font-bold mb-2">{filteredTickets.length}</div>
+                    <div className="text-xl md:text-3xl font-bold mb-2">{sortedTickets.length}</div>
                     <div className="text-sm opacity-90">Filtered</div>
                     <div className="text-xs opacity-75 mt-1">Search results</div>
                     <div className="absolute top-4 right-4 opacity-20">
@@ -379,11 +402,11 @@ const AdvertiseTickets = () => {
                                     <FaBullhorn className="text-primary" />
                                     Active Advertisements
                                 </h2>
-                                <div className="badge badge-primary px-1">{advertisedTickets.length}/6</div>
+                                <div className="badge badge-primary px-1">{sortedAdvertisedTickets.length}/6</div>
                             </div>
 
 
-                            {advertisedTickets.length === 0 ? (
+                            {sortedAdvertisedTickets.length === 0 ? (
                                 <div className="text-center py-8">
                                     <div className="text-gray-400 mb-2">
                                         <FaBullhorn className="text-3xl mx-auto" />
@@ -393,7 +416,7 @@ const AdvertiseTickets = () => {
                                 </div>
                             ) : (
                                 <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-                                    {advertisedTickets.map((ticket) => (
+                                    {sortedAdvertisedTickets.map((ticket) => (
                                         <div key={ticket._id} className="card card-compact bg-linear-to-r from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 transition-all duration-300 border border-primary/20">
                                             <div className="card-body">
                                                 <div className="flex items-start justify-between">
@@ -435,7 +458,7 @@ const AdvertiseTickets = () => {
                                 </div>
                             )}
 
-                            {advertisedTickets.length > 0 && (
+                            {sortedAdvertisedTickets.length > 0 && (
                                 <div className="mt-4 p-3 bg-base-200 rounded-lg">
                                     <p className="text-sm">
                                         <span className="font-bold">Tip:</span> Click the X button to remove any advertisement.
@@ -463,7 +486,7 @@ const AdvertiseTickets = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredTickets.length === 0 ? (
+                                        {sortedTickets.length === 0 ? (
                                             <tr>
                                                 <td colSpan="6" className="text-center py-8">
                                                     <div className="text-gray-500">
@@ -474,7 +497,7 @@ const AdvertiseTickets = () => {
                                                 </td>
                                             </tr>
                                         ) : (
-                                            filteredTickets.map((ticket) => (
+                                            sortedTickets.map((ticket) => (
                                                 <tr key={ticket._id} className="hover:bg-base-200/30 transition-colors">
                                                     <td>
                                                         <div className="flex items-center space-x-3">
@@ -495,6 +518,12 @@ const AdvertiseTickets = () => {
                                                                 <div className="text-xs opacity-50">
                                                                     {new Date(ticket.departureDateTime).toLocaleDateString()}
                                                                 </div>
+                                                                {/* Show createdAt if available */}
+                                                                {ticket.createdAt && (
+                                                                    <div className="text-xs text-gray-400 mt-1">
+                                                                        Added: {new Date(ticket.createdAt).toLocaleDateString()}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </td>
@@ -552,12 +581,12 @@ const AdvertiseTickets = () => {
                                                         ) : (
                                                             <button
                                                                 onClick={() => advertiseTicket(ticket)}
-                                                                disabled={advertisedTickets.length >= 6 || advertiseMutation.isLoading}
-                                                                className={`btn btn-success btn-sm gap-1 ${advertisedTickets.length >= 6 ? 'btn-disabled' : ''}`}
+                                                                disabled={sortedAdvertisedTickets.length >= 6 || advertiseMutation.isLoading}
+                                                                className={`btn btn-success btn-sm gap-1 ${sortedAdvertisedTickets.length >= 6 ? 'btn-disabled' : ''}`}
                                                             >
                                                                 <FaBullhorn />
                                                                 Advertise
-                                                                {advertisedTickets.length >= 6 && (
+                                                                {sortedAdvertisedTickets.length >= 6 && (
                                                                     <span className="tooltip" data-tip="Maximum limit reached"></span>
                                                                 )}
                                                             </button>

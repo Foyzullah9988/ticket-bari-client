@@ -47,30 +47,6 @@ const ManageUsers = () => {
         }
     });
 
-
-
-
-    // Open modal with different actions
-    const openModal = (type, user, newRole = null) => {
-        let modalData = {
-            type,
-            user,
-            newRole
-        };
-
-
-
-        setModalData(modalData);
-        setShowModal(true);
-    };
-
-    // Close modal
-    const closeModal = () => {
-        setShowModal(false);
-        setModalData(null);
-    };
-
-
     // Filter and search users
     const filteredUsers = users.filter(user => {
         const matchesSearch = searchTerm === '' ||
@@ -81,6 +57,33 @@ const ManageUsers = () => {
 
         return matchesSearch && matchesRole;
     });
+
+    // Sort users by createdAt in DESCENDING order (newest first)
+    const sortedUsers = [...filteredUsers].sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        
+        // Always newest first (descending)
+        return dateB - dateA;
+    });
+
+    // Open modal with different actions
+    const openModal = (type, user, newRole = null) => {
+        let modalData = {
+            type,
+            user,
+            newRole
+        };
+
+        setModalData(modalData);
+        setShowModal(true);
+    };
+
+    // Close modal
+    const closeModal = () => {
+        setShowModal(false);
+        setModalData(null);
+    };
 
     const getRoleBadge = (role) => {
         const badges = {
@@ -115,7 +118,22 @@ const ManageUsers = () => {
         );
     };
 
- 
+    const updateRiderStatus = (user, role) => {
+        const updateInfo = { role: role, email: user?.email };
+        axiosSecure.patch(`/users/${user._id}`, updateInfo)
+            .then(res => {
+                if (res.data.modifiedCount) {
+                    refetch()
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "success",
+                        title: `User role is set to ${role} successfully.`,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            })
+    }
 
     // Loading state
     if (isLoading) {
@@ -150,30 +168,8 @@ const ManageUsers = () => {
         );
     }
 
-    const updateRiderStatus = (user, role) => {
-        const updateInfo = { role: role, email: user?.email };
-        axiosSecure.patch(`/users/${user._id}`, updateInfo)
-            .then(res => {
-                if (res.data.modifiedCount) {
-                    refetch()
-                    Swal.fire({
-                        position: "top-end",
-                        icon: "success",
-                        title: `User role is set to ${role} successfully.`,
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                }
-            })
-        // console.log(id);
-    }
-
-
-
     return (
         <div className="p-4 md:p-6">
-
-
             <div className="mb-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-linear-to-r from-primary/10 to-secondary/10 rounded-lg sm:rounded-xl">
                     <div>
@@ -189,10 +185,9 @@ const ManageUsers = () => {
                             <FaSync className={`${isLoading ? 'animate-spin' : ''} w-3 h-3`} />
                             <span className="hidden sm:inline">Refresh</span>
                         </button>
-
                     </div>
-
                 </div>
+                
                 {/* Statistics Cards */}
                 <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     <div className="bg-linear-to-r dark:from-blue-900 dark:to-cyan-900 from-blue-500 to-cyan-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
@@ -224,39 +219,36 @@ const ManageUsers = () => {
             </div>
 
             {/* Filters and Search */}
-            {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Search Users</label>
-                        <div className="relative">
-                            <FaSearch className="absolute left-3 top-3 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Search by name or email..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Role</label>
-                        <div className="flex justify-center items-center gap-4">
-                            <div className="relative w-full ">
-                                <FaFilter className="absolute left-3 top-3 text-gray-400" />
-                                <select
-                                    value={filterRole}
-                                    onChange={(e) => setFilterRole(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition appearance-none bg-white"
-                                >
-                                    <option value="all">All Roles</option>
-                                    <option value="user">Users</option>
-                                    <option value="vendor">Vendors</option>
-                                    <option value="admin">Admins</option>
-                                </select>
+            <div className="card bg-base-100 shadow border border-base-300 mb-6">
+                <div className="card-body p-3 sm:p-4">
+                    <div className="flex flex-col gap-4 items-center">
+                        <div className="flex-1 w-full">
+                            <div className="relative">
+                                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Search users by name or email"
+                                    className="input border input-bordered w-full pl-12"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
                             </div>
-                            <div className="form-control  flex justify-end  self-end mb-1">
+                        </div>
+                        <div className='flex justify-end items-center w-full'>
+                            <div className="flex gap-2">
+                                <div className="dropdown dropdown-bottom">
+                                    <label tabIndex={0} className="btn btn-outline gap-2">
+                                        <FaFilter />
+                                        Filter: {filterRole === 'all' ? 'All' : filterRole}
+                                    </label>
+                                    <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                                        <li><button onClick={() => setFilterRole('all')}>All</button></li>
+                                        <li><button onClick={() => setFilterRole('user')}>User</button></li>
+                                        <li><button onClick={() => setFilterRole('vendor')}>Vendor</button></li>
+                                        <li><button onClick={() => setFilterRole('admin')}>Admin</button></li>
+                                        <li><button onClick={() => setFilterRole('fraud')}>Fraud</button></li>
+                                    </ul>
+                                </div>
                                 <button
                                     className="btn btn-outline btn-error gap-1.5 text-xs px-2 sm:px-3 py-2 h-auto"
                                     onClick={() => {
@@ -264,83 +256,34 @@ const ManageUsers = () => {
                                         setFilterRole('all');
                                     }}
                                 >
-                                    <FaTimes className="w-3 h-3" />
                                     Clear
                                 </button>
                             </div>
                         </div>
                     </div>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                        <span className="text-sm text-gray-500">
+                            Total: <span className="font-semibold">{users.length}</span>
+                        </span>
+                        <span className="text-sm text-gray-500">
+                            Users: <span className="font-semibold">{users.filter(u => u.role === 'user').length}</span>
+                        </span>
+                        <span className="text-sm text-gray-500">
+                            Vendors: <span className="font-semibold">{users.filter(u => u.role === 'vendor').length}</span>
+                        </span>
+                        <span className="text-sm text-gray-500">
+                            Admins: <span className="font-semibold">{users.filter(u => u.role === 'admin').length}</span>
+                        </span>
+                        <span className="text-sm text-gray-500">
+                            Showing: <span className="font-semibold">{sortedUsers.length} users</span>
+                        </span>
+                    </div>
                 </div>
-
-                
-                <div className="flex flex-wrap gap-2 mt-4">
-                    <span className="text-sm text-gray-500">
-                        Total: <span className="font-semibold">{users.length}</span>
-                    </span>
-
-                    <span className="text-sm text-gray-500">
-                        Users: <span className="font-semibold">{users.filter(u => u.role === 'user').length}</span>
-                    </span>
-                    <span className="text-sm text-gray-500">
-                        Vendors: <span className="font-semibold">{users.filter(u => u.role === 'vendor').length}</span>
-                    </span>
-                    <span className="text-sm text-gray-500">
-                        Admins: <span className="font-semibold">{users.filter(u => u.role === 'admin').length}</span>
-                    </span>
-                </div>
-                <span className="text-sm text-gray-500">
-                    Filtered: <span className="font-semibold">{filteredUsers.length}</span>
-                </span>
-            </div> */}
-            <div className="card bg-base-100 shadow border border-base-300">
-                            <div className="card-body p-3 sm:p-4 ">
-                                <div className="flex flex-col  gap-4 items-center  ">
-                                    <div className="flex-1 w-full ">
-                                        <div className="relative">
-                                            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                            <input
-                                                type="text"
-                                                placeholder="Search tickets by title, origin, or destination"
-                                                className="input border input-bordered w-full pl-12"
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='flex justify-end items-center  w-full'>
-                                        <div className="flex gap-2">
-                                            <div className="dropdown dropdown-bottom">
-                                                <label tabIndex={0} className="btn btn-outline gap-2">
-                                                    <FaFilter />
-                                                    Filter: {filterRole === 'all' ? 'All' : filterRole}
-                                                </label>
-                                                <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                                                    <li><button onClick={() => setFilterRole('all')}>All </button></li>
-                                                    <li><button onClick={() => setFilterRole('user')}>User</button></li>
-                                                    <li><button onClick={() => setFilterRole('vendor')}>Vendor</button></li>
-                                                    <li><button onClick={() => setFilterRole('admin')}>Admin</button></li>
-                                                    <li><button onClick={() => setFilterRole('fraud')}>Fraud</button></li>
-                                                    
-                                                </ul>
-                                            </div>
-                                            <button
-                                                className="btn btn-outline btn-error gap-1.5 text-xs px-2 sm:px-3 py-2 h-auto"
-                                                onClick={() => {
-                                                    setSearchTerm('');
-                                                    setFilterRole('all');
-                                                }}
-                                            >
-                                                Clear
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            </div>
 
             {/* Users Table */}
             <div className="bg-white dark:bg-base-200 rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                {filteredUsers.length === 0 ? (
+                {sortedUsers.length === 0 ? (
                     <div className="text-center py-12">
                         <FaSearch className="text-4xl text-gray-300 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-gray-700 mb-2">No users found</h3>
@@ -370,14 +313,14 @@ const ManageUsers = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                                {filteredUsers.map((user) => (
+                                {sortedUsers.map((user) => (
                                     <tr key={user._id} className="hover:bg-base-100 transition-colors">
                                         <td className="px-4 md:px-6 py-4">
                                             <div className="flex items-center">
                                                 <div className="shrink-0 h-10 w-10 md:h-12 md:w-12">
                                                     <img
                                                         className="h-10 w-10 md:h-12 md:w-12 rounded-full object-cover border-2 border-gray-200"
-                                                        src={user.photoURL }
+                                                        src={user.photoURL}
                                                         alt={user.name}
                                                         onError={(e) => {
                                                             e.target.onerror = null;
@@ -389,8 +332,8 @@ const ManageUsers = () => {
                                                     <div className="text-sm font-medium text-gray-900 truncate max-w-[150px] md:max-w-none dark:text-white">
                                                         {user.displayName}
                                                         {currentUser?.email === user?.email && (
-    <span className="ml-2 text-xs text-blue-600">(You)</span>
-)}
+                                                            <span className="ml-2 text-xs text-blue-600">(You)</span>
+                                                        )}
                                                     </div>
                                                     <div className="text-sm text-gray-500 truncate max-w-[150px] md:max-w-none">
                                                         {user.email}
@@ -402,7 +345,6 @@ const ManageUsers = () => {
                                         <td className="px-4 md:px-6 py-4">
                                             <div className="space-y-2">
                                                 <div>{getRoleBadge(user.role)}</div>
-                                               
                                             </div>
                                         </td>
 
@@ -422,7 +364,6 @@ const ManageUsers = () => {
                                                     <button
                                                         onClick={() => {
                                                             openModal('role', user, 'admin');
-
                                                         }}
                                                         disabled={currentUser?._id === user._id}
                                                         title={currentUser?._id === user._id ? "Cannot change your own role" : "Make Admin"}
@@ -460,7 +401,7 @@ const ManageUsers = () => {
                                                 )}
 
                                                 {/* Mark as Fraud */}
-                                                {user.role === 'vendor' &&  (
+                                                {user.role === 'vendor' && (
                                                     <button
                                                         onClick={() => openModal('role', user, 'fraud')}
                                                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 dark:bg-red-900 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
@@ -469,17 +410,6 @@ const ManageUsers = () => {
                                                         Fraud
                                                     </button>
                                                 )}
-
-                                                {/* Delete User */}
-                                                {/* <button
-                                                    onClick={() => openModal('delete', user)}
-                                                    disabled={currentUser?._id === user._id}
-                                                    title={currentUser?._id === user._id ? "Cannot delete yourself" : "Delete User"}
-                                                    className={`inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ${currentUser?._id === user._id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                >
-                                                    <FaTrash className="mr-1" />
-                                                    Delete
-                                                </button> */}
                                             </div>
                                         </td>
                                     </tr>
@@ -490,8 +420,7 @@ const ManageUsers = () => {
                 )}
             </div>
 
-
-            {/* Modal Component - Defined Inside ManageUsers */}
+            {/* Modal Component */}
             {showModal && modalData && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
                     <div
@@ -529,7 +458,7 @@ const ManageUsers = () => {
                                 <button
                                     onClick={() => { updateRiderStatus(modalData.user, modalData.newRole); closeModal(); }}
                                     disabled={isLoading}
-                                    className={`px-4 py-2 text-sm font-medium  dark:text-white bg-[#3085d6]  rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2  disabled:opacity-50 transition`}
+                                    className={`px-4 py-2 text-sm font-medium dark:text-white bg-[#3085d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 transition`}
                                 >
                                     {isLoading ? (
                                         <span className="flex items-center">

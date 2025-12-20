@@ -82,7 +82,7 @@ const Profile = () => {
     };
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 py-8 px-4">
+        <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-600 dark:to-gray-700 py-8 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-8">
@@ -91,9 +91,9 @@ const Profile = () => {
                 </div>
 
                 {/* Profile Card */}
-                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div className="bg-white dark:bg-gray-600  rounded-2xl shadow-xl overflow-hidden">
                     {/* Profile Header */}
-                    <div className="relative bg-linear-to-r from-blue-500 to-purple-600 py-8 px-6">
+                    <div className="relative bg-linear-to-r from-blue-500 to-purple-600 dark:from-purple-950 dark:to-blue-950  py-8 px-6">
                         <div className="flex flex-col md:flex-row items-center gap-6">
                             {/* Profile Image */}
                             <div className="relative">
@@ -139,7 +139,7 @@ const Profile = () => {
                     <div className="p-6 md:p-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Email Section */}
-                            <div className="bg-gray-50 rounded-xl p-6 hover:shadow-md transition-shadow">
+                            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow">
                                 <div className="flex items-center gap-4 mb-4">
                                     <div className="bg-blue-100 p-3 rounded-lg">
                                         <EnvelopeIcon className="h-6 w-6 text-blue-600" />
@@ -159,7 +159,7 @@ const Profile = () => {
                             </div>
 
                             {/* Role Section */}
-                            <div className="bg-gray-50 rounded-xl p-6 hover:shadow-md transition-shadow">
+                            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow">
                                 <div className="flex items-center gap-4 mb-4">
                                     <div className="bg-purple-100 p-3 rounded-lg">
                                         <ShieldCheckIcon className="h-6 w-6 text-purple-600" />
@@ -179,45 +179,21 @@ const Profile = () => {
                             </div>
                         </div>
 
-                        {/* Additional Info (if available) */}
-                        {/* {(userData.bio || userData.phone || userData.address) && (
-                            <div className="mt-8 h-96">
-                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Additional Information</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    {userData.bio && (
-                                        <div className="bg-gray-50 rounded-lg p-4">
-                                            <h4 className="font-medium text-gray-600 mb-1">Bio</h4>
-                                            <p className="text-gray-800">{userData.bio}</p>
-                                        </div>
-                                    )}
-                                    {userData.phone && (
-                                        <div className="bg-gray-50 rounded-lg p-4">
-                                            <h4 className="font-medium text-gray-600 mb-1">ফোন নম্বর</h4>
-                                            <p className="text-gray-800">{userData.phone}</p>
-                                        </div>
-                                    )}
-                                    {userData.address && (
-                                        <div className="bg-gray-50 rounded-lg p-4">
-                                            <h4 className="font-medium text-gray-600 mb-1">ঠিকানা</h4>
-                                            <p className="text-gray-800">{userData.address}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )} */}
+                       
 
                         {/* Action Buttons */}
                         <div className="mt-8 pt-6 border-t border-gray-200 flex flex-wrap gap-4">
-                            <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                            <button className="bg-blue-600 dark:bg-blue-900 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
                                 <PencilSquareIcon className="h-5 w-5" />
                                 Update profile
                             </button>
-                            <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <button className="border border-gray-300 text-gray-700 dark:text-white px-6 py-3 rounded-lg dark:hover:text-black  hover:bg-gray-50 dark:hover:bg-gray-300
+                             transition-colors">
                                 Change Password
                             </button>
                             <button
                                 onClick={() => refetch()}
-                                className="text-gray-600 hover:text-gray-800 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                                className="text-gray-600 dark:text-white border border-gray-300 hover:text-gray-800 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors"
                             >
                                 Refresh
                             </button>
@@ -227,7 +203,7 @@ const Profile = () => {
 
                 {/* Stats Section */}
                 <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white rounded-xl p-6 shadow-sm">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-gray-500 text-sm">Status</p>
@@ -239,7 +215,7 @@ const Profile = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 shadow-sm">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-gray-500 text-sm">Verification</p>
@@ -253,7 +229,7 @@ const Profile = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 shadow-sm">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-gray-500 text-sm">Become a member</p>

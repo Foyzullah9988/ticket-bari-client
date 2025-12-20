@@ -29,6 +29,7 @@ const LatestTickets = () => {
         enabled: !usersLoading,
         retry: 2,
     });
+    
 
     if (error) {
         console.error(error);
@@ -46,7 +47,7 @@ const LatestTickets = () => {
         .filter(user => user.role === 'fraud' || user.role !== 'vendor')
         .map(user => user.email);
 
-    console.log(fraudEmails);
+    // console.log(fraudEmails);
 
 
     const realTickets = tickets
@@ -57,7 +58,7 @@ const LatestTickets = () => {
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         .slice(0, 8);
 
-    console.log(realTickets);
+    // console.log(realTickets);
 
     return (
         <div>

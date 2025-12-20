@@ -133,7 +133,7 @@ const Home = () => {
 
                                 {/* CTA Button */}
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                                    <div className="  border-t border-gray-200 dark:border-gray-800">
+                                    <div className=" ">
                                         <Link
                                             to={`/all-tickets`}
                                             className="group/btn w-full inline-flex items-center justify-center gap-2 px-9 py-5 bg-  bg-linear-to-l from-green-500 to-green-900 dark:to-black/90 dark:from-black/20 

@@ -213,7 +213,7 @@ const DashboardLayout = () => {
                         >
                             <div className="flex items-center justify-between w-full">
                                 <span>Booking Requests</span>
-                                <span className="badge badge-warning">5</span>
+                                
                             </div>
                         </DashboardNavLink>
                         <DashboardNavLink label={'Revenue'}
@@ -222,12 +222,7 @@ const DashboardLayout = () => {
                         >
                             <span>Revenue</span>
                         </DashboardNavLink>
-                        <DashboardNavLink label={'Analytics'}
-                            to="/dashboard/analytics"
-                            icon={<FaChartLine className="text-lg min-w-5" />}
-                        >
-                            <span>Analytics</span>
-                        </DashboardNavLink>
+                        
                     </>
                 );
 
@@ -245,7 +240,7 @@ const DashboardLayout = () => {
                         >
                             <div className="flex items-center justify-between w-full">
                                 <span>Manage Tickets</span>
-                                <span className="badge badge-primary">45</span>
+                                
                             </div>
                         </DashboardNavLink>
                         <DashboardNavLink label={'Manage Users'}
@@ -260,17 +255,7 @@ const DashboardLayout = () => {
                         >
                             <span>Advertise Tickets</span>
                         </DashboardNavLink>
-                        {sidebarExpanded && (
-                            <div className="px-3 pt-6 pb-2">
-                                <h4 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">Reports</h4>
-                            </div>
-                        )}
-                        <DashboardNavLink label={'System Reports'}
-                            to="/dashboard/reports"
-                            icon={<FaChartLine className="text-lg min-w-5" />}
-                        >
-                            <span>System Reports</span>
-                        </DashboardNavLink>
+                       
                     </>
                 );
 

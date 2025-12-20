@@ -123,51 +123,51 @@ const Payment = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-600 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md mx-auto bg-white dark:bg-gray-700 rounded-xl shadow-md overflow-hidden md:max-w-2xl">
                 <div className="p-8">
-                    <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">
+                    <div className="uppercase tracking-wide text-sm text-indigo-500 dark:text-indigo-300 font-semibold">
                         Payment Details
                     </div>
                     
-                    <h2 className="mt-2 text-2xl font-bold text-gray-900">
+                    <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
                         {ticket.ticketTitle || 'Ticket Payment'}
                     </h2>
                     
                     <div className="mt-6 space-y-4">
                         <div className="flex justify-between">
-                            <span className="text-gray-600">Booking Reference:</span>
+                            <span className="text-gray-600 dark:text-gray-200">Booking Reference:</span>
                             <span className="font-semibold">{ticket.bookingReference || 'N/A'}</span>
                         </div>
                         
                         <div className="flex justify-between">
-                            <span className="text-gray-600">Travel Route:</span>
+                            <span className="text-gray-600 dark:text-gray-200">Travel Route:</span>
                             <span className="font-semibold">
                                 {ticket.from} → {ticket.to}
                             </span>
                         </div>
                         
                         <div className="flex justify-between">
-                            <span className="text-gray-600">Passenger:</span>
+                            <span className="text-gray-600 dark:text-gray-200">Passenger:</span>
                             <span className="font-semibold">{ticket.userName}</span>
                         </div>
                         
                         <div className="flex justify-between">
-                            <span className="text-gray-600">Tickets:</span>
+                            <span className="text-gray-600 dark:text-gray-200">Tickets:</span>
                             <span className="font-semibold">{ticket.quantity}</span>
                         </div>
                         
                         <div className="flex justify-between">
-                            <span className="text-gray-600">Price per ticket:</span>
+                            <span className="text-gray-600 dark:text-gray-200">Price per ticket:</span>
                             <span className="font-semibold">
                                 ৳{ticket.pricePerTicket || Math.round(ticket.totalPrice / ticket.quantity)}
                             </span>
                         </div>
                         
                         <div className="flex justify-between">
-                            <span className="text-gray-600">Status:</span>
+                            <span className="text-gray-600 dark:text-gray-200">Status:</span>
                             <span className={`font-semibold ${
-                                ticket.status === 'pending' ? 'text-yellow-600' : 
+                                ticket.status === 'pending' ? 'text-yellow-600 ' : 
                                 ticket.status === 'accepted' ? 'text-green-600' : 
                                 'text-red-600'
                             }`}>
@@ -177,7 +177,7 @@ const Payment = () => {
                         
                         <div className="pt-4 border-t border-gray-200">
                             <div className="flex justify-between text-lg">
-                                <span className="font-bold text-gray-900">Total Amount:</span>
+                                <span className="font-bold text-gray-900 dark:text-gray-200">Total Amount:</span>
                                 <span className="font-bold text-green-600 text-xl">৳{ticket.totalPrice}</span>
                             </div>
                         </div>
@@ -189,7 +189,7 @@ const Payment = () => {
                                 className={`w-full text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ${
                                     ticket.status === 'cancelled' 
                                         ? 'bg-gray-400 cursor-not-allowed' 
-                                        : 'bg-green-600 hover:bg-green-700'
+                                        : 'bg-green-600 dark:bg-gray-600 dark:hover:bg-gray-800 hover:bg-green-700'
                                 }`}
                             >
                                 {ticket.status === 'cancelled' 
@@ -209,7 +209,7 @@ const Payment = () => {
                             
                             <button 
                                 onClick={() => navigate('/dashboard/my-bookings')}
-                                className="w-full mt-4 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 px-4 rounded-lg transition"
+                                className="w-full mt-4 border border-gray-300 text-gray-700 dark:text-white dark:hover:bg-gray-800 hover:bg-gray-50 font-medium py-2 px-4 rounded-lg transition"
                             >
                                 Back to Bookings
                             </button>

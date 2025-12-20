@@ -126,7 +126,7 @@ const Register = () => {
                                 <input 
                                     type="file"
                                     {...register('photo', { required: true })} 
-                                    className="file-input file-input-bordered w-full rounded-xl dark:bg-gray-700"
+                                    className="file-input file-input-bordered w-full rounded-xl dark:bg-gray-700 h-fit"
                                 />
                                 {errors.photo?.type === 'required' && 
                                     <p className="mt-2 text-sm text-red-500">Photo is required</p>

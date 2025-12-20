@@ -49,8 +49,10 @@ import Skeleton2 from "../Components/Shared/Skeleton2";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { AuthContext } from "../Context/AuthContext";
+import useRole from "../Hooks/useRole";
 
 export default function TicketDetails() {
+    const { role } = useRole();
     const axiosSecure = useAxiosSecure();
     const { user } = useContext(AuthContext);
     const { id } = useParams();
@@ -78,7 +80,13 @@ export default function TicketDetails() {
         }
     }, [ticket, quantity]);
 
-
+    // Check if departure time has passed
+    const isTimeExpired = (departureDateTime) => {
+        if (!departureDateTime) return false;
+        const departure = new Date(departureDateTime);
+        const now = new Date();
+        return departure < now;
+    };
 
     // Prepare booking data
     const prepareBookingData = () => {
@@ -118,7 +126,6 @@ export default function TicketDetails() {
     });
 
     const handleBooking = () => {
-
         if (ticket.quantity < quantity) {
             toast.error(`Only ${ticket.quantity} seats available`);
             return;
@@ -270,6 +277,9 @@ export default function TicketDetails() {
     if (!ticket) {
         return <Loading />;
     }
+
+    const isDeparted = isTimeExpired(ticket.departureDateTime);
+    const isLocked = role === 'vendor' || role === 'admin' || isDeparted;
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -432,7 +442,7 @@ export default function TicketDetails() {
                                     <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                                         <div className="flex items-center justify-between">
                                             <span className="text-sm text-gray-500 dark:text-gray-400">Departs in:</span>
-                                            <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                                            <span className={`font-semibold ${isDeparted ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                                                 {handleCountdown()}
                                             </span>
                                         </div>
@@ -459,19 +469,34 @@ export default function TicketDetails() {
                                         </div>
                                         <div className="text-right">
                                             <div className="text-sm text-gray-500 dark:text-gray-400">Status</div>
-                                            <div className={`font-medium ${ticket.quantity > 5 ? 'text-emerald-600 dark:text-emerald-400' :
-                                                    ticket.quantity > 0 ? 'text-amber-600 dark:text-amber-400' :
-                                                        'text-red-600 dark:text-red-400'
+                                            <div className={`font-medium ${isDeparted
+                                                ? 'text-red-600 dark:text-red-400'
+                                                : ticket.quantity > 5
+                                                    ? 'text-emerald-600 dark:text-emerald-400'
+                                                    : ticket.quantity > 0
+                                                        ? 'text-amber-600 dark:text-amber-400'
+                                                        : 'text-red-600 dark:text-red-400'
                                                 }`}>
-                                                {ticket.quantity > 5 ? 'Available' :
-                                                    ticket.quantity > 0 ? 'Few Left' : 'Sold Out'}
+                                                {isDeparted
+                                                    ? 'Departed'
+                                                    : ticket.quantity > 5
+                                                        ? 'Available'
+                                                        : ticket.quantity > 0
+                                                            ? 'Few Left'
+                                                            : 'Sold Out'
+                                                }
                                             </div>
                                         </div>
                                     </div>
                                     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                                         <div
-                                            className={`h-2 rounded-full transition-all duration-300 ${ticket.quantity > 10 ? 'bg-emerald-500' :
-                                                    ticket.quantity > 3 ? 'bg-amber-500' : 'bg-red-500'
+                                            className={`h-2 rounded-full transition-all duration-300 ${isDeparted
+                                                ? 'bg-red-500'
+                                                : ticket.quantity > 10
+                                                    ? 'bg-emerald-500'
+                                                    : ticket.quantity > 3
+                                                        ? 'bg-amber-500'
+                                                        : 'bg-red-500'
                                                 }`}
                                             style={{ width: `${Math.min(100, (ticket.quantity / 20) * 100)}%` }}
                                         />
@@ -492,17 +517,17 @@ export default function TicketDetails() {
                                     <div className="flex items-center gap-4">
                                         <button
                                             onClick={handleDecrement}
-                                            disabled={quantity <= 1 || ticket.quantity <= 0}
-                                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${quantity <= 1 || ticket.quantity <= 0
-                                                    ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
-                                                    : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-105'
+                                            disabled={quantity <= 1 || ticket.quantity <= 0 || isLocked}
+                                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${quantity <= 1 || ticket.quantity <= 0 || isLocked
+                                                ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                                                : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-105'
                                                 }`}
                                         >
                                             <FaMinus />
                                         </button>
 
                                         <div className="text-center">
-                                            <div className="text-4xl font-bold text-gray-900 dark:text-white">{quantity}</div>
+                                            <div className={`text-4xl font-bold ${isLocked ? 'text-gray-400' : 'text-gray-900 dark:text-white'}`}>{quantity}</div>
                                             <div className="text-sm text-gray-500 dark:text-gray-400">
                                                 ticket{quantity !== 1 ? 's' : ''}
                                             </div>
@@ -510,10 +535,10 @@ export default function TicketDetails() {
 
                                         <button
                                             onClick={handleIncrement}
-                                            disabled={quantity >= ticket.quantity || ticket.quantity <= 0}
-                                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${quantity >= ticket.quantity || ticket.quantity <= 0
-                                                    ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
-                                                    : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-105'
+                                            disabled={quantity >= ticket.quantity || ticket.quantity <= 0 || isLocked}
+                                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${quantity >= ticket.quantity || ticket.quantity <= 0 || isLocked
+                                                ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                                                : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-105'
                                                 }`}
                                         >
                                             <FaPlus />
@@ -524,7 +549,7 @@ export default function TicketDetails() {
 
                                     <div className="text-right">
                                         <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Price</div>
-                                        <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                                        <div className={`text-3xl font-bold ${isLocked ? 'text-gray-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                                             {formatPrice(totalPrice)} tk
                                         </div>
                                     </div>
@@ -563,45 +588,84 @@ export default function TicketDetails() {
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <Link to={'/dashboard/my-bookings'}
-                                onClick={handleBooking}
-                                disabled={ticket.quantity <= 0 || bookingMutation.isPending}
-                                className={`flex-1 py-4 px-6 rounded-xl font-bold text-white text-lg transition-all ${ticket.quantity <= 0
-                                        ? 'bg-gray-400 cursor-not-allowed'
-                                        : 'bg-linear-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
-                                    }`}
-                            >
-                                <div className="flex items-center justify-center gap-3">
-                                    {bookingMutation.isPending ? (
-                                        <>
-                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                                            <span>Processing...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <FaLock />
-                                            <span>
-                                                {ticket.quantity <= 0
-                                                    ? 'Sold Out'
-                                                    : `Book ${quantity} Ticket${quantity !== 1 ? 's' : ''} Now`
-                                                }
-                                            </span>
-                                        </>
+                        {isLocked ? (
+                            <div className="flex flex-col items-center justify-center gap-3 bg-linear-to-r from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 p-6 text-center rounded-2xl">
+                                <FaLock className="text-3xl text-gray-600 dark:text-gray-300" />
+                                <div className="space-y-2">
+                                    <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                                        {role === 'vendor' || role === 'admin'
+                                            ? "Booking Restricted"
+                                            : "Booking Closed"}
+                                    </p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md">
+                                        {role === 'vendor'
+                                            ? "Vendor accounts cannot book tickets. Please use a user account for bookings."
+                                            : role === 'admin'
+                                                ? "Admin accounts are for management purposes only. Please use a user account to make bookings."
+                                                : `This ticket's departure time was ${new Date(ticket.departureDateTime).toLocaleDateString('en-US', {
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    year: 'numeric'
+                                                })} at ${new Date(ticket.departureDateTime).toLocaleTimeString('en-US', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}. It is no longer available for booking.`
+                                        }
+                                    </p>
+                                    {(isDeparted && (role !== 'vendor' && role !== 'admin')) && (
+                                        <div className="mt-4">
+                                            <Link
+                                                to="/tickets"
+                                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                                            >
+                                                <FaTicketAlt />
+                                                <span>Browse Available Tickets</span>
+                                            </Link>
+                                        </div>
                                     )}
                                 </div>
-                            </Link>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <Link
+                                    to={'/dashboard/my-bookings'}
+                                    onClick={handleBooking}
+                                    disabled={ticket.quantity <= 0 || bookingMutation.isPending}
+                                    className={`flex-1 py-4 px-6 rounded-xl font-bold text-white text-lg transition-all ${ticket.quantity <= 0
+                                        ? 'bg-gray-400 cursor-not-allowed'
+                                        : 'bg-linear-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
+                                        }`}
+                                >
+                                    <div className="flex items-center justify-center gap-3">
+                                        {bookingMutation.isPending ? (
+                                            <>
+                                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                                <span>Processing...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span>
+                                                    {ticket.quantity <= 0
+                                                        ? 'Sold Out'
+                                                        : `Book ${quantity} Ticket${quantity !== 1 ? 's' : ''} Now`
+                                                    }
+                                                </span>
+                                            </>
+                                        )}
+                                    </div>
+                                </Link>
 
-                            <button
-                                onClick={() => navigate('/contact')}
-                                className="py-4 px-6 rounded-xl border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                            >
-                                <div className="flex items-center justify-center gap-2">
-                                    <FaQuestionCircle />
-                                    <span>Need Help?</span>
-                                </div>
-                            </button>
-                        </div>
+                                <button
+                                    onClick={() => navigate('/contact')}
+                                    className="py-4 px-6 rounded-xl border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                >
+                                    <div className="flex items-center justify-center gap-2">
+                                        <FaQuestionCircle />
+                                        <span>Need Help?</span>
+                                    </div>
+                                </button>
+                            </div>
+                        )}
 
                         {/* Important Notes */}
                         <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
@@ -622,9 +686,6 @@ export default function TicketDetails() {
                     </div>
                 </motion.div>
             </div>
-
-            {/* Floating Action Bar for Mobile */}
-
 
             {/* Contact/Support Section */}
             <div className="container mx-auto max-w-6xl px-4 py-8">

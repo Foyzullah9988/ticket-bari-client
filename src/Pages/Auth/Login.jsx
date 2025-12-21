@@ -119,7 +119,7 @@ const Login = () => {
                                     <input
                                         name="password"
                                         type={show ? 'text' : "password"}
-                                        defaultValue={'AZazaz1'}
+                                        
                                         {...register('password', {
                                             required: true,
                                             minLength: 6,

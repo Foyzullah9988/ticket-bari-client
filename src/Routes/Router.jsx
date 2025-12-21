@@ -24,6 +24,9 @@ import Payment from "../Pages/Dashboard/UserDashboard.jsx/Payment";
 import PaymentCancel from "../Pages/Dashboard/UserDashboard.jsx/PaymentCancel";
 import PaymentSuccess from "../Pages/Dashboard/UserDashboard.jsx/PaymentSuccess";
 import Revenue from "../Pages/Dashboard/VendorDashboard/Revenue";
+import TransactionHistory from "../Pages/Dashboard/UserDashboard.jsx/TransactionHistory";
+import VendorRoute from "./VendorRoute";
+import AdminRoute from "./AdminRoute";
 
 
 export const router = createBrowserRouter([
@@ -35,7 +38,6 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: "",
-                hydrateFallbackElement: <Loading />,
                 element: <Home />
 
             },
@@ -86,35 +88,53 @@ export const router = createBrowserRouter([
             },
             {
                 path: '/dashboard/add-tickets',
-                element: <AddTickets />
+                element: <VendorRoute>
+                    <AddTickets />
+                </VendorRoute>
             },
             {
                 path: '/dashboard/my-tickets',
-                element: <MyTickets />
+                element: <VendorRoute>
+                    <MyTickets />
+                </VendorRoute>
             },
             {
                 path: '/dashboard/revenue',
-                element: <Revenue />
+                element: <VendorRoute>
+                    <Revenue />
+                </VendorRoute>
+            },
+            {
+                path: '/dashboard/bookings',
+                element: <VendorRoute>
+                    <BookingsRequest />
+                </VendorRoute>
             },
             {
                 path: '/dashboard/manage-tickets',
-                element: <ManageTickets />
+                element: <AdminRoute>
+                    <ManageTickets />
+                </AdminRoute>
             },
             {
                 path: '/dashboard/manage-users',
-                element: <ManageUsers />
+                element: <AdminRoute>
+                    <ManageUsers />
+                </AdminRoute>
             },
             {
                 path: '/dashboard/advertise',
-                element: <Advertise />
+                element: <AdminRoute>
+                    <Advertise />
+                </AdminRoute>
             },
             {
                 path: '/dashboard/my-bookings',
                 element: <MyBooking />
             },
             {
-                path: '/dashboard/bookings',
-                element: <BookingsRequest />
+                path: '/dashboard/transactions',
+                element: <TransactionHistory />
             },
             {
                 path: '/dashboard/payment/:ticketId',

@@ -13,19 +13,21 @@ const AddTickets = () => {
         handleSubmit,
         formState: { errors },
         watch,
-        reset
+        reset,
+        setError,
+        clearErrors
     } = useForm({
         defaultValues: {
             perks: []
         }
     });
 
-
     const { user } = React.useContext(AuthContext);
     const navigate = useNavigate();
     const axiosSecure = useAxiosSecure();
     const [uploadingImage, setUploadingImage] = useState(false);
     const [previewImage, setPreviewImage] = useState(null);
+    const [selectedImageFile, setSelectedImageFile] = useState(null);
 
     // Transport types
     const transportTypes = [
@@ -70,17 +72,54 @@ const AddTickets = () => {
         "Thakurgaon"
     ];
 
-
     // Handle image preview
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            if (!validTypes.includes(file.type)) {
+                Swal.fire({
+                    title: 'Invalid File Type',
+                    text: 'Please upload an image file (JPEG, PNG, GIF)',
+                    icon: 'error'
+                });
+                return;
+            }
+
+            // Validate file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                Swal.fire({
+                    title: 'File Too Large',
+                    text: 'Maximum file size is 10MB',
+                    icon: 'error'
+                });
+                return;
+            }
+
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPreviewImage(reader.result);
             };
             reader.readAsDataURL(file);
+            setSelectedImageFile(file);
+            clearErrors('image'); // Clear any previous image errors
         }
+    };
+
+    // Remove image
+    const handleRemoveImage = () => {
+        setPreviewImage(null);
+        setSelectedImageFile(null);
+        // Reset the file input
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+        setError('image', {
+            type: 'manual',
+            message: 'Image is required'
+        });
     };
 
     // Handle image upload to imgbb
@@ -90,13 +129,12 @@ const AddTickets = () => {
 
         try {
             setUploadingImage(true);
-            // Use regular axios instead of axiosSecure
             const response = await axios.post(
                 `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_imgbb}`,
                 formData,
                 {
                     headers: {
-                        'Content-Type': 'application.json'
+                        'Content-Type': 'multipart/form-data'
                     }
                 }
             );
@@ -112,10 +150,23 @@ const AddTickets = () => {
     // Handle form submission
     const onSubmit = async (data) => {
         try {
-            // Upload image if exists
+            // Check if image is selected
+            if (!selectedImageFile) {
+                setError('image', {
+                    type: 'manual',
+                    message: 'Image is required'
+                });
+                return;
+            }
+
+            // Upload image
             let imageUrl = '';
-            if (data.image && data.image[0]) {
-                imageUrl = await uploadImageToImgbb(data.image[0]);
+            if (selectedImageFile) {
+                imageUrl = await uploadImageToImgbb(selectedImageFile);
+                
+                if (!imageUrl) {
+                    throw new Error('Image upload failed');
+                }
             }
 
             // Prepare ticket data
@@ -132,7 +183,6 @@ const AddTickets = () => {
                 vendorName: user?.displayName || 'Unknown Vendor',
                 vendorEmail: user?.email,
                 verificationStatus: 'pending',
-                
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
@@ -151,6 +201,7 @@ const AddTickets = () => {
                     didClose: () => {
                         reset();
                         setPreviewImage(null);
+                        setSelectedImageFile(null);
                         navigate('/dashboard/my-tickets');
                     }
                 });
@@ -167,42 +218,41 @@ const AddTickets = () => {
         }
     };
 
-
     // Calculate total revenue
     const price = watch('price');
     const quantity = watch('quantity');
     const totalRevenue = price && quantity ? (parseFloat(price) * parseInt(quantity)).toFixed(2) : '0';
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-50 p-4 md:p-6">
+        <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800 p-4 md:p-6">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="mb-8 text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
+                    <h1 className="text-4xl md:text-5xl font-bold bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 bg-clip-text text-transparent mb-3">
                         Add New Ticket
                     </h1>
-                    <p className="text-gray-600 text-lg">
+                    <p className="text-gray-600 dark:text-gray-400 text-lg">
                         Fill in the details below to list your tickets for sale
                     </p>
                 </div>
 
                 {/* Stats Card */}
-                <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 mb-8 border border-gray-100 dark:border-gray-950">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-blue-50 p-4 rounded-xl">
-                            <p className="text-sm text-gray-600">Ticket Price</p>
+                        <div className="bg-blue-50 dark:bg-gray-700 p-4 rounded-xl">
+                            <p className="text-sm dark:text-white text-gray-600">Ticket Price</p>
                             <p className="text-2xl font-bold text-blue-600">
                                 {price || '0'} tk
                             </p>
                         </div>
-                        <div className="bg-green-50 p-4 rounded-xl">
-                            <p className="text-sm text-gray-600">Total Tickets</p>
+                        <div className="bg-green-50 dark:bg-gray-700 p-4 rounded-xl">
+                            <p className="text-sm text-gray-600 dark:text-white">Total Tickets</p>
                             <p className="text-2xl font-bold text-green-600">
                                 {quantity || '0'}
                             </p>
                         </div>
-                        <div className="bg-purple-50 p-4 rounded-xl">
-                            <p className="text-sm text-gray-600">Total Revenue</p>
+                        <div className="bg-purple-50 dark:bg-gray-700  p-4 rounded-xl">
+                            <p className="text-sm dark:text-white text-gray-600">Total Revenue</p>
                             <p className="text-2xl font-bold text-purple-600">
                                 ৳{totalRevenue}
                             </p>
@@ -213,11 +263,11 @@ const AddTickets = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Form */}
                     <div className="lg:col-span-2">
-                        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100">
+                        <div className="bg-white dark:bg-gray-600 rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100">
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                                 {/* Ticket Title */}
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-700">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-white">
                                         Ticket Title *
                                     </label>
                                     <input
@@ -226,7 +276,7 @@ const AddTickets = () => {
                                             required: 'Ticket title is required',
                                             minLength: { value: 5, message: 'Title must be at least 5 characters' }
                                         })}
-                                        className={`w-full bg-white text-black px-4 py-3 rounded-xl border ${errors.title ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'} focus:ring-2 focus:ring-blue-200 transition duration-200`}
+                                        className={`w-full bg-white dark:bg-gray-700 dark:text-white text-black px-4 py-3 rounded-xl border ${errors.title ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'} focus:ring-2 focus:ring-blue-200 transition duration-200`}
                                         placeholder="e.g., Express Bus: Dhaka to Cox's Bazar"
                                     />
                                     {errors.title && (
@@ -236,14 +286,14 @@ const AddTickets = () => {
 
                                 {/* Route Information */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2 bg-white text-black">
-                                        <label className="block text-sm font-medium text-gray-700">
+                                    <div className="space-y-2 bg-white text-black dark:bg-gray-600 dark:text-white">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-white">
                                             From (Location) *
                                         </label>
                                         <div className="relative">
                                             <select
                                                 {...register('from', { required: 'Departure location is required' })}
-                                                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 appearance-none bg-white transition duration-200"
+                                                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 dark:bg-gray-700 focus:ring-blue-200 appearance-none bg-white transition duration-200"
                                             >
                                                 <option className='' value="">Select departure point</option>
                                                 {popularDestinations.map((dest, index) => (
@@ -262,14 +312,14 @@ const AddTickets = () => {
                                         )}
                                     </div>
 
-                                    <div className="space-y-2 bg-white text-black">
-                                        <label className="block text-sm font-medium text-gray-700">
+                                    <div className="space-y-2 dark:bg-gray-600 dark:text-white  bg-white text-black">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-white">
                                             To (Destination) *
                                         </label>
                                         <div className="relative">
                                             <select
                                                 {...register('to', { required: 'Destination is required' })}
-                                                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 appearance-none bg-white transition duration-200"
+                                                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 appearance-none dark:bg-gray-700 bg-white transition duration-200"
                                             >
                                                 <option value="">Select destination</option>
                                                 {popularDestinations.map((dest, index) => (
@@ -291,14 +341,14 @@ const AddTickets = () => {
 
                                 {/* Transport Type */}
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-white mb-3">
                                         Transport Type *
                                     </label>
                                     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                                         {transportTypes.map((type) => (
                                             <label
                                                 key={type.value}
-                                                className={`relative flex flex-col items-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${watch('transportType') === type.value ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'}`}
+                                                className={`relative flex flex-col items-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${watch('transportType') === type.value ? 'border-blue-500 bg-blue-50 dark:bg-gray-800' : 'border-gray-200 hover:border-blue-300 dark:hover:text-white hover:bg-blue-50 dark:hover:bg-gray-700'}`}
                                             >
                                                 <input
                                                     type="radio"
@@ -309,7 +359,7 @@ const AddTickets = () => {
                                                 <div className={`text-2xl ${type.color} mb-2`}>
                                                     {type.icon}
                                                 </div>
-                                                <span className="text-sm font-medium text-gray-700">{type.label}</span>
+                                                <span className="text-sm font-medium text-gray-700 dark:text-white">{type.label}</span>
                                                 {watch('transportType') === type.value && (
                                                     <div className="absolute top-2 right-2">
                                                         <FaCheck className="text-blue-500" />
@@ -326,12 +376,12 @@ const AddTickets = () => {
                                 {/* Price and Quantity */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">
+                                        <label className="block text-sm font-medium text-gray-700 dark:bg-gray-600 dark:text-white">
                                             Price (per ticket) *
                                         </label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <span className="text-gray-500">৳</span>
+                                                <span className="text-gray-500 dark:text-white">৳</span>
                                             </div>
                                             <input
                                                 type="number"
@@ -340,7 +390,7 @@ const AddTickets = () => {
                                                     required: 'Price is required',
                                                     min: { value: 1, message: 'Price must be at least ৳1' }
                                                 })}
-                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+                                                className="w-full dark:text-white dark:bg-gray-700 pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
                                                 placeholder="0.00"
                                             />
                                         </div>
@@ -350,7 +400,7 @@ const AddTickets = () => {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-white">
                                             Ticket Quantity *
                                         </label>
                                         <input
@@ -360,7 +410,7 @@ const AddTickets = () => {
                                                 min: { value: 1, message: 'At least 1 ticket required' },
                                                 max: { value: 1000, message: 'Maximum 1000 tickets' }
                                             })}
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+                                            className="w-full dark:bg-gray-700 dark:text-white px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
                                             placeholder="Number of tickets"
                                         />
                                         {errors.quantity && (
@@ -371,7 +421,7 @@ const AddTickets = () => {
 
                                 {/* Departure Date & Time */}
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-700">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-white">
                                         Departure Date & Time *
                                     </label>
                                     <div className="relative">
@@ -388,7 +438,7 @@ const AddTickets = () => {
                                                     return selectedDate > now || 'Departure time must be in the future';
                                                 }
                                             })}
-                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+                                            className="w-full dark:bg-gray-700 pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
                                             min={new Date().toISOString().slice(0, 16)}
                                         />
                                     </div>
@@ -399,34 +449,34 @@ const AddTickets = () => {
 
                                 {/* Perks */}
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    <label className="block dark:text-white text-sm font-medium text-gray-700 mb-3">
                                         Available Perks (Select all that apply)
                                     </label>
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                                         {perksOptions.map((perk) => (
                                             <label
                                                 key={perk.id}
-                                                className={`flex items-center p-3 rounded-xl border cursor-pointer transition-all duration-200 ${watch('perks')?.includes(perk.value) ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'}`}
+                                                className={`flex items-center p-3 rounded-xl border cursor-pointer dark:bg-gray-700 dark:hover:bg-gray-700   transition-all duration-200 ${watch('perks')?.includes(perk.value) ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'}`}
                                             >
                                                 <input
                                                     type="checkbox"
                                                     value={perk.value}
                                                     {...register('perks')}
-                                                    className="mr-3 h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                                                    className="mr-3  h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
                                                 />
-                                                <span className="text-sm text-gray-700">{perk.label}</span>
+                                                <span className="text-sm text-gray-700 dark:text-white">{perk.label}</span>
                                             </label>
                                         ))}
                                     </div>
                                 </div>
 
-                                {/* Image Upload */}
+                                {/* Image Upload - Now Required */}
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Ticket/Vehicle Image
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-white">
+                                        Ticket/Vehicle Image *
                                     </label>
                                     <div className="space-y-4">
-                                        <div className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition duration-200 ${previewImage ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'}`}>
+                                        <div className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition duration-200 ${errors.image ? 'border-red-400 bg-red-50 dark:bg-gray-500' : previewImage ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700'}`}>
                                             <input
                                                 type="file"
                                                 accept="image/*"
@@ -435,13 +485,14 @@ const AddTickets = () => {
                                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                             />
                                             <div className="space-y-3">
-                                                <FaCloudUploadAlt className="mx-auto text-4xl text-gray-400" />
+                                                <FaCloudUploadAlt className="mx-auto text-4xl text-gray-400 dark:text-white" />
                                                 <div>
-                                                    <p className="text-sm text-gray-600">
-                                                        <span className="font-semibold text-blue-600">Click to upload</span> or drag and drop
+                                                    <p className="text-sm text-gray-600 dark:text-white">
+                                                        <span className="font-semibold text-blue-600 dark:text-white">Click to upload</span> or drag and drop
                                                     </p>
-                                                    <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
+                                                    <p className="text-xs text-gray-500 dark:text-white mt-1">PNG, JPG, GIF up to 10MB</p>
                                                 </div>
+                                                
                                             </div>
                                         </div>
                                         {previewImage && (
@@ -453,14 +504,16 @@ const AddTickets = () => {
                                                 />
                                                 <button
                                                     type="button"
-                                                    onClick={() => {
-                                                        setPreviewImage(null);
-                                                        reset({ ...watch(), image: null });
-                                                    }}
+                                                    onClick={handleRemoveImage}
                                                     className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition duration-200"
                                                 >
                                                     Remove
                                                 </button>
+                                            </div>
+                                        )}
+                                        {errors.image && (
+                                            <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                                                <p className="font-medium">⚠️ {errors.image.message}</p>
                                             </div>
                                         )}
                                     </div>
@@ -469,25 +522,25 @@ const AddTickets = () => {
                                 {/* Vendor Info (Readonly) */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-white">
                                             Vendor Name
                                         </label>
                                         <input
                                             type="text"
                                             value={user?.displayName || 'Unknown Vendor'}
                                             readOnly
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50 text-gray-600"
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:bg-gray-700 bg-gray-50 text-gray-600 dark:text-white"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">
+                                        <label className="block dark:text-white text-sm font-medium text-gray-700 ">
                                             Vendor Email
                                         </label>
                                         <input
                                             type="email"
                                             value={user?.email || 'No email provided'}
                                             readOnly
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50 text-gray-600"
+                                            className="w-full dark:bg-gray-700 px-4 py-3 rounded-xl border border-gray-300 bg-gray-50 text-gray-600 dark:text-white"
                                         />
                                     </div>
                                 </div>
@@ -497,7 +550,7 @@ const AddTickets = () => {
                                     <button
                                         type="submit"
                                         disabled={uploadingImage}
-                                        className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition duration-200 flex items-center justify-center space-x-3 ${uploadingImage ? 'bg-blue-400 cursor-not-allowed' : 'bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl'}`}
+                                        className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition duration-200 flex items-center justify-center space-x-3 ${uploadingImage ? 'bg-blue-400 cursor-not-allowed' : 'bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 dark:from-gray-600 dark:to-gray-700 dark:hover:from-gray-700 dark:hover:to-gray-600 dark:border transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl'}`}
                                     >
                                         {uploadingImage ? (
                                             <>
@@ -514,7 +567,7 @@ const AddTickets = () => {
                                             </>
                                         )}
                                     </button>
-                                    <p className="text-sm text-gray-500 text-center mt-3">
+                                    <p className="text-sm text-gray-500 dark:text-white text-center mt-3">
                                         Ticket will be listed after admin verification
                                     </p>
                                 </div>
@@ -524,21 +577,21 @@ const AddTickets = () => {
 
                     {/* Preview Panel */}
                     <div className="lg:col-span-1">
-                        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100 sticky top-8">
-                            <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                                <FaCheck className="mr-2 text-green-500" />
+                        <div className="bg-white dark:bg-gray-600 rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100 sticky top-8">
+                            <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center dark:text-white">
+                                <FaCheck className="mr-2 text-green-500 dark:text-white" />
                                 Ticket Preview
                             </h3>
 
                             <div className="space-y-6">
                                 {/* Preview Card */}
-                                <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
+                                <div className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-5 border border-blue-100">
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
-                                            <h4 className="font-bold text-lg text-gray-800">
+                                            <h4 className="font-bold dark:text-white text-lg text-gray-800">
                                                 {watch('title') || 'Ticket Title'}
                                             </h4>
-                                            <p className="text-sm text-gray-600 mt-1">
+                                            <p className="text-sm text-gray-600 dark:text-gray-200 mt-1">
                                                 {watch('from') || 'Departure'} → {watch('to') || 'Destination'}
                                             </p>
                                         </div>
@@ -550,7 +603,7 @@ const AddTickets = () => {
                                     </div>
 
                                     <div className="space-y-3">
-                                        <div className="flex items-center text-gray-600">
+                                        <div className="flex items-center text-gray-600 dark:text-white">
                                             <FaCalendarAlt className="mr-2" />
                                             <span className="text-sm">
                                                 {watch('departureDateTime') ?
@@ -562,25 +615,49 @@ const AddTickets = () => {
 
                                         <div className="flex justify-between items-center pt-3 border-t border-gray-200">
                                             <div>
-                                                <p className="text-2xl font-bold text-blue-600">
-                                                    ৳{price || '0'}
+                                                <p className="text-2xl font-bold text-blue-600 dark:text-white">
+                                                    {price} tk
                                                 </p>
-                                                <p className="text-sm text-gray-500">per ticket</p>
+                                                <p className="text-sm dark:text-gray-200 text-gray-500">per ticket</p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="font-semibold text-gray-700">
+                                                <p className="font-semibold dark:text-gray-200 text-gray-700">
                                                     {quantity || '0'} tickets
                                                 </p>
-                                                <p className="text-sm text-gray-500">available</p>
+                                                <p className="text-sm dark:text-gray-200  text-gray-500 ">available</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
+                                {/* Image Preview in Preview Panel */}
+                                <div>
+                                    <h4 className="font-semibold text-gray-700 mb-3 dark:text-white">Image Preview:</h4>
+                                    {previewImage ? (
+                                        <div className="relative">
+                                            <img
+                                                src={previewImage}
+                                                alt="Ticket Preview"
+                                                className="w-full h-48 object-cover rounded-xl shadow-md"
+                                            />
+                                            <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs">
+                                                ✓ Uploaded
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="bg-gray-100 dark:bg-gray-700 h-48 rounded-xl flex items-center justify-center">
+                                            <p className="text-gray-500 dark:text-gray-400 text-center">
+                                                No image uploaded yet<br />
+                                                
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
                                 {/* Perks Preview */}
                                 {watch('perks')?.length > 0 && (
                                     <div>
-                                        <h4 className="font-semibold text-gray-700 mb-3">Included Perks:</h4>
+                                        <h4 className="font-semibold text-gray-700 mb-3 dark:text-white">Included Perks:</h4>
                                         <div className="flex flex-wrap gap-2">
                                             {watch('perks').map((perk, index) => (
                                                 <span key={index} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
@@ -592,39 +669,39 @@ const AddTickets = () => {
                                 )}
 
                                 {/* Quick Stats */}
-                                <div className="bg-gray-50 rounded-xl p-5">
-                                    <h4 className="font-semibold text-gray-700 mb-4">Quick Stats</h4>
+                                <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-5">
+                                    <h4 className="font-semibold text-gray-700 dark:text-white mb-4">Quick Stats</h4>
                                     <div className="space-y-3">
                                         <div className="flex justify-between">
-                                            <span className="text-gray-600">Price per ticket:</span>
+                                            <span className="text-gray-600 dark:text-gray-200">Price per ticket:</span>
                                             <span className="font-semibold">৳{price || '0'}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-gray-600">Total tickets:</span>
+                                            <span className="text-gray-600 dark:text-gray-200">Total tickets:</span>
                                             <span className="font-semibold">{quantity || '0'}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-gray-600">Total revenue:</span>
+                                            <span className="text-gray-600 dark:text-gray-200">Total revenue:</span>
                                             <span className="font-bold text-purple-600">৳{totalRevenue}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Tips */}
-                                <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-5">
-                                    <h4 className="font-semibold text-gray-700 mb-3 flex items-center">
+                                <div className="bg-yellow-50 dark:bg-gray-800 border border-yellow-100 rounded-xl p-5">
+                                    <h4 className="font-semibold dark:text-white text-gray-700 mb-3 flex items-center">
                                         <svg className="w-5 h-5 mr-2 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                                         </svg>
                                         Tips for Success
                                     </h4>
-                                    <ul className="space-y-2 text-sm text-gray-600">
+                                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-200">
                                         <li className="flex items-start">
                                             <span className="text-green-500 mr-2">✓</span>
                                             Set competitive pricing
                                         </li>
                                         <li className="flex items-start">
-                                            <span className="text-green-500 mr-2">✓</span>
+                                            <span className="text-green-500 mr-2 ">✓</span>
                                             Add clear, attractive images
                                         </li>
                                         <li className="flex items-start">

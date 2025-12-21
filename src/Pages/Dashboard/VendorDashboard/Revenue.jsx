@@ -138,7 +138,7 @@ const Revenue = () => {
                     </div>
                     <div>
                         <h1 className="text-2xl md:text-3xl font-bold">Revenue Overview</h1>
-                        <p className="text-gray-600">Track your sales, tickets, and performance</p>
+                        <p className="text-gray-600 dark:text-gray-200">Track your sales, tickets, and performance</p>
                     </div>
                 </div>
             </div>
@@ -149,7 +149,7 @@ const Revenue = () => {
                     <div className="card-body p-4 md:p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <div className="text-2xl md:text-3xl font-bold">${stats.totalRevenue.toFixed(2)}</div>
+                                <div className="text-2xl md:text-3xl font-bold">{stats.totalRevenue.toFixed(2)} tk</div>
                                 <div className="text-sm opacity-90 mt-1">Total Revenue</div>
                             </div>
                             <FaDollarSign className="text-3xl opacity-70" />
@@ -368,7 +368,7 @@ const Revenue = () => {
                                         }
                                     </td>
                                     <td>
-                                        <div className="badge badge-success">
+                                        <div className="badge badge-success  px-1">
                                             {stats.totalBookings > 0 
                                                 ? ((stats.paidBookings / stats.totalBookings) * 100).toFixed(1) >= 50 
                                                     ? 'Good' 
@@ -388,7 +388,7 @@ const Revenue = () => {
                                     </td>
                                     <td>Per Ticket</td>
                                     <td>
-                                        <div className="badge badge-info">Standard</div>
+                                        <div className="badge badge-info px-1">Standard</div>
                                     </td>
                                 </tr>
                                 <tr>
@@ -406,7 +406,7 @@ const Revenue = () => {
                                         }
                                     </td>
                                     <td>
-                                        <div className="badge badge-warning">
+                                        <div className="badge badge-warning  px-1">
                                             {stats.totalTicketsAdded > 0 
                                                 ? ((stats.approvedTickets / stats.totalTicketsAdded) * 100).toFixed(1) >= 80 
                                                     ? 'High' 
@@ -426,7 +426,7 @@ const Revenue = () => {
                                     </td>
                                     <td>Average</td>
                                     <td>
-                                        <div className="badge badge-success">Healthy</div>
+                                        <div className="badge badge-success px-1">Healthy</div>
                                     </td>
                                 </tr>
                             </tbody>

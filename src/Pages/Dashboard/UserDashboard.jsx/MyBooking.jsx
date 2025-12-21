@@ -2,27 +2,28 @@ import React, { useContext, useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import {
-  FaCalendarAlt, FaClock, FaTicketAlt, FaTag, 
-  FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaCreditCard, 
-  FaTrash, FaExclamationTriangle,
-  FaArrowRight, FaFilter, FaSearch,
-  FaArrowLeft, FaArrowRight as FaArrowRightIcon,
-  FaMoneyBillWave
+    FaCalendarAlt, FaClock, FaTicketAlt, FaTag,
+    FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaCreditCard,
+    FaTrash, FaExclamationTriangle,
+    FaArrowRight, FaFilter, FaSearch,
+    FaArrowLeft, FaArrowRight as FaArrowRightIcon,
+    FaMoneyBillWave, FaCalendarDay,
+    FaSync
 } from "react-icons/fa";
-import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Navbar from "../../../Components/Shared/Navbar";
 import Footer from "../../../Components/Shared/Footer";
 import { AuthContext } from "../../../Context/AuthContext";
 import Skeleton2 from "../../../Components/Shared/Skeleton2";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
+import toast from "react-hot-toast";
 
 const MyBookings = () => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const axiosSecure = useAxiosSecure();
     const queryClient = useQueryClient();
-    
+
     const [filter, setFilter] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -39,20 +40,19 @@ const MyBookings = () => {
     }, []);
 
     // Fetch user bookings
-    const { data: bookings = [], isLoading, error } = useQuery({
+    const { data: bookings = [], isLoading, refetch, error } = useQuery({
         queryKey: ['bookings', user?.email],
         queryFn: async () => {
-            const res = await axiosSecure.get('/bookings', { 
-                params: { 
+            const res = await axiosSecure.get('/bookings', {
+                params: {
                     userEmail: user?.email
-                } 
+                }
             });
             return res.data;
         },
         enabled: !!user?.email,
         refetchInterval: 30000,
     });
-
 
     const cancelMutation = useMutation({
         mutationFn: async (bookingId) => {
@@ -72,7 +72,7 @@ const MyBookings = () => {
     // Calculate time left until departure
     const calculateTimeLeft = (departureDateTime) => {
         if (!departureDateTime) return "N/A";
-        
+
         const departure = new Date(departureDateTime);
         const now = currentTime;
         const timeDiff = departure - now;
@@ -94,25 +94,26 @@ const MyBookings = () => {
         }
     };
 
-    // Filter and sort bookings
+    // Filter and sort bookings by bookingDate (newest first)
     const filteredBookings = useMemo(() => {
         if (!bookings || bookings.length === 0) return [];
 
         const filtered = bookings.filter(booking => {
             const matchesFilter = filter === "all" || booking.status === filter;
-            const matchesSearch = 
+            const matchesSearch =
                 booking.ticketTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 booking.bookingReference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 booking.from?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 booking.to?.toLowerCase().includes(searchTerm.toLowerCase());
-            
+
             return matchesFilter && matchesSearch;
         });
 
+        // Sort by bookingDate (newest first), with fallback to createdAt
         return filtered.sort((a, b) => {
-            const dateA = new Date(a.departureDateTime || a.createdAt || 0);
-            const dateB = new Date(b.departureDateTime || b.createdAt || 0);
-            return dateB - dateA;
+            const dateA = new Date(a.bookingDate || a.createdAt || 0);
+            const dateB = new Date(b.bookingDate || b.createdAt || 0);
+            return dateB - dateA; // Descending order (newest first)
         });
     }, [bookings, filter, searchTerm]);
 
@@ -124,32 +125,32 @@ const MyBookings = () => {
     // Status badge styling
     const getStatusBadge = (status) => {
         const statusConfig = {
-            pending: { 
+            pending: {
                 color: "bg-yellow-100 border border-yellow-200 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300",
                 icon: <FaHourglassHalf className="text-yellow-500" />,
                 text: "Pending"
             },
-            accepted: { 
+            accepted: {
                 color: "bg-blue-100 border border-blue-200 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300",
                 icon: <FaCheckCircle className="text-blue-500" />,
                 text: "Accepted"
             },
-            rejected: { 
+            rejected: {
                 color: "bg-red-100 border border-red-200 dark:bg-red-900/30 text-red-800 dark:text-red-300",
                 icon: <FaTimesCircle className="text-red-500" />,
                 text: "Rejected"
             },
-            paid: { 
+            paid: {
                 color: "bg-emerald-100 border border-emerald-200 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300",
                 icon: <FaCreditCard className="text-emerald-500" />,
                 text: "Paid"
             },
-            cancelled: { 
+            cancelled: {
                 color: "bg-gray-100 border border-gray-200 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300",
                 icon: <FaTimesCircle className="text-gray-500" />,
                 text: "Cancelled"
             },
-            completed: { 
+            completed: {
                 color: "bg-purple-100 border border-purple-200 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300",
                 icon: <FaCheckCircle className="text-purple-500" />,
                 text: "Completed"
@@ -169,7 +170,7 @@ const MyBookings = () => {
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return "Invalid Date";
-            
+
             return date.toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
@@ -178,6 +179,39 @@ const MyBookings = () => {
                 hour: '2-digit',
                 minute: '2-digit'
             });
+        } catch (error) {
+            return "N/A";
+        }
+    };
+
+    // Format short date (for booking date column)
+    const formatShortDate = (dateString) => {
+        if (!dateString) return "N/A";
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return "Invalid Date";
+
+            const now = currentTime;
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) {
+                const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+                if (diffHours === 0) {
+                    const diffMinutes = Math.floor(diffTime / (1000 * 60));
+                    return `${diffMinutes}m ago`;
+                }
+                return `${diffHours}h ago`;
+            } else if (diffDays === 1) {
+                return "Yesterday";
+            } else if (diffDays < 7) {
+                return `${diffDays}d ago`;
+            } else {
+                return date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
         } catch (error) {
             return "N/A";
         }
@@ -251,12 +285,11 @@ const MyBookings = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-                <Navbar />
-                <div className="container mx-auto px-4 py-8">
-                    <Skeleton2 />
-                </div>
-                <Footer />
+            <div className='flex flex-col justify-center items-center gap-2'>
+                <div className="skeleton h-4 w-full"></div>
+                <div className="skeleton h-4 w-full"></div>
+                <div className="skeleton h-4 w-full"></div>
+                <div className="skeleton h-4 w-full"></div>
             </div>
         );
     }
@@ -284,13 +317,13 @@ const MyBookings = () => {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
             <Navbar />
-            
+
             {/* Header */}
-            <div className="bg-linear-to-r from-blue-600 dark:from-blue-950 to-indigo-700 dark:to-indigo-950   text-white">
+            <div className="bg-linear-to-r from-blue-600 dark:from-blue-950 to-indigo-700 dark:to-indigo-950 text-white">
                 <div className="container mx-auto px-4 py-8">
                     <div className="max-w-7xl mx-auto">
                         <h1 className="text-3xl font-bold mb-2">My Bookings</h1>
-                        <p className="text-blue-100">All your bookings </p>
+                        <p className="text-blue-100">All your bookings sorted by booking date (newest first)</p>
                     </div>
                 </div>
             </div>
@@ -374,9 +407,9 @@ const MyBookings = () => {
                                 Cancelled
                             </button>
                         </div>
-                        
+
                         <div className="relative w-full md:w-64">
-                            <div className="relative">
+                            <div className="relative flex gap-2 justify-between">
                                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="text"
@@ -385,6 +418,13 @@ const MyBookings = () => {
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="pl-10 pr-4 py-2 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
+                                <button
+                                    onClick={() => refetch()}
+                                    className="btn btn-primary btn-outline gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-10 "
+                                >
+                                    <FaSync className={`${isLoading ? 'animate-spin' : ''} w-3 h-3`} />
+                                    <span className="hidden sm:inline">Refresh</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -399,7 +439,7 @@ const MyBookings = () => {
                                 No bookings found
                             </h3>
                             <p className="text-gray-500 dark:text-gray-400 mb-6">
-                                {filter === "all" 
+                                {filter === "all"
                                     ? "You haven't made any bookings yet."
                                     : `No ${filter} bookings found.`
                                 }
@@ -419,6 +459,9 @@ const MyBookings = () => {
                                         <tr>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                                 Booking Ref
+                                            </th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                Booking Date
                                             </th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                                 Route
@@ -449,9 +492,9 @@ const MyBookings = () => {
                                             const timeLeft = calculateTimeLeft(booking.departureDateTime);
                                             const isDeparted = timeLeft === "Departed";
                                             const isUpcoming = !isDeparted && timeLeft !== "N/A";
-                                            
+
                                             return (
-                                                <tr 
+                                                <tr
                                                     key={booking._id || booking.bookingReference}
                                                     className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
                                                 >
@@ -460,8 +503,19 @@ const MyBookings = () => {
                                                             <div className="text-sm font-medium text-gray-900 dark:text-white">
                                                                 {booking.bookingReference || "N/A"}
                                                             </div>
-                                                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
+                                                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[180px]">
                                                                 {booking.ticketTitle || "No title"}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="flex flex-col">
+                                                            <div className="text-sm text-gray-900 dark:text-white flex items-center">
+                                                                <FaCalendarDay className="mr-2 text-blue-500 text-sm" />
+                                                                {formatDateTime(booking.bookingDate)}
+                                                            </div>
+                                                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                                                                {formatShortDate(booking.bookingDate)}
                                                             </div>
                                                         </div>
                                                     </td>
@@ -482,13 +536,12 @@ const MyBookings = () => {
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div className={`text-sm font-semibold ${
-                                                            isDeparted 
-                                                                ? "text-red-600 dark:text-red-400" 
-                                                                : isUpcoming 
-                                                                    ? "text-emerald-600 dark:text-emerald-400" 
+                                                        <div className={`text-sm font-semibold ${isDeparted
+                                                                ? "text-red-600 dark:text-red-400"
+                                                                : isUpcoming
+                                                                    ? "text-emerald-600 dark:text-emerald-400"
                                                                     : "text-gray-600 dark:text-gray-400"
-                                                        }`}>
+                                                            }`}>
                                                             {timeLeft}
                                                         </div>
                                                     </td>
@@ -583,16 +636,15 @@ const MyBookings = () => {
                                                 } else {
                                                     pageNum = currentPage - 2 + i;
                                                 }
-                                                
+
                                                 return (
                                                     <button
                                                         key={pageNum}
                                                         onClick={() => setCurrentPage(pageNum)}
-                                                        className={`px-3 py-1 rounded-md ${
-                                                            currentPage === pageNum
+                                                        className={`px-3 py-1 rounded-md ${currentPage === pageNum
                                                                 ? "bg-blue-600 text-white"
                                                                 : "border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-                                                        }`}
+                                                            }`}
                                                     >
                                                         {pageNum}
                                                     </button>

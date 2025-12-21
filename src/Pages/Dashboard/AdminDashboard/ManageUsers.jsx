@@ -62,7 +62,7 @@ const ManageUsers = () => {
     const sortedUsers = [...filteredUsers].sort((a, b) => {
         const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        
+
         // Always newest first (descending)
         return dateB - dateA;
     });
@@ -178,16 +178,10 @@ const ManageUsers = () => {
                     </div>
 
                     <div className="flex items-center space-x-2 mt-4 md:mt-0">
-                        <button
-                            onClick={() => refetch()}
-                            className="btn btn-primary btn-outline gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-auto"
-                        >
-                            <FaSync className={`${isLoading ? 'animate-spin' : ''} w-3 h-3`} />
-                            <span className="hidden sm:inline">Refresh</span>
-                        </button>
+
                     </div>
                 </div>
-                
+
                 {/* Statistics Cards */}
                 <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     <div className="bg-linear-to-r dark:from-blue-900 dark:to-cyan-900 from-blue-500 to-cyan-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
@@ -223,8 +217,8 @@ const ManageUsers = () => {
                 <div className="card-body p-3 sm:p-4">
                     <div className="flex flex-col gap-4 items-center">
                         <div className="flex-1 w-full">
-                            <div className="relative">
-                                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            <div className="relative flex justify-between items-center">
+                                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 z-1" />
                                 <input
                                     type="text"
                                     placeholder="Search users by name or email"
@@ -232,6 +226,13 @@ const ManageUsers = () => {
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
+                                <button
+                                    onClick={() => refetch()}
+                                    className="btn btn-primary btn-outline gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-10 "
+                                >
+                                    <FaSync className={`${isLoading ? 'animate-spin' : ''} w-3 h-3`} />
+                                    <span className="hidden sm:inline">Refresh</span>
+                                </button>
                             </div>
                         </div>
                         <div className='flex justify-end items-center w-full'>

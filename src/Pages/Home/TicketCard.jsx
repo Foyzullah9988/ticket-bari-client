@@ -1,4 +1,4 @@
-import React, { use } from "react";
+import React  from "react";
 import { Link } from "react-router";
 import {
     FaChair,
@@ -16,9 +16,6 @@ import {
 import { MdAirlineSeatReclineNormal } from "react-icons/md";
 import Skeleton1 from "../../Components/Shared/Skeleton1";
 import EmptyComponent from "../../Components/EmptyComponent";
-import useAxiosSecure from "../../Hooks/useAxiosSecure";
-import { useQuery } from "@tanstack/react-query";
-import { AuthContext } from "../../Context/AuthContext";
 
 // Transport type icon mapping
 const transportIcons = {
@@ -31,23 +28,6 @@ const transportIcons = {
 };
 
 const TicketCard = ({ realTickets, isLoading }) => {
-    const { user } = use(AuthContext)
-    const axiosSecure = useAxiosSecure();
-
-    // Fetch bookings
-    const { data: bookings = [] } = useQuery({
-        queryKey: ['bookings', user?.email],
-        queryFn: async () => {
-            const res = await axiosSecure.get(`/bookings?userEmail=${user?.email}`);
-            return res.data;
-        },
-        retry: 2,
-    });
-
-    if (!realTickets) return <p>Loading...</p>
-
-    const paidBookings = bookings.filter(book => book?.status === 'paid')
-
     // Format date
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -68,26 +48,9 @@ const TicketCard = ({ realTickets, isLoading }) => {
         });
     };
 
-    const calculateAvailableSeats = (ticketId) => {
-        const ticketBookings = paidBookings.filter(book => book.ticketId === ticketId);
-        
-        
-
-        const totalBookedQuantity = ticketBookings.reduce((sum, booking) => {
-            return sum + (booking.quantity || 0);
-        }, 0);
-        
-        // Find the ticket and calculate remaining seats
-        const ticket = realTickets.find(t => t._id === ticketId);
-        if (!ticket) return 0;
-        
-        const remainingSeats = ticket.availableQuantity - totalBookedQuantity;
-        return Math.max(remainingSeats, 0); // Ensure we don't show negative numbers
-    };
-
     return (
         <div className="flex flex-col h-full">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 w-full gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 w-full gap-6">
                 {
                     isLoading ? (
                         Array.from({ length: 4 }).map((_, index) => (
@@ -98,7 +61,6 @@ const TicketCard = ({ realTickets, isLoading }) => {
                 {realTickets.length === 0 ? <EmptyComponent /> :
                     realTickets.map((ticket) => {
                         const TransportIcon = transportIcons[ticket.transportType?.toLowerCase()] || transportIcons.default;
-                        const availableSeats = calculateAvailableSeats(ticket._id);
 
                         return (
                             <div
@@ -195,7 +157,7 @@ const TicketCard = ({ realTickets, isLoading }) => {
                                         <div>
                                             <p className="text-xs text-gray-500 dark:text-gray-400">Available</p>
                                             <p className="font-bold text-lg text-gray-900 dark:text-white">
-                                                {availableSeats}
+                                                {ticket.availableQuantity}
                                             </p>
                                         </div>
                                     </div>

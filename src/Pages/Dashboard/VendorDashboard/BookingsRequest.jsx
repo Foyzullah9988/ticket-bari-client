@@ -77,7 +77,7 @@ const BookingsRequest = () => {
     const sortedBookings = [...filteredBookings].sort((a, b) => {
         const dateA = a.bookingDate ? new Date(a.bookingDate).getTime() : 0;
         const dateB = b.bookingDate ? new Date(b.bookingDate).getTime() : 0;
-        
+
         // Always newest first (descending)
         return dateB - dateA;
     });
@@ -149,10 +149,6 @@ const BookingsRequest = () => {
             });
     };
 
-    const viewBookingDetails = (booking) => {
-        setSelectedBooking(booking);
-        setIsModalOpen(true);
-    };
 
     const getStatusBadge = (status) => {
         switch (status) {
@@ -204,43 +200,6 @@ const BookingsRequest = () => {
             default:
                 return 'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-300';
         }
-    };
-
-    const exportToCSV = () => {
-        const headers = ['Booking Ref', 'User Name', 'User Email', 'Ticket Title', 'From', 'To', 'Quantity', 'Total Price', 'Status', 'Booking Date'];
-        const csvData = sortedBookings.map(booking => [
-            booking.bookingReference || 'N/A',
-            booking.userName,
-            booking.userEmail,
-            booking.ticketTitle,
-            booking.from,
-            booking.to,
-            booking.quantity,
-            `৳${booking.totalPrice}`,
-            booking.status,
-            booking.bookingDate ? new Date(booking.bookingDate).toLocaleDateString() : 'N/A'
-        ]);
-
-        const csvContent = [
-            headers.join(','),
-            ...csvData.map(row => row.join(','))
-        ].join('\n');
-
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `bookings_${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
-
-        toast.success('📥 Report downloaded successfully!', {
-            duration: 3000,
-            style: {
-                background: '#3B82F6',
-                color: '#fff',
-                borderRadius: '10px',
-            },
-        });
     };
 
     // Format date for display
@@ -298,24 +257,6 @@ const BookingsRequest = () => {
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2 dark:text-white">Booking Requests</h1>
                         <p className="text-gray-600 dark:text-gray-400">Manage and process all booking requests from users</p>
                     </div>
-
-                    <div className="flex items-center space-x-2 mt-4 md:mt-0">
-                        <button
-                            onClick={() => refetch()}
-                            className="btn btn-primary btn-outline gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-auto"
-                        >
-                            <FaSync className={`${isLoading ? 'animate-spin' : ''} w-3 h-3`} />
-                            <span className="hidden sm:inline">Refresh</span>
-                        </button>
-                        <button
-                            onClick={exportToCSV}
-                            className="btn btn-success gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-auto"
-                            disabled={sortedBookings.length === 0}
-                        >
-                            <FaDownload className="w-3 h-3" />
-                            <span className="hidden sm:inline">Export CSV</span>
-                        </button>
-                    </div>
                 </div>
 
                 {/* Statistics Cards */}
@@ -369,7 +310,15 @@ const BookingsRequest = () => {
                             </div>
                         </div>
                         <div className='flex justify-end items-center w-full'>
+
                             <div className="flex gap-2">
+                                <button
+                                    onClick={() => refetch()}
+                                    className="btn btn-primary btn-outline gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-10 "
+                                >
+                                    <FaSync className={`${isLoading ? 'animate-spin' : ''} w-3 h-3`} />
+                                    <span className="hidden sm:inline">Refresh</span>
+                                </button>
                                 <div className="dropdown dropdown-bottom">
                                     <label tabIndex={0} className="btn btn-outline gap-2">
                                         <FaFilter />
@@ -530,13 +479,7 @@ const BookingsRequest = () => {
 
                                         <td className="px-4 md:px-6 py-4">
                                             <div className="flex flex-wrap gap-2">
-                                                <button
-                                                    onClick={() => viewBookingDetails(booking)}
-                                                    className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 dark:bg-blue-900 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
-                                                >
-                                                    <FaEye className="mr-1" />
-                                                    View
-                                                </button>
+                                                
 
                                                 {booking.status === 'pending' && (
                                                     <>

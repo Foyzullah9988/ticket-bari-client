@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router';
 import useAxiosSecure from '../../../Hooks/useAxiosSecure';
 import { FaCheckCircle, FaTicketAlt, FaReceipt } from 'react-icons/fa';
@@ -13,18 +13,24 @@ const PaymentSuccess = () => {
     const ticketId = searchParams.get('ticketId');
     const axiosSecure = useAxiosSecure();
     const navigate = useNavigate();
+    
+    const hasProcessed = useRef(false);
 
     console.log("URL Parameters:", { sessionId, ticketId });
 
     useEffect(() => {
-        if (!sessionId) {
-            setError("No session ID found in URL");
-            setLoading(false);
+        if (!sessionId || hasProcessed.current) {
+            if (!sessionId) {
+                setError("No session ID found in URL");
+                setLoading(false);
+            }
             return;
         }
 
         const processPaymentSuccess = async () => {
             try {
+                // Mark as processed immediately
+                hasProcessed.current = true;
                 setLoading(true);
                 console.log("Calling payment-success API with session_id:", sessionId);
                 
@@ -39,27 +45,37 @@ const PaymentSuccess = () => {
                         paymentStatus: response.data.paymentStatus
                     });
                     
-                    toast.success("Payment confirmed successfully!");
+                    toast.success("Payment confirmed successfully!", {
+                        id: 'payment-success',
+                        duration: 4000
+                    });
                 } else {
                     setError(response.data.error || "Failed to process payment");
                 }
             } catch (error) {
                 console.error("Payment success error:", error);
-                setError(error.response?.data?.error || "Failed to confirm payment");
-                toast.error("Failed to confirm payment");
+                const errorMessage = error.response?.data?.error || "Failed to confirm payment";
+                setError(errorMessage);
+                toast.error(errorMessage, {
+                    id: 'payment-error',
+                    duration: 4000
+                });
             } finally {
                 setLoading(false);
             }
         };
 
         processPaymentSuccess();
-    }, [sessionId, axiosSecure]);
 
+        // Cleanup function
+        return () => {
+        };
+    }, [sessionId, axiosSecure]); 
     if (loading) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+            <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-600">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-500 mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-500 dark:border-gray-400 mx-auto mb-4"></div>
                     <h2 className="text-2xl font-bold text-gray-700">Processing Payment...</h2>
                     <p className="text-gray-600 mt-2">Please wait while we confirm your payment</p>
                 </div>
@@ -102,7 +118,6 @@ const PaymentSuccess = () => {
                 <div className="text-center mb-12">
                     <div className="inline-flex items-center justify-center w-24 h-24 bg-green-100 dark:bg-green-200 rounded-full mb-6">
                         <FaCheckCircle className="text-5xl text-green-600 dark:text-green-900" />
-
                     </div>
                     <h1 className="text-4xl font-bold text-gray-900 mb-3 dark:text-white">
                         Payment Successful!

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import { AuthContext } from '../Context/AuthContext';
 
 const axiosSecure = axios.create({
-    baseURL: 'http://localhost:3000'
+    baseURL: 'https://ticket-bari-server-red.vercel.app'
 })
 
 const useAxiosSecure = () => {
@@ -24,10 +24,11 @@ const useAxiosSecure = () => {
             console.log(error);
             const statusCode = error.status;
             if (statusCode === 401 || statusCode === 403) {
-                logout()
-                .then(()=>{
-                    navigate('/auth/login')
-                })
+                // logout()
+                // .then(()=>{
+                //     navigate('/auth/login')
+                // })
+                console.log(statusCode);
             }
             return Promise.reject(error);
         })

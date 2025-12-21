@@ -107,19 +107,19 @@ const Navbar = ({ fixed = true }) => {
     const links = <>
         <li>
             <NavLink to={'/dashboard/profile'} end
-                className='p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors'>
+                className='p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors lg:hidden'>
                 Profile
             </NavLink>
         </li>
         <li>
             <NavLink to={'/all-tickets'} end
-                className='p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors'>
+                className='p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors lg:hidden'>
                 All Tickets
             </NavLink>
         </li>
         <li>
             <NavLink to={'/dashboard'} end
-                className='p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors'>
+                className='p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors lg:hidden'>
                 Dashboard
             </NavLink>
         </li>
@@ -153,7 +153,7 @@ const Navbar = ({ fixed = true }) => {
                     {/* Logo Section */}
                     <Link to={'/'} className="navbar-start flex items-center gap-3">
                         <div className="relative">
-                            <div className="w-12 h-12 rounded-full bg-linear-to-r from-emerald-500 to-green-500 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-full bg-linear-to-r from-blue-600 to-green-500 flex items-center justify-center">
                                 <img 
                                     src="/travel.png" 
                                     alt="Ticket Bari Logo" 

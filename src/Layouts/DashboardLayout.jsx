@@ -35,7 +35,7 @@ const DashboardLayout = () => {
             setIsHovering(true);
             hoverTimerRef.current = setTimeout(() => {
                 setSidebarExpanded(true);
-            }, 2000);
+            }, 0);
         }
     };
 
@@ -280,7 +280,7 @@ const DashboardLayout = () => {
                     </button>
 
                     <Link to={'/'} className="w-fit flex items-center gap-2 ml-2">
-                        <div className="h-10 w-10 bg-linear-to-r from-blue-600 to-green-500 rounded-lg flex items-center justify-center">
+                        <div className="h-10 w-10 bg-linear-to-r from-blue-600 to-green-500 rounded-full flex items-center justify-center">
                             <img src="/travel.png" alt="Ticket Bari Logo" />
                         </div>
                         <div>

@@ -41,11 +41,11 @@ const AdvertiseTickets = () => {
             return res.data;
         },
         // If you don't have separate endpoint, comment this and use filtered data
-        enabled: false, 
+        enabled: false,
     });
 
 
-    const advertisedTickets = adTickets.filter(ticket => ticket.isAdvertised);
+    const advertisedTickets = adTickets.filter(ticket => ticket.isAdvertise);
 
 
     // If using filter approach instead of separate endpoint
@@ -81,11 +81,11 @@ const AdvertiseTickets = () => {
     const sortedAdvertisedTickets = useMemo(() => {
         return [...advertisedTickets].sort((a, b) => {
             // Use advertisedAt if available, otherwise use createdAt or departureDateTime
-            const dateA = a.advertisement?.advertisedAt 
-                ? new Date(a.advertisement.advertisedAt) 
+            const dateA = a.advertisement?.advertisedAt
+                ? new Date(a.advertisement.advertisedAt)
                 : (a.createdAt ? new Date(a.createdAt) : new Date(a.departureDateTime));
-            const dateB = b.advertisement?.advertisedAt 
-                ? new Date(b.advertisement.advertisedAt) 
+            const dateB = b.advertisement?.advertisedAt
+                ? new Date(b.advertisement.advertisedAt)
                 : (b.createdAt ? new Date(b.createdAt) : new Date(b.departureDateTime));
             return dateB - dateA; // Newest first
         });
@@ -132,9 +132,8 @@ const AdvertiseTickets = () => {
     });
 
     // Advertise ticket with custom data
-    const advertiseTicket = (ticket) => {
+    const advertiseTickets = (ticket) => {
         try {
-            // Don't allow more than 6 tickets to be advertised
             if (sortedAdvertisedTickets.length >= 6) {
                 toast.error('Maximum 6 tickets can be advertised at once');
                 return;
@@ -142,7 +141,7 @@ const AdvertiseTickets = () => {
 
             // Prepare advertisement data
             const advertisementData = {
-                isAdvertised: true,
+                isAdvertise: true,
                 advertisement: {
                     duration: advertiseData.duration,
                     priority: advertiseData.priority,
@@ -166,7 +165,7 @@ const AdvertiseTickets = () => {
     const removeAdvertisement = (ticket) => {
         try {
             const advertisementData = {
-                isAdvertised: false,
+                isAdvertise: false,
                 advertisement: null
             };
 
@@ -241,13 +240,7 @@ const AdvertiseTickets = () => {
                             )}
                         </div>
                     </div>
-                    <button
-                        onClick={() => refetchTickets()}
-                        className="btn btn-primary gap-2"
-                    >
-                        <FaSync />
-                        Refresh
-                    </button>
+
                 </div>
             </div>
 
@@ -346,7 +339,7 @@ const AdvertiseTickets = () => {
                 <div className="card-body p-3 sm:p-4 ">
                     <div className="flex flex-col  gap-4 items-center  ">
                         <div className="flex-1 w-full ">
-                            <div className="relative">
+                            <div className="relative flex justify-between items-center">
                                 <FaSearch className="absolute z-10 left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="text"
@@ -355,10 +348,18 @@ const AdvertiseTickets = () => {
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
+                                <button
+                                    onClick={() => refetchTickets()}
+                                    className="btn btn-primary btn-outline gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-10 "
+                                >
+                                    <FaSync />
+                                    Refresh
+                                </button>
                             </div>
                         </div>
                         <div className='flex justify-end items-center  w-full'>
                             <div className="flex gap-2">
+
                                 <div className="dropdown dropdown-bottom">
                                     <label tabIndex={0} className="btn btn-outline gap-2">
                                         <FaFilter />
@@ -556,8 +557,8 @@ const AdvertiseTickets = () => {
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <div className={`px-2 badge gap-1 ${ticket.isAdvertised ? 'badge-success' : 'badge-neutral'}`}>
-                                                            {ticket.isAdvertised ? (
+                                                        <div className={`px-2 badge gap-1 ${ticket.isAdvertise ? 'badge-success' : 'badge-neutral'}`}>
+                                                            {ticket.isAdvertise ? (
                                                                 <>
                                                                     <FaCheck className="text-xs" />
                                                                     Active
@@ -569,7 +570,7 @@ const AdvertiseTickets = () => {
 
                                                     </td>
                                                     <td>
-                                                        {ticket.isAdvertised ? (
+                                                        {ticket.isAdvertise ? (
                                                             <button
                                                                 onClick={() => removeAdvertisement(ticket)}
                                                                 className="btn btn-error btn-sm gap-1"
@@ -580,7 +581,7 @@ const AdvertiseTickets = () => {
                                                             </button>
                                                         ) : (
                                                             <button
-                                                                onClick={() => advertiseTicket(ticket)}
+                                                                onClick={() => advertiseTickets(ticket)}
                                                                 disabled={sortedAdvertisedTickets.length >= 6 || advertiseMutation.isLoading}
                                                                 className={`btn btn-success btn-sm gap-1 ${sortedAdvertisedTickets.length >= 6 ? 'btn-disabled' : ''}`}
                                                             >

@@ -41,7 +41,8 @@ import {
     FaArrowLeft,
     FaLock,
     FaUser,
-    FaEnvelope
+    FaEnvelope,
+    FaTimesCircle
 } from "react-icons/fa";
 import { MdAirlineSeatReclineNormal, MdEventSeat, MdLocationOn, MdSecurity } from "react-icons/md";
 import { IoIosAlert } from "react-icons/io";
@@ -183,19 +184,22 @@ export default function TicketDetails() {
         const target = new Date(ticket.departureDateTime);
         const timeLeft = target - now;
 
-        if (timeLeft < 0) {
+        if (timeLeft <= 0) {
             return 'Departed';
         }
 
         const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
         const hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
 
         if (days > 0) {
             return `${days}d ${hours}h left`;
         } else if (hours > 0) {
             return `${hours}h left`;
+        } else if (minutes > 0) {
+            return `${minutes}m left`;
         } else {
-            return 'Less than 1h left';
+            return 'Less than 1m left';
         }
     };
 
@@ -464,7 +468,7 @@ export default function TicketDetails() {
                                             </div>
                                             <div>
                                                 <div className="text-sm text-gray-500 dark:text-gray-400">Available Seats</div>
-                                                <div className="font-bold text-2xl dark:text-white">{ticket.quantity}</div>
+                                                <div className="font-bold text-2xl dark:text-white">{ticket.availableQuantity}</div>
                                             </div>
                                         </div>
                                         <div className="text-right">
@@ -518,7 +522,7 @@ export default function TicketDetails() {
                                         <button
                                             onClick={handleDecrement}
                                             disabled={quantity <= 1 || ticket.quantity <= 0 || isLocked}
-                                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${quantity <= 1 || ticket.quantity <= 0 || isLocked
+                                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${quantity <= 1 || ticket.availableQuantity <= 0 || isLocked
                                                 ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
                                                 : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-105'
                                                 }`}
@@ -535,7 +539,7 @@ export default function TicketDetails() {
 
                                         <button
                                             onClick={handleIncrement}
-                                            disabled={quantity >= ticket.quantity || ticket.quantity <= 0 || isLocked}
+                                            disabled={quantity >= ticket.availableQuantity || ticket.availableQuantity <= 0 || isLocked}
                                             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${quantity >= ticket.quantity || ticket.quantity <= 0 || isLocked
                                                 ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
                                                 : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-105'
@@ -612,10 +616,11 @@ export default function TicketDetails() {
                                                 })}. It is no longer available for booking.`
                                         }
                                     </p>
+
                                     {(isDeparted && (role !== 'vendor' && role !== 'admin')) && (
                                         <div className="mt-4">
                                             <Link
-                                                to="/tickets"
+                                                to="/all-tickets"
                                                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                                             >
                                                 <FaTicketAlt />
@@ -625,47 +630,157 @@ export default function TicketDetails() {
                                     )}
                                 </div>
                             </div>
-                        ) : (
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                <Link
-                                    to={'/dashboard/my-bookings'}
-                                    onClick={handleBooking}
-                                    disabled={ticket.quantity <= 0 || bookingMutation.isPending}
-                                    className={`flex-1 py-4 px-6 rounded-xl font-bold text-white text-lg transition-all ${ticket.quantity <= 0
-                                        ? 'bg-gray-400 cursor-not-allowed'
-                                        : 'bg-linear-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
-                                        }`}
+                        ) :
+                            ticket.availableQuantity === 0 ? (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="bg-linear-to-r from-red-50 via-red-100/50 to-red-50 dark:from-red-950/30 dark:via-red-900/20 dark:to-red-950/30 border-2 border-red-200 dark:border-red-800/50 rounded-2xl p-8 shadow-lg overflow-hidden"
                                 >
-                                    <div className="flex items-center justify-center gap-3">
-                                        {bookingMutation.isPending ? (
-                                            <>
-                                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                                                <span>Processing...</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <span>
-                                                    {ticket.quantity <= 0
-                                                        ? 'Sold Out'
-                                                        : `Book ${quantity} Ticket${quantity !== 1 ? 's' : ''} Now`
-                                                    }
-                                                </span>
-                                            </>
-                                        )}
+                                    {/* Background Pattern */}
+                                    <div className="absolute inset-0 opacity-10">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-red-300 rounded-full -translate-y-16 translate-x-16"></div>
+                                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-red-400 rounded-full -translate-x-8 translate-y-8"></div>
                                     </div>
-                                </Link>
 
-                                <button
-                                    onClick={() => navigate('/contact')}
-                                    className="py-4 px-6 rounded-xl border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                >
-                                    <div className="flex items-center justify-center gap-2">
-                                        <FaQuestionCircle />
-                                        <span>Need Help?</span>
+                                    <div className="relative">
+                                        <div className="flex flex-col lg:flex-row lg:items-center gap-8">
+                                            {/* Icon Section */}
+                                            <div className="shrink-0 flex justify-center lg:justify-start">
+                                                <div className="relative">
+                                                    <div className="w-24 h-24 rounded-full bg-linear-to-br from-red-500 to-red-600 dark:from-red-700 dark:to-red-800 flex items-center justify-center shadow-xl">
+                                                        <FaTimesCircle className="text-white text-4xl" />
+                                                    </div>
+                                                    <div className="absolute -top-2 -right-2 w-10 h-10 bg-white dark:bg-gray-900 rounded-full border-4 border-red-100 dark:border-red-900 flex items-center justify-center">
+                                                        <span className="text-red-600 dark:text-red-400 font-bold text-sm">0</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Content Section */}
+                                            <div className="flex-1">
+                                                <div className="text-center lg:text-left mb-6">
+                                                    <h3 className="text-2xl md:text-3xl font-bold text-red-800 dark:text-red-300 mb-3">
+                                                        Ticket Sold Out!
+                                                    </h3>
+                                                    <p className="text-red-700/90 dark:text-red-400/90 text-lg mb-4">
+                                                        All {ticket.quantity} tickets have been booked. This ticket is no longer available.
+                                                    </p>
+
+                                                    {/* Stats Grid */}
+                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                                        <div className="bg-white/80 dark:bg-gray-800/80 p-4 rounded-xl border border-red-200 dark:border-red-800">
+                                                            <div className="text-2xl font-bold text-red-700 dark:text-red-400">0</div>
+                                                            <div className="text-sm text-red-600/80 dark:text-red-400/80">Available Now</div>
+                                                        </div>
+                                                        <div className="bg-white/80 dark:bg-gray-800/80 p-4 rounded-xl border border-red-200 dark:border-red-800">
+                                                            <div className="text-2xl font-bold text-red-700 dark:text-red-400">{ticket.quantity}</div>
+                                                            <div className="text-sm text-red-600/80 dark:text-red-400/80">Total Seats</div>
+                                                        </div>
+                                                        <div className="bg-white/80 dark:bg-gray-800/80 p-4 rounded-xl border border-red-200 dark:border-red-800">
+                                                            <div className="text-2xl font-bold text-red-700 dark:text-red-400">100%</div>
+                                                            <div className="text-sm text-red-600/80 dark:text-red-400/80">Booked</div>
+                                                        </div>
+                                                        <div className="bg-white/80 dark:bg-gray-800/80 p-4 rounded-xl border border-red-200 dark:border-red-800">
+                                                            <div className="text-2xl font-bold text-red-700 dark:text-red-400">
+                                                                {ticket.distance || "350"}km
+                                                            </div>
+                                                            <div className="text-sm text-red-600/80 dark:text-red-400/80">Distance</div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Progress Bar */}
+                                                    <div className="mb-8">
+                                                        <div className="flex justify-between text-sm text-red-700/80 dark:text-red-400/80 mb-2">
+                                                            <span className="font-semibold">Booking Status: Completely Sold Out</span>
+                                                            <span className="font-bold">0 / {ticket.quantity} seats available</span>
+                                                        </div>
+                                                        <div className="w-full h-3 bg-red-200 dark:bg-red-900/50 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-linear-to-r from-red-500 to-red-600 dark:from-red-700 dark:to-red-800 rounded-full transition-all duration-1000"
+                                                                style={{ width: '100%' }}
+                                                            />
+                                                        </div>
+                                                        <div className="flex justify-between mt-1">
+                                                            <span className="text-xs text-red-600/70 dark:text-red-400/70">Start: {ticket.from}</span>
+                                                            <span className="text-xs text-red-600/70 dark:text-red-400/70">Destination: {ticket.to}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Alternative Options */}
+                                                    <div className="pt-6 border-t border-red-200 dark:border-red-800/30">
+                                                        
+
+                                                        <div className=" ">
+                                                            <Link
+                                                                to="/all-tickets"
+                                                                className=" w-full btn  bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white p-5 rounded-xl transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] border-0 h-auto"
+                                                            >
+                                                                <div className="flex items-center justify-center text-center ">
+                                                                    <FaTicketAlt className="text-2xl  group-hover:scale-110 transition-transform" />
+                                                                    <div className="font-bold text-lg">Browse Available Tickets</div>
+                                                                    <FaChevronRight className=" text-blue-200 group-hover:translate-x-1 transition-transform" />
+                                                                </div>
+                                                            </Link>
+
+                                                            
+                                                        </div>
+
+                                                        {/* Informational Note */}
+                                                        <div className="mt-6 p-4 bg-white/70 dark:bg-gray-800/70 rounded-xl border border-red-200 dark:border-red-800/50">
+                                                            <div className="flex items-start gap-3">
+                                                                <FaInfoCircle className="text-blue-500 text-xl mt-0.5 shrink-0" />
+                                                                <div>
+                                                                    <p className="text-sm text-gray-700 dark:text-gray-300 font-medium mb-1">
+                                                                        Cancellations sometimes happen! Seats may become available if someone cancels their booking.
+                                                                    </p>
+                                                                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                                                                        Check back later or contact support for cancellation updates on this route.
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </button>
-                            </div>
-                        )}
+                                </motion.div>
+                            ) :
+                                (
+                                    <div className="flex flex-col sm:flex-row gap-4">
+                                        <Link
+                                            to={'/dashboard/my-bookings'}
+                                            onClick={handleBooking}
+                                            disabled={ticket.quantity <= 0 || bookingMutation.isPending}
+                                            className={`flex-1 py-4 px-6 rounded-xl font-bold text-white text-lg transition-all ${ticket.quantity <= 0
+                                                ? 'bg-gray-400 cursor-not-allowed'
+                                                : 'bg-linear-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
+                                                }`}
+                                        >
+                                            <div className="flex items-center justify-center gap-3">
+                                                {bookingMutation.isPending ? (
+                                                    <>
+                                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                                        <span>Processing...</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span>
+                                                            {ticket.quantity <= 0
+                                                                ? 'Sold Out'
+                                                                : `Book ${quantity} Ticket${quantity !== 1 ? 's' : ''} Now`
+                                                            }
+                                                        </span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </Link>
+
+                                        
+                                    </div>
+                                )}
 
                         {/* Important Notes */}
                         <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">

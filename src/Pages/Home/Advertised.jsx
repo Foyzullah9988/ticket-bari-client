@@ -17,10 +17,11 @@ import {
 } from 'react-icons/fa';
 import { Link } from 'react-router';
 import Loading from '../../Components/Shared/Loading';
-import EmptyComponent from '../../Components/EmptyComponent';
+import useAxiosPublic from '../../Hooks/useAxiosPublic';
+import Skeleton2 from '../../Components/Shared/Skeleton2';
 
 const Advertised = () => {
-    const axiosSecure = useAxiosSecure();
+    const axiosSecure = useAxiosPublic();
 
     const { data: tickets = [], isLoading } = useQuery({
         queryKey: ['tickets', 'advertised'],
@@ -46,7 +47,7 @@ const Advertised = () => {
 
     // Filter and sort advertised tickets
     const advertisedTickets = tickets
-        .filter(ticket => ticket.isAdvertised === true &&
+        .filter(ticket => ticket.isAdvertise === true &&
             ticket.verificationStatus === 'approved' &&
             !fraudEmails.includes(ticket?.vendorEmail)
         )
@@ -80,7 +81,7 @@ const Advertised = () => {
         return `${price} tk`;
     };
 
-    if (isLoading) return <Loading />;
+    if (isLoading) return <Skeleton2 />;
 
     return (
         <div className=" bg-linear-to-br my-6 rounded-2xl from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800 py-8 px-4 md:px-6">

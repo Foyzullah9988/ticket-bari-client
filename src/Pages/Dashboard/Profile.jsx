@@ -86,7 +86,7 @@ const Profile = () => {
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">My Profile</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 dark:text-white">My Profile</h1>
 
                 </div>
 
@@ -145,11 +145,11 @@ const Profile = () => {
                                         <EnvelopeIcon className="h-6 w-6 text-blue-600" />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-gray-500 text-sm uppercase tracking-wider">
+                                        <h3 className="font-semibold text-gray-500 text-sm uppercase tracking-wider dark:text-gray-200">
                                             Email
                                         </h3>
-                                        <p className="text-lg font-medium text-gray-800 break-all">
-                                            {email || 'N/A'}
+                                        <p className="text-lg font-medium text-gray-800 break-all dark:text-white">
+                                            {email}
                                         </p>
                                     </div>
                                 </div>
@@ -165,10 +165,10 @@ const Profile = () => {
                                         <ShieldCheckIcon className="h-6 w-6 text-purple-600" />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-gray-500 text-sm uppercase tracking-wider">
+                                        <h3 className="font-semibold text-gray-500 text-sm uppercase tracking-wider dark:text-gray-200">
                                             Role
                                         </h3>
-                                        <p className="text-lg font-medium text-gray-800">
+                                        <p className="text-lg font-medium text-gray-800 dark:text-white">
                                             {role}
                                         </p>
                                     </div>
@@ -191,12 +191,7 @@ const Profile = () => {
                              transition-colors">
                                 Change Password
                             </button>
-                            <button
-                                onClick={() => refetch()}
-                                className="text-gray-600 dark:text-white border border-gray-300 hover:text-gray-800 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors"
-                            >
-                                Refresh
-                            </button>
+                            
                         </div>
                     </div>
                 </div>

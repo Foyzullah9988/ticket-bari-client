@@ -2,11 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import React, { useContext, useState, useEffect } from 'react';
 import useAxiosSecure from '../../../Hooks/useAxiosSecure';
 import { AuthContext } from '../../../Context/AuthContext';
-import { FaTicketAlt, FaCalendar, FaMapMarkerAlt, FaMoneyBill, FaClock, FaCheckCircle, FaTimesCircle, FaExclamationTriangle, FaTrash, FaEye, FaDownload, FaEdit, FaRoute, FaCheck, FaStore, FaCalendarAlt, FaTimes } from 'react-icons/fa';
+import { FaTicketAlt, FaCalendar, FaMapMarkerAlt, FaMoneyBill, FaClock, FaCheckCircle, FaTimesCircle, FaExclamationTriangle, FaTrash, FaEye, FaDownload, FaEdit, FaRoute, FaCheck, FaStore, FaCalendarAlt, FaTimes, FaSearch, FaFilter, FaSync } from 'react-icons/fa';
 import { MdPendingActions } from 'react-icons/md';
-import { Link } from 'react-router';
 import Swal from 'sweetalert2';
-import { ArrowRightIcon } from '@heroicons/react/24/solid';
 import { useForm } from 'react-hook-form';
 
 const MyTickets = () => {
@@ -14,6 +12,8 @@ const MyTickets = () => {
     const axiosSecure = useAxiosSecure();
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
 
     const {
         register,
@@ -35,7 +35,6 @@ const MyTickets = () => {
         enabled: !!user?.email
     });
 
-    // Reset form when modal opens with selected ticket data
     useEffect(() => {
         if (selectedTicket && isModalOpen) {
             reset({
@@ -50,9 +49,22 @@ const MyTickets = () => {
         }
     }, [selectedTicket, isModalOpen, reset]);
 
-    const sortedTickets = tickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const filteredTickets = tickets.filter(ticket => {
+        const matchesSearch =
+            searchTerm === '' ||
+            ticket.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            ticket.from?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            ticket.to?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Get status badge color
+        const matchesStatus =
+            statusFilter === 'all' ||
+            ticket.verificationStatus?.toLowerCase() === statusFilter.toLowerCase();
+
+        return matchesSearch && matchesStatus;
+    });
+
+    const sortedTickets = filteredTickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
             case 'confirmed':
@@ -69,7 +81,6 @@ const MyTickets = () => {
         }
     };
 
-    // Get status icon
     const getStatusIcon = (status) => {
         switch (status?.toLowerCase()) {
             case 'confirmed':
@@ -85,8 +96,6 @@ const MyTickets = () => {
                 return <FaExclamationTriangle className="text-gray-500" />;
         }
     };
-
-
 
     const departureTime = (ticket) => {
         if (!ticket.departureDateTime) return "Not set";
@@ -110,13 +119,11 @@ const MyTickets = () => {
         return `${hours}h ${minutes}m left`;
     };
 
-
     const viewTicketDetails = (ticket) => {
         setSelectedTicket(ticket);
         setIsModalOpen(true);
     };
 
-    // Format date
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         const date = new Date(dateString);
@@ -127,7 +134,6 @@ const MyTickets = () => {
         });
     };
 
-    // Format time
     const formatTime = (dateString) => {
         if (!dateString) return 'N/A';
         const date = new Date(dateString);
@@ -137,24 +143,20 @@ const MyTickets = () => {
         });
     };
 
-    // Handle update ticket
     const handleUpdate = async (data) => {
         if (!selectedTicket) return;
 
         try {
-            // Prepare update data
             const updateData = {
                 ...data,
                 status: 'edited',
                 updatedAt: new Date().toISOString()
             };
 
-            // Convert price to number if it exists
             if (updateData.price) {
                 updateData.price = Number(updateData.price);
             }
 
-            // Convert availableQuantity to number if it exists
             if (updateData.availableQuantity) {
                 updateData.availableQuantity = Number(updateData.availableQuantity);
             }
@@ -193,7 +195,6 @@ const MyTickets = () => {
         }
     };
 
-    // Handle ticket cancellation
     const handleDeleteTicket = async (ticket) => {
         Swal.fire({
             title: 'Are you sure?',
@@ -231,7 +232,6 @@ const MyTickets = () => {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">My Tickets</h2>
@@ -245,7 +245,6 @@ const MyTickets = () => {
                 </div>
             </div>
 
-            {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-linear-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
                     <div className="flex items-center justify-between">
@@ -284,8 +283,53 @@ const MyTickets = () => {
                 </div>
             </div>
 
-            {/* Tickets List */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex flex-col je md:flex-row gap-4">
+                        <div className="flex-1">
+                            <div className="relative flex justify-between items-center">
+                                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Search tickets by title, from, or to location"
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                                <button
+                                    onClick={() => refetch()}
+                                    className="btn btn-primary btn-outline gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-10 "
+                                >
+                                    <FaSync className={`${isLoading ? 'animate-spin' : ''} w-3 h-3`} />
+                                    <span className="hidden sm:inline">Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-2">
+                            <div className="dropdown dropdown-bottom">
+                                <label tabIndex={0} className="btn btn-outline gap-2">
+                                    <FaFilter />
+                                    Filter: {statusFilter === 'all' ? 'All' : statusFilter}
+                                </label>
+                                <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                                    <li><button onClick={() => setStatusFilter('all')}>All Status</button></li>
+                                    <li><button onClick={() => setStatusFilter('approved')}>Approved</button></li>
+                                    <li><button onClick={() => setStatusFilter('pending')}>Pending</button></li>
+                                    <li><button onClick={() => setStatusFilter('rejected')}>Rejected</button></li>
+                                </ul>
+                            </div>
+                            <button
+                                className="btn btn-outline btn-error"
+                                onClick={() => {
+                                    setSearchTerm('');
+                                    setStatusFilter('all');
+                                }}
+                            >
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div className="overflow-x-auto">
                     <table className="table w-full">
                         <thead>
@@ -302,15 +346,18 @@ const MyTickets = () => {
                             {isLoading ? (
                                 <tr>
                                     <td colSpan="6" className="text-center py-8">
-                                        <div className="flex justify-center items-center">
-                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                                        <div className='flex flex-col justify-center items-center gap-2'>
+                                            <div className="skeleton h-4 w-full"></div>
+                                            <div className="skeleton h-4 w-full"></div>
+                                            <div className="skeleton h-4 w-full"></div>
+                                            <div className="skeleton h-4 w-full"></div>
                                         </div>
                                     </td>
                                 </tr>
-                            ) : tickets.length === 0 ? (
+                            ) : sortedTickets.length === 0 ? (
                                 <tr>
                                     <td colSpan="6" className="text-center py-8 text-gray-500">
-                                        No tickets found
+                                        {searchTerm || statusFilter !== 'all' ? 'No tickets match your search' : 'No tickets found'}
                                     </td>
                                 </tr>
                             ) : (
@@ -376,9 +423,9 @@ const MyTickets = () => {
                                         <td>
                                             <div className="flex items-center gap-2">
                                                 <button
-                                                disabled={ticket.verificationStatus?.toLowerCase() === 'rejected'}
+                                                    disabled={ticket.verificationStatus?.toLowerCase() === 'rejected'}
                                                     onClick={() => viewTicketDetails(ticket)}
-                                                    className={`${ticket.verificationStatus === 'rejected'?'text-base-200':'text-green-600 hover:text-green-800 dark:text-green-400'}btn btn-sm btn-ghost `}
+                                                    className={`${ticket.verificationStatus === 'rejected' ? 'text-base-200' : 'text-green-600 hover:text-green-800 dark:text-green-400'}btn btn-sm btn-ghost `}
                                                     title="Edit Ticket"
                                                 >
                                                     Edit <FaEdit />
@@ -386,7 +433,7 @@ const MyTickets = () => {
                                                 <button
                                                     disabled={ticket.verificationStatus?.toLowerCase() === 'rejected'}
                                                     onClick={() => handleDeleteTicket(ticket)}
-                                                    className={`${ticket.verificationStatus === 'rejected'?'text-base-200':'text-red-600 hover:text-red-800 dark:text-red-400'}btn btn-sm btn-ghost `}
+                                                    className={`${ticket.verificationStatus === 'rejected' ? 'text-base-200' : 'text-red-600 hover:text-red-800 dark:text-red-400'}btn btn-sm btn-ghost `}
                                                     title="Delete Ticket"
                                                 >
                                                     Delete <FaTrash />
@@ -401,7 +448,6 @@ const MyTickets = () => {
                 </div>
             </div>
 
-            {/* Recent Activity */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
                 <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Recent Activity</h3>
                 <div className="space-y-4">
@@ -439,7 +485,6 @@ const MyTickets = () => {
                 </div>
             </div>
 
-            {/* Tips Section */}
             <div className="bg-linear-to-r from-green-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-6 border border-green-100 dark:border-green-800/30">
                 <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2">
                     <FaExclamationTriangle className="text-yellow-500" />
@@ -465,7 +510,6 @@ const MyTickets = () => {
                 </ul>
             </div>
 
-            {/* Ticket Details Modal */}
             {isModalOpen && selectedTicket && (
                 <div className="modal modal-open">
                     <form onSubmit={handleSubmit(handleUpdate)} className="modal-box max-w-full w-full h-full max-h-screen rounded-none lg:rounded-xl lg:max-w-4xl lg:h-auto lg:max-h-[90vh] overflow-y-auto p-3 sm:p-4">
@@ -493,9 +537,7 @@ const MyTickets = () => {
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                            {/* Left Column */}
                             <div className="space-y-2 sm:space-y-3">
-                                {/* Route Information */}
                                 <div className="card bg-linear-to-r from-primary/10 to-secondary/10 border border-primary/20">
                                     <div className="card-body p-2.5 sm:p-3">
                                         <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3 flex items-center gap-1">
@@ -550,9 +592,7 @@ const MyTickets = () => {
                                 </div>
                             </div>
 
-                            {/* Right Column */}
                             <div className="space-y-2 sm:space-y-3">
-                                {/* Pricing Information */}
                                 <div className="card bg-linear-to-r from-success/10 to-emerald-100 dark:from-success/20 dark:to-success/5 border border-success/20">
                                     <div className="card-body p-2.5 sm:p-3">
                                         <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3 flex items-center gap-1">
@@ -598,7 +638,6 @@ const MyTickets = () => {
                                     </div>
                                 </div>
 
-                                {/* Departure Time */}
                                 <div className="card bg-base-200 border border-base-300">
                                     <div className="card-body p-2.5 sm:p-3">
                                         <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3 flex items-center gap-1">

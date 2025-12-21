@@ -6,9 +6,10 @@ import Loading from '../../Components/Shared/Loading';
 import Skeleton1 from '../../Components/Shared/Skeleton1';
 import { Link } from 'react-router';
 import { FaArrowRight } from 'react-icons/fa';
+import useAxiosPublic from '../../Hooks/useAxiosPublic';
 
 const LatestTickets = () => {
-    const axiosSecure = useAxiosSecure();
+    const axiosSecure = useAxiosPublic();
 
 
     const { data: users = [], isLoading: usersLoading } = useQuery({

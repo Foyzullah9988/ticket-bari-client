@@ -3,7 +3,7 @@ import React from 'react';
 
 const useAxiosPublic = () => {
     const axiosPublic = axios.create({
-        baseURL: 'http://localhost:3000'
+        baseURL: 'https://ticket-bari-server-red.vercel.app'
     });
     return axiosPublic;
 };

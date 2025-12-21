@@ -283,69 +283,70 @@ const ManageTickets = () => {
                     </div>
 
                     <div className="flex items-center space-x-2 mt-4 md:mt-0">
-                        <button
-                            onClick={() => refetch()}
-                            className="btn btn-primary btn-outline gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-auto"
-                        >
-                            <FaSync className={`${isLoading ? 'animate-spin' : ''} w-3 h-3`} />
-                            <span className="hidden sm:inline">Refresh</span>
-                        </button>
 
+                    </div>
+
+                    {/* Statistics Cards - ONLY 4 CARDS */}
+                    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                        <div className="bg-linear-to-r dark:from-blue-900 dark:to-cyan-900 from-blue-500 to-cyan-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
+                            <div className="text-xl md:text-3xl font-bold mb-2">{tickets.length}</div>
+                            <div className="text-sm opacity-90">Total Tickets</div>
+                            <div className="text-xs opacity-80 mt-1">From all vendors</div>
+                        </div>
+
+                        <div className="bg-linear-to-r dark:from-yellow-900 dark:to-amber-900 from-yellow-500 to-amber-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
+                            <div className="text-xl md:text-3xl font-bold mb-2">
+                                {tickets.filter(t => t.verificationStatus === 'pending').length}
+                            </div>
+                            <div className="text-sm opacity-90">Pending Review</div>
+                            <div className="text-xs opacity-80 mt-1">Awaiting approval</div>
+                        </div>
+
+                        <div className="bg-linear-to-r dark:from-green-900 dark:to-emerald-900 from-green-500 to-emerald-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
+                            <div className="text-xl md:text-3xl font-bold mb-2">
+                                {tickets.filter(t => t.verificationStatus === 'approved').length}
+                            </div>
+                            <div className="text-sm opacity-90">Approved</div>
+                            <div className="text-xs opacity-80 mt-1">Visible to users</div>
+                        </div>
+
+                        <div className="bg-linear-to-r dark:from-red-900 dark:to-orange-900 from-red-500 to-orange-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
+                            <div className="text-xl md:text-3xl font-bold mb-2">
+                                {tickets.filter(t => t.verificationStatus === 'rejected').length}
+                            </div>
+                            <div className="text-sm opacity-90">Rejected</div>
+                            <div className="text-xs opacity-80 mt-1">Not visible</div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Statistics Cards - ONLY 4 CARDS */}
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                    <div className="bg-linear-to-r dark:from-blue-900 dark:to-cyan-900 from-blue-500 to-cyan-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
-                        <div className="text-xl md:text-3xl font-bold mb-2">{tickets.length}</div>
-                        <div className="text-sm opacity-90">Total Tickets</div>
-                        <div className="text-xs opacity-80 mt-1">From all vendors</div>
-                    </div>
+                {/* Filters and Search */}
+                <div className="card bg-base-100 shadow border border-base-300 mb-6">
+                    <div className="card-body p-3 sm:p-4">
+                        <div className="flex flex-col gap-4">
+                            <div className="flex flex-col lg:flex-row gap-4">
+                                <div className="flex-1">
+                                    <div className="relative flex items-center justify-between">
+                                        <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 z-1 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search tickets by title, ID, or location"
+                                            className="input border input-bordered w-full pl-12"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
+                                        <button
+                                            onClick={() => refetch()}
+                                            className="btn btn-primary btn-outline gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-10 "
+                                        >
+                                            <FaSync className={`${isLoading ? 'animate-spin' : ''} w-3 h-3`} />
+                                            <span className="hidden sm:inline">Refresh</span>
+                                        </button>
 
-                    <div className="bg-linear-to-r dark:from-yellow-900 dark:to-amber-900 from-yellow-500 to-amber-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
-                        <div className="text-xl md:text-3xl font-bold mb-2">
-                            {tickets.filter(t => t.verificationStatus === 'pending').length}
-                        </div>
-                        <div className="text-sm opacity-90">Pending Review</div>
-                        <div className="text-xs opacity-80 mt-1">Awaiting approval</div>
-                    </div>
-
-                    <div className="bg-linear-to-r dark:from-green-900 dark:to-emerald-900 from-green-500 to-emerald-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
-                        <div className="text-xl md:text-3xl font-bold mb-2">
-                            {tickets.filter(t => t.verificationStatus === 'approved').length}
-                        </div>
-                        <div className="text-sm opacity-90">Approved</div>
-                        <div className="text-xs opacity-80 mt-1">Visible to users</div>
-                    </div>
-
-                    <div className="bg-linear-to-r dark:from-red-900 dark:to-orange-900 from-red-500 to-orange-600 text-white rounded-xl p-4 md:p-6 shadow-lg">
-                        <div className="text-xl md:text-3xl font-bold mb-2">
-                            {tickets.filter(t => t.verificationStatus === 'rejected').length}
-                        </div>
-                        <div className="text-sm opacity-90">Rejected</div>
-                        <div className="text-xs opacity-80 mt-1">Not visible</div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Filters and Search */}
-            <div className="card bg-base-100 shadow border border-base-300 mb-6">
-                <div className="card-body p-3 sm:p-4">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex flex-col lg:flex-row gap-4">
-                            <div className="flex-1">
-                                <div className="relative">
-                                    <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        placeholder="Search tickets by title, ID, or location"
-                                        className="input border input-bordered w-full pl-12"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-2 justify-end">
                                 <div className="dropdown dropdown-bottom">
                                     <label tabIndex={0} className="btn btn-outline gap-2">
                                         <FaFilter />

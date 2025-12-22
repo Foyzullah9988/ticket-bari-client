@@ -51,6 +51,7 @@ export const router = createBrowserRouter([
     },
     {
         path: '/auth',
+        errorElement: <Error />,
         element: <PublicRoute>
             <AuthLayout />
         </PublicRoute>,
@@ -67,6 +68,7 @@ export const router = createBrowserRouter([
     },
     {
         path: '/ticket-details/:id',
+        errorElement: <Error />,
         element: <PrivateRoute>
             <TicketDetails />
         </PrivateRoute>

@@ -300,7 +300,7 @@ const MyTickets = () => {
                                     onClick={() => refetch()}
                                     className="btn btn-primary btn-outline gap-1.5 shadow-sm hover:shadow-md transition-all text-xs px-2 sm:px-3 py-1.5 h-10 "
                                 >
-                                    <FaSync className={`${isLoading ? 'animate-spin' : ''} w-3 h-3`} />
+                                    <FaSync className={`w-3 h-3`} />
                                     <span className="hidden sm:inline">Refresh</span>
                                 </button>
                             </div>
@@ -696,7 +696,12 @@ const MyTickets = () => {
                                     disabled={isLoading}
                                 >
                                     {isLoading ? (
-                                        <span className="loading loading-spinner loading-xs"></span>
+                                        <div className='flex flex-col justify-center items-center gap-2'>
+                                            <div className="skeleton h-4 w-full"></div>
+                                            <div className="skeleton h-4 w-full"></div>
+                                            <div className="skeleton h-4 w-full"></div>
+                                            <div className="skeleton h-4 w-full"></div>
+                                        </div>
                                     ) : (
                                         'Update Ticket'
                                     )}

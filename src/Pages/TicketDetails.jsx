@@ -258,7 +258,7 @@ export default function TicketDetails() {
 
     if (error) {
         return (
-            <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
+            <div className="flex flex-col min-h-screen mt-12 bg-gray-50 dark:bg-gray-900">
                 <Navbar />
                 <div className="flex-1 flex items-center justify-center p-6">
                     <div className="text-center max-w-md">
@@ -266,7 +266,7 @@ export default function TicketDetails() {
                         <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Ticket Not Found</h2>
                         <p className="text-gray-600 dark:text-gray-300 mb-6">The ticket you're looking for doesn't exist or has been removed.</p>
                         <button
-                            onClick={() => navigate('/tickets')}
+                            onClick={() => navigate('/all-tickets')}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                         >
                             Browse Available Tickets

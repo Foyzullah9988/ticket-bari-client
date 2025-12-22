@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import { FaFacebook, FaXTwitter, FaYoutube } from 'react-icons/fa6';
 import { SiMastercard, SiPaypal, SiStripe, SiVisa } from 'react-icons/si';
 import { Link } from 'react-router';
@@ -69,14 +70,14 @@ const Footer = () => {
                     <div>
                         <h3 className="text-lg font-semibold mb-4 dark:text-white">Follow Us</h3>
                         <div className="flex space-x-4">
-                            <a href="#" className="w-12 h-12 rounded-full bg-base-300 dark:bg-gray-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300">
-                                <FaXTwitter size={20} className="dark:text-gray-300" />
-                            </a>
-                            <a href="#" className="w-12 h-12 rounded-full bg-base-300 dark:bg-gray-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300">
+                            <a href="https://www.facebook.com/foyzullah.foyzullah.98" className="w-12 h-12 rounded-full bg-base-300 dark:bg-gray-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300">
                                 <FaFacebook size={20} className="dark:text-gray-300" />
                             </a>
-                            <a href="#" className="w-12 h-12 rounded-full bg-base-300 dark:bg-gray-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300">
-                                <FaYoutube size={20} className="dark:text-gray-300" />
+                            <a href="https://github.com/Foyzullah9988" className="w-12 h-12 rounded-full bg-base-300 dark:bg-gray-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300">
+                                <FaGithub size={20} className="dark:text-gray-300" />
+                            </a>
+                            <a href="https://www.linkedin.com/in/foyzullah-dev/" className="w-12 h-12 rounded-full bg-base-300 dark:bg-gray-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300">
+                                <FaLinkedin size={20} className="dark:text-gray-300" />
                             </a>
                         </div>
                     </div>

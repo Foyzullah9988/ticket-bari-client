@@ -1,7 +1,7 @@
 # 🎟️ TicketBari – Online Ticket Booking Platform (Client)
 
 ## 🔗 Live Site
-👉 https://your-live-site-link.com
+👉 :https://ticket-bari-15f05.web.app/
 
 ## 📌 Project Purpose
 TicketBari is a full-featured online ticket booking platform where users can discover and book travel tickets (Bus, Train, Launch, Plane, Car).  

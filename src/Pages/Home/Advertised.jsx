@@ -37,14 +37,13 @@ const Advertised = () => {
         }
     });
 
-    console.log('Advertised Tickets Raw:', tickets); // Debug
+    console.log('Advertised Tickets Raw:', tickets); 
 
-    // Filter fraud users - শুধুমাত্র fraud role যাদের
     const fraudEmails = users
         .filter(user => user.role === 'fraud')
         .map(user => user.email);
 
-    console.log('Fraud Emails:', fraudEmails); // Debug
+    console.log('Fraud Emails:', fraudEmails); 
 
     // Filter and sort advertised tickets
     const advertisedTickets = tickets
@@ -88,38 +87,38 @@ const Advertised = () => {
     if (isLoading) return <Skeleton2 />;
 
     return (
-        <div className="bg-linear-to-br my-6 rounded-2xl from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800 py-8 px-4 md:px-6">
+        <div className="bg-linear-to-br my-4 sm:my-6 rounded-xl sm:rounded-2xl from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800 py-6 sm:py-8 px-3 sm:px-4 md:px-6">
             {/* Header Section */}
-            <div className="max-w-7xl mx-auto mb-10">
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center mb-4">
+            <div className="max-w-7xl mx-auto mb-6 sm:mb-8 md:mb-10">
+                <div className="text-center mb-6 sm:mb-8">
+                    <div className="inline-flex items-center justify-center mb-3 sm:mb-4">
                         <div className="relative">
                             <div className="absolute inset-0 bg-orange-500 rounded-full blur-lg opacity-100 animate-pulse"></div>
-                            <div className="relative bg-linear-to-r from-orange-500 to-red-500 dark:from-orange-700 dark:to-red-700 text-white p-4 rounded-full">
-                                <FaFire className="text-3xl" />
+                            <div className="relative bg-linear-to-r from-orange-500 to-red-500 dark:from-orange-700 dark:to-red-700 text-white p-3 sm:p-4 rounded-full">
+                                <FaFire className="text-2xl sm:text-3xl" />
                             </div>
                         </div>
                     </div>
 
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
                         <span className="bg-clip-text text-transparent bg-linear-to-r from-orange-600 to-red-600 dark:from-orange-800 dark:to-red-800">
                             Special Offers
                         </span>
                     </h1>
-                    <div className="inline-flex items-center gap-2 bg-linear-to-r from-orange-100 to-red-100 dark:from-gray-800 dark:to-gray-700 px-4 py-2 rounded-full border border-orange-200 dark:border-gray-600 mb-4">
-                        <FaTag className="text-orange-500" />
-                        <span className="text-orange-700 dark:text-orange-300 font-semibold">
+                    <div className="inline-flex items-center gap-2 bg-linear-to-r from-orange-100 to-red-100 dark:from-gray-800 dark:to-gray-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-orange-200 dark:border-gray-600 mb-3 sm:mb-4">
+                        <FaTag className="text-orange-500 text-sm sm:text-base" />
+                        <span className="text-orange-700 dark:text-orange-300 font-semibold text-sm sm:text-base">
                             {advertisedTickets.length} Active Offers
                         </span>
                     </div>
 
                     {
                         advertisedTickets.length === 0 ? (
-                            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
+                            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-4 sm:mb-6 px-2">
                                 No advertised tickets available at the moment. Please check back later for exciting offers!
                             </p>
                         ) : (
-                            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
+                            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-4 sm:mb-6 px-2">
                                 Discover our featured travel deals with exclusive discounts and promotions
                             </p>
                         )
@@ -131,25 +130,25 @@ const Advertised = () => {
             <div className="max-w-7xl mx-auto">
                 {advertisedTickets.length > 0 ? (
                     <>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 md:gap-6 px-2 sm:px-0">
                             {advertisedTickets.map((ticket) => (
                                 <div
                                     key={ticket._id}
-                                    className="group bg-white dark:bg-gray-800 rounded-2xl shadow-xl dark:shadow-2xl overflow-hidden border border-orange-100 dark:border-orange-900/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300 transform hover:-translate-y-2"
+                                    className="group bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl dark:shadow-2xl overflow-hidden border border-orange-100 dark:border-orange-900/50 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-300 transform hover:-translate-y-1 sm:hover:-translate-y-2"
                                 >
                                     {/* Advertised Badge */}
-                                    <div className="absolute top-4 right-4 z-10">
+                                    <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-10">
                                         <div className="relative">
                                             <div className="absolute inset-0 bg-linear-to-r from-orange-500 to-red-500 dark:from-orange-900 dark:to-red-900 rounded-full blur-md opacity-70 group-hover:opacity-90 transition-opacity"></div>
-                                            <div className="relative bg-linear-to-r from-orange-500 to-red-500 dark:from-orange-900 dark:to-red-900 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
-                                                <FaFire className="animate-pulse" />
-                                                <span className="font-bold text-sm">Advertised</span>
+                                            <div className="relative bg-linear-to-r from-orange-500 to-red-500 dark:from-orange-900 dark:to-red-900 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-1.5 sm:gap-2 shadow-lg">
+                                                <FaFire className="animate-pulse text-xs sm:text-sm" />
+                                                <span className="font-bold text-xs sm:text-sm">Advertised</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Image Section */}
-                                    <div className="relative h-48 overflow-hidden">
+                                    <div className="relative h-40 sm:h-48 overflow-hidden">
                                         <img
                                             src={ticket.image}
                                             alt={ticket.title}
@@ -158,70 +157,70 @@ const Advertised = () => {
                                         <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
 
                                         {/* Transport Type */}
-                                        <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                                        <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 flex items-center gap-1.5 sm:gap-2 bg-black/50 backdrop-blur-sm px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
                                             {getTransportIcon(ticket.transportType)}
-                                            <span className="text-white text-sm font-medium">
+                                            <span className="text-white text-xs sm:text-sm font-medium">
                                                 {ticket.transportType}
                                             </span>
                                         </div>
                                     </div>
 
                                     {/* Content Section */}
-                                    <div className="p-6">
+                                    <div className="p-4 sm:p-6">
                                         {/* Title and Price */}
-                                        <div className="flex justify-between items-start mb-4">
-                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors line-clamp-2">
+                                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0 mb-3 sm:mb-4">
+                                            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors line-clamp-2">
                                                 {ticket.title}
                                             </h3>
                                             <div className="flex items-baseline">
-                                                <span className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+                                                <span className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-600 dark:text-orange-400">
                                                     {formatPrice(ticket.price)}
                                                 </span>
                                             </div>
                                         </div>
 
                                         {/* Route Information */}
-                                        <div className="flex items-center justify-between bg-linear-to-r from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800 p-4 rounded-xl mb-4 border border-orange-100 dark:border-gray-700">
-                                            <div className="flex items-center gap-2">
-                                                <FaMapMarkerAlt className="text-green-500" />
+                                        <div className="flex items-center justify-between bg-linear-to-r from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800 p-3 sm:p-4 rounded-lg sm:rounded-xl mb-3 sm:mb-4 border border-orange-100 dark:border-gray-700">
+                                            <div className="flex items-center gap-1.5 sm:gap-2">
+                                                <FaMapMarkerAlt className="text-green-500 text-sm sm:text-base" />
                                                 <div>
                                                     <p className="text-xs text-gray-500 dark:text-gray-400">From</p>
-                                                    <p className="font-semibold text-gray-800 dark:text-white">{ticket.from}</p>
+                                                    <p className="font-semibold text-gray-800 dark:text-white text-sm sm:text-base">{ticket.from}</p>
                                                 </div>
                                             </div>
 
-                                            <FaArrowRight className="text-orange-500 mx-2" />
+                                            <FaArrowRight className="text-orange-500 mx-1 sm:mx-2" />
 
-                                            <div className="flex items-center gap-2">
-                                                <FaMapMarkerAlt className="text-red-500" />
+                                            <div className="flex items-center gap-1.5 sm:gap-2">
+                                                <FaMapMarkerAlt className="text-red-500 text-sm sm:text-base" />
                                                 <div>
                                                     <p className="text-xs text-gray-500 dark:text-gray-400">To</p>
-                                                    <p className="font-semibold text-gray-800 dark:text-white">{ticket.to}</p>
+                                                    <p className="font-semibold text-gray-800 dark:text-white text-sm sm:text-base">{ticket.to}</p>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Date and Time */}
-                                        <div className="grid grid-cols-2 gap-3 mb-4">
-                                            <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-900 p-3 rounded-xl">
-                                                <div className="p-2 bg-white dark:bg-gray-800 rounded-lg">
-                                                    <FaCalendarAlt className="text-blue-500" />
+                                        <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
+                                            <div className="flex items-center gap-2 sm:gap-3 bg-gray-50 dark:bg-gray-900 p-2.5 sm:p-3 rounded-lg sm:rounded-xl">
+                                                <div className="p-1.5 sm:p-2 bg-white dark:bg-gray-800 rounded-lg">
+                                                    <FaCalendarAlt className="text-blue-500 text-sm sm:text-base" />
                                                 </div>
                                                 <div>
                                                     <p className="text-xs text-gray-500 dark:text-gray-400">Departure</p>
-                                                    <p className="font-semibold text-gray-800 dark:text-white">
+                                                    <p className="font-semibold text-gray-800 dark:text-white text-sm sm:text-base">
                                                         {ticket.departureDateTime ? formatDate(ticket.departureDateTime) : 'Flexible'}
                                                     </p>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-900 p-3 rounded-xl">
-                                                <div className="p-2 bg-white dark:bg-gray-800 rounded-lg">
-                                                    <FaClock className="text-amber-500" />
+                                            <div className="flex items-center gap-2 sm:gap-3 bg-gray-50 dark:bg-gray-900 p-2.5 sm:p-3 rounded-lg sm:rounded-xl">
+                                                <div className="p-1.5 sm:p-2 bg-white dark:bg-gray-800 rounded-lg">
+                                                    <FaClock className="text-amber-500 text-sm sm:text-base" />
                                                 </div>
                                                 <div>
                                                     <p className="text-xs text-gray-500 dark:text-gray-400">Available</p>
-                                                    <p className="font-semibold text-gray-800 dark:text-white">
+                                                    <p className="font-semibold text-gray-800 dark:text-white text-sm sm:text-base">
                                                         {ticket.availableQuantity || ticket.quantity} seats
                                                     </p>
                                                 </div>
@@ -230,16 +229,16 @@ const Advertised = () => {
 
                                         {/* Perks (if any) */}
                                         {ticket.perks && ticket.perks.length > 0 && (
-                                            <div className="mb-4">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <FaStar className="text-yellow-500" />
-                                                    <span className="font-semibold text-gray-700 dark:text-gray-300">Special Perks</span>
+                                            <div className="mb-3 sm:mb-4">
+                                                <div className="flex items-center gap-1.5 sm:gap-2 mb-2">
+                                                    <FaStar className="text-yellow-500 text-sm sm:text-base" />
+                                                    <span className="font-semibold text-gray-700 dark:text-gray-300 text-sm sm:text-base">Special Perks</span>
                                                 </div>
-                                                <div className="flex flex-wrap gap-2">
+                                                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                                                     {ticket.perks.slice(0, 3).map((perk, index) => (
                                                         <span
                                                             key={index}
-                                                            className="px-3 py-1 bg-linear-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 text-orange-700 dark:text-orange-300 rounded-full text-xs font-medium border border-orange-200 dark:border-orange-800"
+                                                            className="px-2 sm:px-3 py-0.5 sm:py-1 bg-linear-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 text-orange-700 dark:text-orange-300 rounded-full text-xs font-medium border border-orange-200 dark:border-orange-800"
                                                         >
                                                             {perk}
                                                         </span>
@@ -251,10 +250,10 @@ const Advertised = () => {
                                         {/* Action Button */}
                                         <Link
                                             to={`/ticket-details/${ticket._id}`}
-                                            className="block w-full mt-4"
+                                            className="block w-full mt-3 sm:mt-4"
                                         >
-                                            <button className="cursor-pointer group/btn w-full bg-linear-to-r from-orange-500 to-red-500 dark:from-orange-900 dark:to-red-900 dark:hover:from-orange-800 dark:hover:to-red-800 hover:from-orange-600 hover:to-red-600 text-white py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-                                                <span>View Special Offer</span>
+                                            <button className="cursor-pointer group/btn w-full bg-linear-to-r from-orange-500 to-red-500 dark:from-orange-900 dark:to-red-900 dark:hover:from-orange-800 dark:hover:to-red-800 hover:from-orange-600 hover:to-red-600 text-white py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl font-bold transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center gap-1.5 sm:gap-2">
+                                                <span className="text-sm sm:text-base">View Special Offer</span>
                                                 <FaArrowRight className="group-hover/btn:translate-x-1 transition-transform" />
                                             </button>
                                         </Link>
@@ -264,23 +263,23 @@ const Advertised = () => {
                         </div>
 
                         {/* Bottom CTA */}
-                        <div className="mt-12 text-center">
-                            <div className="bg-linear-to-r from-orange-500/10 to-red-500/10 dark:from-orange-900/20 dark:to-red-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-8">
-                                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                                    <div className="text-left">
-                                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                        <div className="mt-8 sm:mt-10 md:mt-12 text-center px-2 sm:px-0">
+                            <div className="bg-linear-to-r from-orange-500/10 to-red-500/10 dark:from-orange-900/20 dark:to-red-900/20 border border-orange-200 dark:border-orange-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8">
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+                                    <div className="text-center sm:text-left mb-4 sm:mb-0">
+                                        <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-1.5 sm:mb-2">
                                             Don't Miss These Exclusive Deals!
                                         </h3>
-                                        <p className="text-gray-600 dark:text-gray-300">
+                                        <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">
                                             Book now to secure your seat at promotional prices
                                         </p>
                                     </div>
-                                    <div className="flex flex-col items-center gap-4">
+                                    <div className="flex flex-col items-center gap-3 sm:gap-4">
                                         <div className="text-center">
-                                            <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+                                            <div className="text-2xl sm:text-3xl font-bold text-orange-600 dark:text-orange-400">
                                                 {advertisedTickets.length}
                                             </div>
-                                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                                            <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                                                 Active Offers
                                             </div>
                                         </div>
@@ -290,23 +289,23 @@ const Advertised = () => {
                         </div>
                     </>
                 ) : (
-                    <div className="text-center py-12">
-                        <div className="text-4xl mb-4 text-orange-500">
+                    <div className="text-center py-8 sm:py-12 px-2">
+                        <div className="text-3xl sm:text-4xl mb-3 sm:mb-4 text-orange-500">
                             <FaFire />
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">
+                        <h3 className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
                             No Special Offers Available
                         </h3>
-                        <p className="text-gray-600 dark:text-gray-400">
+                        <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
                             Check back later for exciting travel deals and promotions!
                         </p>
                     </div>
                 )}
             </div>
 
-            {/* Decorative Elements */}
-            <div className="fixed top-20 left-10 w-72 h-72 bg-orange-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-            <div className="fixed bottom-20 right-10 w-72 h-72 bg-red-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+            {/* Decorative Elements - Hidden on mobile for better performance */}
+            <div className="hidden sm:block fixed top-20 left-4 sm:left-10 w-48 sm:w-60 md:w-72 h-48 sm:h-60 md:h-72 bg-orange-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+            <div className="hidden sm:block fixed bottom-20 right-4 sm:right-10 w-48 sm:w-60 md:w-72 h-48 sm:h-60 md:h-72 bg-red-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         </div>
     );
 };

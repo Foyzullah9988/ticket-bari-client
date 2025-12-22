@@ -33,8 +33,8 @@ const Home = () => {
 
                         {/* Content */}
                         <div className="relative bg-linear-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-orange-500/10 to-red-500/10 rounded-full -translate-y-16 translate-x-16"></div>
-                            <div className="p-8 md:p-10">
+                            <div className="absolute top-0 right-0 w-full h-32 bg-linear-to-br from-orange-500/10 to-red-500/10 rounded-full -translate-y-16 translate-x-16"></div>
+                            <div className="">
                                 <div className="flex items-center gap-3 mb-8">
                                     <div className="p-3 rounded-2xl bg-linear-to-r from-orange-500 to-red-500 dark:from-orange-700 dark:to-red-800 shadow-lg">
                                         <FaCrown className="text-2xl text-white" />
@@ -42,7 +42,7 @@ const Home = () => {
                                     <div>
                                         <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
                                             <span className="bg-clip-text text-transparent bg-linear-to-r from-orange-600 to-red-600
-                                            dark:from-orange-800 dark:to-red-800">
+                                            dark:from-orange-800 dark:to-red-800 mr-4 md:mt-0">
                                                 Featured Travel Deals
                                             </span>
                                         </h3>
